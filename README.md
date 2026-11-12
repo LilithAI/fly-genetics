@@ -40,6 +40,9 @@ Not checked:
 - Sound (no audio device here) and real GPU rendering.
 - No remap to named mappings yet, so the mod's own code is not yet a compilable source tree; only our small test helper in `src/main` compiles.
 
+## Step 1 status (done, headless only)
+See `docs/step1/README.md`. Short version: a flat plus or minus 20 percent breaks about a third of brains; per-gene bands (`headless/src/Bands.java`) gave 51 of 60 working and none seizing; only `aggr_out`, `kc_mbon`, `compass_out` and (narrowly) `compass_loop` are useful circuit genes. Nothing from step 1 has been checked in game.
+
 ## Findings that change the brief
 - `fullbrain.bin.gz` format is plain from the loader: little-endian `int n`, `int nEdges`, `int[n+1] indptr`, `int[nEdges] indices`, `float[nEdges] weight` (CSR, row = source neuron), `byte[n] sensory`, padding to 4 bytes, `byte[n] dnclass`.
 - `brain_circuit_gains.json` has only **7** groups, not one per behaviour: `compass_loop` x2, `compass_out` x1, `kc_mbon` x20, `mbon_out` x1, `lc_out` x1, `aggr_out` x25, `pc1_recurrent` x1. Each is a `src` and `dst` neuron list; every synapse from src to dst is multiplied by the gain, **once, into the shared weights at load**. Per-fly circuit genes therefore need a per-fly multiplier applied in `step`, and behaviour genes such as escape, feeding or sleep need new groups built from the output and channel lists in `brain_outputs.json` and `brain_channels.json`.
