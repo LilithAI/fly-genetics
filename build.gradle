@@ -6,6 +6,23 @@ version = project.mod_version
 group = project.maven_group
 base { archivesName = project.archives_base_name }
 
+loom {
+    runs {
+        // Automated client test: joins run/saves/devworld, spawns flies, screenshots, exits.
+        autoTest {
+            client()
+            name = 'Auto Test'
+            programArgs '--quickPlaySingleplayer', 'devworld'
+            vmArg '-Dflygenetics.autotest=true'
+        }
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand 'version': project.version }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -16,10 +33,6 @@ dependencies {
     // to named mappings, so `./gradlew runClient` runs exactly what ro0oney shipped.
     // From step 2 on this line is replaced by our own remapped sources in src/main/java.
     modImplementation files('original/connectome-fly-1.0.0.jar')
-}
-
-java {
-    toolchain { languageVersion = JavaLanguageVersion.of(17) }
 }
 
 tasks.withType(JavaCompile).configureEach { it.options.release = 17 }

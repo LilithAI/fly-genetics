@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "flygenetics",
+  "version": "${version}",
+  "name": "Fly Genetics",
+  "description": "[model] Inherited tuning for Connectome Fly. Built on Connectome Fly by ro0oney (flyproject.io), CC BY 4.0; connectome data BANC v888 via Codex/FlyWire, male courtship circuit from HHMI Janelia and Cambridge.",
+  "authors": ["Zion"],
+  "license": "CC-BY-4.0",
+  "environment": "*",
+  "entrypoints": {
+    "client": ["io.flyproject.flygenetics.test.AutoTest"]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~1.20.1",
+    "connectomefly": "*"
+  }
+}

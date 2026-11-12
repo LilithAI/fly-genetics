@@ -18,20 +18,27 @@ Full brief: `FLY-PROJECT.md`.
 - `original/connectome-fly-1.0.0.jar` — the unmodified mod (SHA-256 `cb9665cc…e707ce`, matches flyproject.io).
 - `decompiled-intermediary/` — Vineflower 1.11.1 output. Minecraft names are still intermediary (`class_1297`); reference only, does not compile.
 - `headless/` — runs the original whole brain outside Minecraft. `./headless/run.sh [seconds per phase]`. Last output in `headless/baseline-run.txt`.
-- `build.gradle` etc. — Loom project for 1.20.1 that loads the original jar unchanged (`./gradlew runClient`).
+- `build.gradle` etc. — Loom project for 1.20.1 that loads the original jar unchanged.
+- `src/main` — our mod `flygenetics`; so far only `test/AutoTest`, the automated client test (active only with `-Dflygenetics.autotest=true`).
+- `docs/baseline/` — screenshots from the baseline client test.
 
-## Step 0 status
+## Step 0 status (done)
+Toolchain that works: Loom 1.17.20, Gradle 9.7.1 (wrapper), JDK 21 compiling to Java 17, Yarn 1.20.1+build.10, loader 0.20.1, Fabric API 0.92.12+1.20.1. Loom 1.11 refuses the jar ("built with a newer version of Loom").
+
 Checked:
 - Jar checksum.
 - Decompile: 27 source files (50 classes).
-- The unmodified `WholeBrain` loads and runs headless at 1000 steps a second on one core:
-  158,262 neurons, 3,126,254 synapses, 39 sensory channels, 56 output groups, 4,085 plastic synapses.
-  Mean firing rate about 0.25 Hz at rest, 1.4 Hz with food smell and sugar, 4.3 Hz with visual, touch and aversive input; leg motor neurons respond strongly to the last.
+- Headless brain (`./headless/run.sh`): 158,262 neurons, 3,126,254 synapses, 1000 steps a second on one core. Mean rate about 0.25 Hz at rest, 1.4 Hz with food smell and sugar, 4.3 Hz with visual, touch and aversive input.
+- `./gradlew build` succeeds with the original jar loaded unchanged.
+- Dev server (`./gradlew runServer`, flat throwaway world): mod loads, two flies summoned, `/flylab brains` reports 2 whole brains running, `/flylab state` reports both "good", both flies moved from where they were summoned.
+- Automated client test (`xvfb-run ./gradlew runAutoTest`, software rendering): joins `run/saves/devworld`, spawns two females and a male, takes four screenshots (`docs/baseline/`), exits cleanly. The mod's HUD shows live whole-brain readout for a female and the courtship circuit for a male ("approaching her").
 
 Not checked:
-- **The Loom build has never been resolved or run.** The machine this was written on could not reach `maven.fabricmc.net`, `meta.fabricmc.net`, `piston-meta.mojang.com`, `libraries.minecraft.net` or `resources.download.minecraft.net`. The versions in `gradle.properties` are from memory and may need adjusting.
-- The mod has not been run inside Minecraft. No world, no client test, no screenshots.
-- No remap to named mappings yet, so there is no compilable source tree.
+- **The fly's body is not identifiable in any screenshot.** The HUD proves the entity is in view and tracked, but the model itself is tiny and the camera was not close enough. The renderer is therefore unconfirmed.
+- Mating, egg laying and hatching have not been observed.
+- `/flylab arena` and the 33 experiment boxes have not been built or tried.
+- Sound (no audio device here) and real GPU rendering.
+- No remap to named mappings yet, so the mod's own code is not yet a compilable source tree; only our small test helper in `src/main` compiles.
 
 ## Findings that change the brief
 - `fullbrain.bin.gz` format is plain from the loader: little-endian `int n`, `int nEdges`, `int[n+1] indptr`, `int[nEdges] indices`, `float[nEdges] weight` (CSR, row = source neuron), `byte[n] sensory`, padding to 4 bytes, `byte[n] dnclass`.
