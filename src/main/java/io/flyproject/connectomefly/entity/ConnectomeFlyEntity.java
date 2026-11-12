@@ -5,6 +5,7 @@ import io.flyproject.connectomefly.lab.ArenaBuilder;
 import io.flyproject.connectomefly.lab.LoomStimulus;
 import io.flyproject.connectomefly.neural.EscapeBrain;
 import io.flyproject.connectomefly.neural.LoomingMath;
+import io.flyproject.connectomefly.genetics.Genome;
 import io.flyproject.connectomefly.neural.WholeBrain;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,6 +134,28 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    private double courtCd;
    private int songTick;
    public ConnectomeFlyEntity mate;
+   // [model] genetics
+   private Genome genome;
+   private Genome sireGenome;
+   private java.util.UUID sireId;
+   private float[] bornMemory;
+
+   /** This fly's inherited tuning. Flies that were spawned rather than hatched become founders (generation 0). */
+   public Genome genome() {
+      if (this.genome == null) {
+         this.genome = Genome.founder(new java.util.Random(this.getUuid().getLeastSignificantBits() ^ this.getUuid().getMostSignificantBits()));
+      }
+
+      return this.genome;
+   }
+
+   public void setGenome(Genome g) {
+      this.genome = g;
+   }
+
+   public void setBornMemory(float[] m) {
+      this.bornMemory = m;
+   }
    private ConnectomeFlyEntity suitor;
    private int suitorTick;
    private int starveTick;
@@ -476,6 +499,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          male.matingT = 10.0;
          this.mate = male;
          male.mate = this;
+         this.sireGenome = male.genome();
+         this.sireId = male.getUuid();
          this.sayNow("[brain] her pC1 cells say yes: she accepts him");
          male.sayNow("mating");
       }
@@ -552,6 +577,23 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          if (egg != null) {
             double yawRad = Math.toRadians(this.getYaw());
             egg.setFertile(fertile);
+            if (fertile) {
+               egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUuid(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.random.nextLong())));
+               if (Genome.inheritMemory && this.whole != null) {
+                  float[] m = this.whole.memorySnapshot();
+                  if (m != null) {
+                     for (int i = 0; i < m.length; i++) {
+                        m[i] = 1.0F + (m[i] - 1.0F) * Genome.inheritMemoryFraction;
+                     }
+
+                     egg.setMemory(m);
+                  }
+               }
+
+               this.sireGenome = null;
+               this.sireId = null;
+            }
+
             egg.refreshPositionAndAngles(this.getX() + Math.sin(yawRad) * 0.25, this.getY(), this.getZ() - Math.cos(yawRad) * 0.25, 0.0F, 0.0F);
             world.spawnEntity(egg);
             world.spawnParticles(ParticleTypes.END_ROD, this.getX(), this.getY() + 0.1, this.getZ(), 4, 0.1, 0.05, 0.1, 0.005);
@@ -1154,6 +1196,13 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       nbt.putInt("Growth", this.getGrowth());
       nbt.putFloat("Thirst", this.getThirst());
       nbt.putBoolean("Mated", this.mated);
+      nbt.put("Genome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome()));
+      if (this.sireGenome != null) {
+         nbt.put("SireGenome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.sireGenome));
+         if (this.sireId != null) {
+            nbt.putUuid("SireId", this.sireId);
+         }
+      }
    }
 
    public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -1172,6 +1221,14 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       }
 
       this.mated = nbt.getBoolean("Mated");
+      if (nbt.contains("Genome")) {
+         this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("Genome"));
+      }
+
+      if (nbt.contains("SireGenome")) {
+         this.sireGenome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("SireGenome"));
+         this.sireId = nbt.containsUuid("SireId") ? nbt.getUuid("SireId") : null;
+      }
       if (nbt.contains("Thirst")) {
          this.setThirst(nbt.getFloat("Thirst"));
       }
@@ -1191,7 +1248,12 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          }
 
          if (this.whole == null && !this.isMale() && WholeBrain.running() < maxBrains) {
-            this.whole = new WholeBrain(this.getUuidAsString().substring(0, 8));
+            this.whole = new WholeBrain(this.getUuidAsString().substring(0, 8), this.genome());
+            if (this.bornMemory != null) {
+               this.whole.setInitialMemory(this.bornMemory);
+               this.bornMemory = null;
+            }
+
             this.whole.start();
          }
 

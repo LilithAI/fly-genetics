@@ -13,7 +13,7 @@ loom {
             client()
             name = 'Auto Test'
             programArgs '--quickPlaySingleplayer', 'devworld'
-            vmArg '-Dflygenetics.autotest=true'
+            vmArg "-Dflygenetics.autotest=${project.findProperty('autotest') ?: 'true'}"
         }
     }
 }

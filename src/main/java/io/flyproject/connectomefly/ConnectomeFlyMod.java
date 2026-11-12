@@ -79,7 +79,10 @@ public class ConnectomeFlyMod implements ModInitializer {
    public void onInitialize() {
       FabricDefaultAttributeRegistry.register(CONNECTOME_FLY, ConnectomeFlyEntity.createFlyAttributes());
       ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register((ModifyEntries)entries -> entries.add(CONNECTOME_FLY_SPAWN_EGG));
-      CommandRegistrationCallback.EVENT.register((CommandRegistrationCallback)(dispatcher, registryAccess, environment) -> FlyLabCommand.register(dispatcher));
+      CommandRegistrationCallback.EVENT.register((CommandRegistrationCallback)(dispatcher, registryAccess, environment) -> {
+         FlyLabCommand.register(dispatcher);
+         io.flyproject.connectomefly.genetics.GeneticsCommand.register(dispatcher);
+      });
       UseBlockCallback.EVENT
          .register(
             (UseBlockCallback)(player, world, hand, hit) -> {

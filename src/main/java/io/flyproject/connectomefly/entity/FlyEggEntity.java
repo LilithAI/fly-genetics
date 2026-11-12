@@ -1,6 +1,7 @@
 package io.flyproject.connectomefly.entity;
 
 import io.flyproject.connectomefly.ConnectomeFlyMod;
+import io.flyproject.connectomefly.genetics.Genome;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
@@ -21,6 +22,21 @@ public class FlyEggEntity extends Entity {
    private static final TrackedData<Integer> AGE = DataTracker.registerData(FlyEggEntity.class, TrackedDataHandlerRegistry.INTEGER);
    public static final int HATCH_TICKS = 600;
    private boolean fertile = true;
+   // [model] genetics: the child's genome is decided when the egg is laid and travels in the egg
+   private Genome genome;
+   private float[] memory;
+
+   public void setGenome(Genome g) {
+      this.genome = g;
+   }
+
+   public Genome genome() {
+      return this.genome;
+   }
+
+   public void setMemory(float[] m) {
+      this.memory = m;
+   }
 
    public FlyEggEntity(EntityType<?> type, World world) {
       super(type, world);
@@ -41,11 +57,36 @@ public class FlyEggEntity extends Entity {
    protected void readCustomDataFromNbt(NbtCompound nbt) {
       this.dataTracker.set(AGE, nbt.getInt("EggAge"));
       this.fertile = !nbt.contains("Fertile") || nbt.getBoolean("Fertile");
+      if (nbt.contains("Genome")) {
+         this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("Genome"));
+      }
+
+      if (nbt.contains("Memory")) {
+         int[] bits = nbt.getIntArray("Memory");
+         this.memory = new float[bits.length];
+
+         for (int i = 0; i < bits.length; i++) {
+            this.memory[i] = Float.intBitsToFloat(bits[i]);
+         }
+      }
    }
 
    protected void writeCustomDataToNbt(NbtCompound nbt) {
       nbt.putInt("EggAge", this.getEggAge());
       nbt.putBoolean("Fertile", this.fertile);
+      if (this.genome != null) {
+         nbt.put("Genome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome));
+      }
+
+      if (this.memory != null) {
+         int[] bits = new int[this.memory.length];
+
+         for (int i = 0; i < bits.length; i++) {
+            bits[i] = Float.floatToIntBits(this.memory[i]);
+         }
+
+         nbt.putIntArray("Memory", bits);
+      }
    }
 
    public boolean canHit() {
@@ -93,6 +134,14 @@ public class FlyEggEntity extends Entity {
          baby.setMale(world.random.nextBoolean());
          baby.setBodyMode(ConnectomeFlyEntity.defaultBody);
          baby.setGrowth(0);
+         if (this.genome != null) {
+            baby.setGenome(this.genome);
+         }
+
+         if (this.memory != null) {
+            baby.setBornMemory(this.memory);
+         }
+
          baby.refreshPositionAndAngles(this.getX(), this.getY(), this.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
          baby.initialize(world, world.getLocalDifficulty(this.getBlockPos()), SpawnReason.BREEDING, null, null);
          world.spawnEntity(baby);

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.flyproject.connectomefly.genetics.Genome;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +88,26 @@ public final class WholeBrain {
    private volatile long lastKeepAlive = System.nanoTime();
    private Thread thread;
    private final String label;
+   // [model] genetics: per-fly tuning. Defaults are the author's constants; a Genome multiplies them.
+   private final Genome genome;
+   private final float gDecay;
+   private final float gADecay;
+   private final float gK;
+   private final float gVth;
+   private final float gDriveRate;
+   private final float gDriveAmp;
+   private final float gDnDriveRate;
+   private final float gSyn;
+   private final float gSens;
+   private final float gInh;
+   private final float gAdaptInc;
+   private final float gBusRate;
+   private final float gEta;
+   private final float gForget;
+   private float[] chanGain;
+   private float[] maskMul;
+   private boolean groupsActive;
+   private volatile float[] initialPlast;
 
    public static int running() {
       return RUNNING.get();
@@ -204,7 +225,7 @@ public final class WholeBrain {
                            gain = Float.parseFloat(ov);
                         }
 
-                        if (gain != 1.0F) {
+                        {
                            boolean[] src = new boolean[n];
                            boolean[] dst = new boolean[n];
 
@@ -228,19 +249,32 @@ public final class WholeBrain {
                            }
 
                            int ne = 0;
+                           int gi = data.groupNames.length;
+                           if (data.edgeGroups == null) {
+                              data.edgeGroups = new byte[nEdges];
+                           }
+
+                           if (gi < 8) {
+                              data.groupNames = Arrays.copyOf(data.groupNames, gi + 1);
+                              data.groupNames[gi] = name;
+                           }
 
                            for (int i = 0; i < n; i++) {
                               if (src[i]) {
                                  for (int q = indptr[i]; q < indptr[i + 1]; q++) {
                                     if (dst[indices[q]]) {
                                        data.edgeGain[q] = data.edgeGain[q] * gain;
+                                       if (gi < 8) {
+                                          data.edgeGroups[q] = (byte)(data.edgeGroups[q] | 1 << gi);
+                                       }
+
                                        ne++;
                                     }
                                  }
                               }
                            }
 
-                           note.append(name).append(" x").append(gain).append(" (").append(ne).append(" synapses); ");
+                           if (gain != 1.0F) note.append(name).append(" x").append(gain).append(" (").append(ne).append(" synapses); ");
                         }
                      }
 
@@ -359,7 +393,42 @@ public final class WholeBrain {
    }
 
    public WholeBrain(String label) {
+      this(label, null);
+   }
+
+   public WholeBrain(String label, Genome genome) {
       this.label = label;
+      this.genome = genome;
+      Genome q = genome == null ? Genome.baseline() : genome;
+      this.gK = 1.0F / (TAU_M * q.get("tau_m"));
+      this.gVth = V_TH * q.get("v_th");
+      this.gDecay = (float)Math.exp(-1.0F / (TAU_SYN * q.get("tau_syn")));
+      this.gDriveRate = DRIVE_RATE * q.get("drive_rate");
+      this.gDriveAmp = DRIVE_AMP * q.get("drive_amp");
+      this.gDnDriveRate = DN_DRIVE_RATE * q.get("dn_drive_rate");
+      this.gSyn = SYN_MULT * q.get("syn_mult");
+      this.gSens = SENS_MULT * q.get("sens_mult");
+      this.gInh = INH_MULT * q.get("inh_mult");
+      this.gAdaptInc = ADAPT_INC * q.get("adapt_inc");
+      this.gADecay = (float)Math.exp(-1.0F / (ADAPT_TAU * q.get("adapt_tau")));
+      this.gBusRate = BUS_RATE * q.get("bus_rate");
+      this.gEta = q.get("eta");
+      this.gForget = FORGET * q.get("forget");
+   }
+
+   public Genome genome() {
+      return this.genome;
+   }
+
+   /** [model] not biology: start with a faint copy of the mother's learned weights. Call before start(). */
+   public void setInitialMemory(float[] plast) {
+      this.initialPlast = plast;
+   }
+
+   /** A copy of this fly's learned mushroom-body weights (1.0 = nothing learned), or null before the brain is up. */
+   public float[] memorySnapshot() {
+      float[] p = this.plastScale;
+      return p == null ? null : (float[])p.clone();
    }
 
    public WholeBrain.Loco loco() {
@@ -438,8 +507,42 @@ public final class WholeBrain {
          this.plastScale = new float[this.d.nPlastic];
          Arrays.fill(this.plastScale, 1.0F);
          this.kcTrace = new float[n];
+         float[] ip = this.initialPlast;
+         if (ip != null && ip.length == this.plastScale.length) {
+            System.arraycopy(ip, 0, this.plastScale, 0, ip.length);
+         }
+
          this.pamOut = this.d.out("pam");
          this.ppl1Out = this.d.out("ppl1");
+      }
+
+      this.chanGain = new float[this.d.chanNames.length];
+      Arrays.fill(this.chanGain, 1.0F);
+      if (this.genome != null) {
+         for (int c = 0; c < this.chanGain.length; c++) {
+            int gi = Genome.senseGeneFor(this.d.chanNames[c]);
+            if (gi >= 0) {
+               this.chanGain[c] = this.genome.g[gi];
+            }
+         }
+
+         String[] gn = this.d.groupNames;
+         this.maskMul = new float[1 << gn.length];
+
+         for (int m = 0; m < this.maskMul.length; m++) {
+            float x = 1.0F;
+
+            for (int gi = 0; gi < gn.length; gi++) {
+               if ((m & 1 << gi) != 0) {
+                  x *= this.genome.get(gn[gi]);
+               }
+            }
+
+            this.maskMul[m] = x;
+            if (x != 1.0F) {
+               this.groupsActive = true;
+            }
+         }
       }
 
       long lastWall = System.nanoTime();
@@ -620,14 +723,14 @@ public final class WholeBrain {
                if (t > elig) {
                   byte c = mc[tgt[p]];
                   if (c == 1 && pamGate > 0.0F) {
-                     v *= 1.0F - 0.0072F * t * pamGate;
+                     v *= 1.0F - 0.0072F * this.gEta * t * pamGate;
                   } else if (c == 2 && ppl1Gate > 0.0F) {
-                     v *= 1.0F - 0.24F * t * ppl1Gate;
+                     v *= 1.0F - 0.24F * this.gEta * t * ppl1Gate;
                   }
                }
             }
 
-            v += (1.0F - v) * 2.0E-5F;
+            v += (1.0F - v) * this.gForget;
             sc[p] = Math.max(0.05F, v);
          }
 
@@ -655,27 +758,27 @@ public final class WholeBrain {
       float[] A = this.a;
 
       for (int i = 0; i < n; i++) {
-         float is = I[i] * DECAY;
+         float is = I[i] * this.gDecay;
          I[i] = is;
-         float ai = A[i] * ADECAY;
+         float ai = A[i] * this.gADecay;
          A[i] = ai;
-         V[i] += 0.05F * (is - ai - V[i]);
+         V[i] += this.gK * (is - ai - V[i]);
       }
 
       int[] sens = this.d.sensIdx;
-      float nk = sens.length * 0.001F;
+      float nk = sens.length * this.gDriveRate;
       int nki = (int)nk + (this.rng.nextFloat() < nk - (int)nk ? 1 : 0);
 
       for (int j = 0; j < nki; j++) {
-         I[sens[this.rng.nextInt(sens.length)]] += 10.0F;
+         I[sens[this.rng.nextInt(sens.length)]] += this.gDriveAmp;
       }
 
       int[] dns = this.d.dnIdx;
-      float nd = dns.length * 0.004F;
+      float nd = dns.length * this.gDnDriveRate;
       int ndi = (int)nd + (this.rng.nextFloat() < nd - (int)nd ? 1 : 0);
 
       for (int j = 0; j < ndi; j++) {
-         I[dns[this.rng.nextInt(dns.length)]] += 10.0F;
+         I[dns[this.rng.nextInt(dns.length)]] += this.gDriveAmp;
       }
 
       float cstr = this.compassStrength;
@@ -691,7 +794,7 @@ public final class WholeBrain {
             float tune = c > 0.3F ? (c - 0.3F) / 0.7F : 0.0F;
             float nb = 0.15F * cstr * tune;
             if (nb > 0.0F && this.rng.nextFloat() < nb) {
-               I[eidx[k]] = I[eidx[k]] + 10.0F;
+               I[eidx[k]] = I[eidx[k]] + this.gDriveAmp;
             }
          }
       }
@@ -700,11 +803,11 @@ public final class WholeBrain {
          float val = b[c];
          if (!(val <= 0.0F)) {
             int[] idx = this.d.chanIdx[c];
-            float nb = idx.length * 0.05F * val;
+            float nb = idx.length * this.gBusRate * val * this.chanGain[c];
             int nbi = (int)nb + (this.rng.nextFloat() < nb - (int)nb ? 1 : 0);
 
             for (int j = 0; j < nbi; j++) {
-               I[idx[this.rng.nextInt(idx.length)]] += 10.0F;
+               I[idx[this.rng.nextInt(idx.length)]] += this.gDriveAmp;
             }
          }
       }
@@ -733,15 +836,19 @@ public final class WholeBrain {
       boolean compass = eang != null && eang.length == n;
       int pamNow = 0;
       int ppl1Now = 0;
+      float vth = this.gVth;
+      boolean ga = this.groupsActive;
+      byte[] eg = this.d.edgeGroups;
+      float[] mm = this.maskMul;
 
       for (int i = 0; i < n; i++) {
-         if (V[i] >= 1.0F) {
+         if (V[i] >= vth) {
             V[i] = 0.0F;
             this.spk[sn++] = i;
             int s = indptr[i];
             int e = indptr[i + 1];
-            float g = sensory[i] != 0 ? 8.8F : 2.2F;
-            float gi = g * 1.1F;
+            float g = sensory[i] != 0 ? this.gSyn * this.gSens : this.gSyn;
+            float gi = g * this.gInh;
             if (pscale != null && isKC[i]) {
                this.kcTrace[i] = Math.min(1.0F, this.kcTrace[i] + 0.34F);
 
@@ -752,11 +859,19 @@ public final class WholeBrain {
                      ww *= pscale[pp];
                   }
 
+                  if (ga && eg[q] != 0) {
+                     ww *= mm[eg[q] & 255];
+                  }
+
                   I[indices[q]] = I[indices[q]] + (ww > 0.0F ? ww * g : ww * gi);
                }
             } else {
                for (int q = s; q < e; q++) {
                   float ww = w[q];
+                  if (ga && eg[q] != 0) {
+                     ww *= mm[eg[q] & 255];
+                  }
+
                   I[indices[q]] = I[indices[q]] + (ww > 0.0F ? ww * g : ww * gi);
                }
             }
@@ -768,7 +883,7 @@ public final class WholeBrain {
             }
 
             if (sensory[i] == 0) {
-               A[i] += 0.4F;
+               A[i] += this.gAdaptInc;
             }
 
             byte dc = dnclass[i];
@@ -832,6 +947,8 @@ public final class WholeBrain {
       public int[] plastTarget;
       public int[] plastSource;
       public float[] edgeGain;
+      public byte[] edgeGroups;
+      public String[] groupNames = new String[0];
       public String circuitGainNote = "";
 
       Data(int n, int nEdges, int[] indptr, int[] indices, float[] weight, byte[] sensory, byte[] dnclass, String[] chanNames, int[][] chanIdx) {

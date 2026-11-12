@@ -16,7 +16,8 @@ Full brief: `FLY-PROJECT.md`.
 
 ## Layout
 - `original/connectome-fly-1.0.0.jar` — the unmodified mod (SHA-256 `cb9665cc…e707ce`, matches flyproject.io).
-- `decompiled-intermediary/` — Vineflower 1.11.1 output. Minecraft names are still intermediary (`class_1297`); reference only, does not compile.
+- `decompiled-intermediary/` — first decompile, intermediary names; reference only.
+- `src/main/java/io/flyproject/connectomefly/` — the mod's source (named mappings), with the genetics changes. `genetics/` is new.
 - `headless/` — runs the original whole brain outside Minecraft. `./headless/run.sh [seconds per phase]`. Last output in `headless/baseline-run.txt`.
 - `build.gradle` etc. — Loom project for 1.20.1 that loads the original jar unchanged.
 - `src/main` — our mod `flygenetics`; so far only `test/AutoTest`, the automated client test (active only with `-Dflygenetics.autotest=true`).
@@ -42,6 +43,11 @@ Not checked:
 
 ## Step 1 status (done, headless only)
 See `docs/step1/README.md`. Short version: a flat plus or minus 20 percent breaks about a third of brains; per-gene bands (`headless/src/Bands.java`) gave 51 of 60 working and none seizing; only `aggr_out`, `kc_mbon`, `compass_out` and (narrowly) `compass_loop` are useful circuit genes. Nothing from step 1 has been checked in game.
+
+## Step 2 status (done)
+See `docs/step2/README.md`. The mod is now source in `src/main/java`; each fly has a 29-gene `[model]` genome that tunes its brain; children get each gene from mother or father plus mutations; genomes travel in eggs and survive save and reload. `/flygenes` shows them. Checked headless and in a breeding test in game; behaviour differences between flies have not been observed yet.
+
+Commands: `./gradlew build`, `./headless/check-genome.sh`, `xvfb-run -a ./gradlew runAutoTest [-Pautotest=breed|reload]`.
 
 ## Findings that change the brief
 - `fullbrain.bin.gz` format is plain from the loader: little-endian `int n`, `int nEdges`, `int[n+1] indptr`, `int[nEdges] indices`, `float[nEdges] weight` (CSR, row = source neuron), `byte[n] sensory`, padding to 4 bytes, `byte[n] dnclass`.

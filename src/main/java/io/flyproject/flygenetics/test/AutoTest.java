@@ -25,6 +25,38 @@ public class AutoTest implements ClientModInitializer {
       c.options.pauseOnLostFocus = false;
       if (c.currentScreen != null) c.setScreen(null);
       ticks++;
+      String mode = System.getProperty("flygenetics.autotest");
+      if (mode.equals("breed")) {
+         breed(c);
+      } else if (mode.equals("reload")) {
+         if (ticks == 100) run(c, "flygenes full");
+         if (ticks == 160) {
+            System.out.println("[flygenetics autotest] done");
+            c.scheduleStop();
+         }
+      } else {
+         baseline(c);
+      }
+   }
+
+   /** One female and one male: forced courtship, mating, egg, hatch. Genomes are printed to the log at each stage. */
+   private void breed(MinecraftClient c) {
+      if (ticks == 40) {
+         run(c, "time set noon", "weather clear", "gamemode creative @a", "kill @e[type=connectomefly:connectome_fly]", "kill @e[type=connectomefly:fly_egg]",
+            "tp @a 0.5 -60 0.5 0 35", "summon connectomefly:connectome_fly 0.5 -60 2.5",
+            "execute positioned 0.5 -60 2.5 run flylab mate");
+      }
+      if (ticks == 120) run(c, "flygenes full");
+      if (ticks > 120 && ticks % 100 == 0) run(c, "flygenes", "execute as @e[type=connectomefly:fly_egg] run data get entity @s Genome");
+      if (ticks == 300 || ticks == 1000 || ticks == 1790) shot(c, "breed-t" + ticks + ".png");
+      if (ticks == 1800) run(c, "flygenes full", "execute as @e[type=connectomefly:connectome_fly] run data get entity @s Genome");
+      if (ticks == 1860) {
+         System.out.println("[flygenetics autotest] done");
+         c.scheduleStop();
+      }
+   }
+
+   private void baseline(MinecraftClient c) {
       if (ticks == 40) {
          run(c, "time set noon", "weather clear", "gamemode creative @a", "kill @e[type=connectomefly:connectome_fly]",
             "tp @a 0.5 -60 0.5 0 35",
