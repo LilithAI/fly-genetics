@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "connectomefly",
+  "version": "1.0.0",
+  "name": "Connectome Fly",
+  "description": "One creature: a fruit fly whose whole brain, all 158,262 neurons of the BANC v888 connectome, runs live inside her. The world drives her real receptor neurons, and her own descending and motor neurons move her body. Real wiring and real synapse counts. Calibrated constants and labelled models are listed in the credits: run /flycredits in game to see exactly what is real and what is not. Build the experiment boxes with /flylab arena all. Free to share and redistribute, as long as you credit the project (CC BY 4.0).",
+  "authors": [
+    "ro0oney (flyproject.io)"
+  ],
+  "contact": {
+    "homepage": "https://flyproject.io"
+  },
+  "license": "CC-BY-4.0",
+  "icon": "assets/connectomefly/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.flyproject.connectomefly.ConnectomeFlyMod"
+    ],
+    "client": [
+      "io.flyproject.connectomefly.client.ConnectomeFlyClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~1.20.1",
+    "java": ">=17"
+  }
+}

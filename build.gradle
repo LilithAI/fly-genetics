@@ -1,0 +1,26 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+base { archivesName = project.archives_base_name }
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Step 0 baseline: the UNMODIFIED original mod. Loom remaps it from intermediary
+    // to named mappings, so `./gradlew runClient` runs exactly what ro0oney shipped.
+    // From step 2 on this line is replaced by our own remapped sources in src/main/java.
+    modImplementation files('original/connectome-fly-1.0.0.jar')
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+
+tasks.withType(JavaCompile).configureEach { it.options.release = 17 }
+

@@ -1,0 +1,62 @@
+Connectome Fly
+Copyright (c) the fly project (flyproject.io)
+
+This mod is licensed under the
+Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+Full legal text:  https://creativecommons.org/licenses/by/4.0/legalcode
+Plain summary:    https://creativecommons.org/licenses/by/4.0/
+
+
+WHAT YOU MAY DO
+
+You are free to:
+
+  * Share: copy and redistribute this mod in any medium or format,
+    including re-uploading it, bundling it in modpacks and hosting it
+    on servers.
+  * Adapt: remix, transform and build upon it,
+
+for any purpose, even commercially. These freedoms cannot be revoked
+as long as you follow the one condition below.
+
+
+THE ONE CONDITION: ATTRIBUTION
+
+You must give appropriate credit, provide a link to the license, and
+indicate if changes were made. You may do so in any reasonable manner,
+but not in any way that suggests the project endorses you or your use.
+
+A credit like this is enough:
+
+  "Connectome Fly" by the fly project (flyproject.io),
+  licensed under CC BY 4.0.
+  https://creativecommons.org/licenses/by/4.0/
+
+If you changed the mod, say so, for example: "modified from the original".
+
+You may not apply legal terms or technological measures that legally
+restrict others from doing anything this license permits.
+
+
+WHAT THIS LICENSE COVERS
+
+The mod's code, the fly model and its textures, the in-game texts and
+books, and the experiment box designs.
+
+
+WHAT IT DOES NOT COVER
+
+  * The connectome data. The wiring files in this mod are derived from
+    the BANC (Brain And Nerve Cord) fruit fly connectome, release v888,
+    a public scientific dataset. That data belongs to its authors and
+    stays under their own terms and citation requirements. If you reuse
+    the wiring data, credit BANC as well.
+  * Minecraft, Fabric Loader and Fabric API. They are not part of this
+    mod and have their own licenses.
+
+
+NO WARRANTY
+
+The mod is provided as is, without warranties of any kind, to the extent
+permitted by law. See the full legal text for the exact terms.
