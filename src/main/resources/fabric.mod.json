@@ -1,19 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "flygenetics",
+  "id": "connectomefly",
   "version": "${version}",
-  "name": "Fly Genetics",
-  "description": "[model] Inherited tuning for Connectome Fly. Built on Connectome Fly by ro0oney (flyproject.io), CC BY 4.0; connectome data BANC v888 via Codex/FlyWire, male courtship circuit from HHMI Janelia and Cambridge.",
-  "authors": ["Zion"],
+  "name": "Connectome Fly: Genetics",
+  "description": "One creature: a fruit fly whose whole brain, all 158,262 neurons of the BANC v888 connectome, runs live inside her. The world drives her real receptor neurons, and her own descending and motor neurons move her body. Real wiring and real synapse counts. Calibrated constants and labelled models are listed in the credits: run /flycredits in game to see exactly what is real and what is not. Build the experiment boxes with /flylab arena all. Free to share and redistribute, as long as you credit the project (CC BY 4.0). GENETICS FORK: adds a [model] of inherited tuning (per-fly constants and circuit gains, crossover and mutation). The inheritance rules are invented and are not real genetics; the wiring is unchanged.",
+  "authors": [
+    "ro0oney (flyproject.io): original Connectome Fly",
+    "Zion: genetics [model] additions"
+  ],
+  "contact": {
+    "homepage": "https://flyproject.io"
+  },
   "license": "CC-BY-4.0",
+  "icon": "assets/connectomefly/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": ["io.flyproject.flygenetics.test.AutoTest"]
+    "main": [
+      "io.flyproject.connectomefly.ConnectomeFlyMod"
+    ],
+    "client": [
+      "io.flyproject.connectomefly.client.ConnectomeFlyClient",
+      "io.flyproject.flygenetics.test.AutoTest"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric-api": "*",
     "minecraft": "~1.20.1",
-    "connectomefly": "*"
+    "java": ">=17"
   }
 }

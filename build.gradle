@@ -29,10 +29,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // Step 0 baseline: the UNMODIFIED original mod. Loom remaps it from intermediary
-    // to named mappings, so `./gradlew runClient` runs exactly what ro0oney shipped.
-    // From step 2 on this line is replaced by our own remapped sources in src/main/java.
-    modImplementation files('original/connectome-fly-1.0.0.jar')
 }
 
 tasks.withType(JavaCompile).configureEach { it.options.release = 17 }
