@@ -68,6 +68,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    private static final EntityDataAccessor<Byte> BODY = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Byte> SEX = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Byte> ANIM = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<String> BRAIN_MAP = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<String> HUD = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<Byte> SURFACE = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Float> THIRST = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.FLOAT);
@@ -309,6 +310,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       builder.define(SEX, (byte)0);
       builder.define(ANIM, (byte)0);
       builder.define(HUD, "");
+      builder.define(BRAIN_MAP, "");
       builder.define(HUNGER, 20.0F);
       builder.define(GROWTH, 108000);
       builder.define(NEURO_LEGS, 0);
@@ -795,6 +797,35 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          return InteractionResult.SUCCESS;
       } else {
          return super.mobInteract(player, hand);
+      }
+   }
+
+   /**
+    * The whole brain's activity for the readout: one character per group of neurons ('a' = silent up to 'p' = 13 Hz or more,
+    * on a log scale). Empty for males and for females whose brain is not running.
+    */
+   public String getBrainMap() {
+      return (String)this.entityData.get(BRAIN_MAP);
+   }
+
+   private void brainMapTick() {
+      if (this.tickCount % 4 == 0) {
+         WholeBrain.Loco l = this.whole == null ? null : this.whole.loco();
+         String m = "";
+         if (l != null && l.bins.length > 0) {
+            char[] c = new char[l.bins.length];
+
+            for (int i = 0; i < c.length; i++) {
+               int level = (int)Math.round(4.0 * Math.log(1.0 + l.bins[i]) / Math.log(2.0));
+               c[i] = (char)(97 + Math.max(0, Math.min(15, level)));
+            }
+
+            m = new String(c);
+         }
+
+         if (!m.equals(this.entityData.get(BRAIN_MAP))) {
+            this.entityData.set(BRAIN_MAP, m);
+         }
       }
    }
 
@@ -1524,6 +1555,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          this.surfaceTick();
          this.hungerTick();
          this.selectionTick();
+         this.brainMapTick();
          this.thirstTick();
          this.growthTick();
          this.matingTick();

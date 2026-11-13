@@ -23,7 +23,7 @@ public class AutoTest implements ClientModInitializer {
    private void tick(Minecraft c) {
       if (c.level == null || c.player == null || c.getSingleplayerServer() == null) return;
       c.options.pauseOnLostFocus = false;
-      if (c.gui.screen() != null && !(c.gui.screen() instanceof io.flyproject.connectomefly.client.CreditsScreen)) c.gui.setScreen(null);
+      if (c.gui.screen() != null && !(c.gui.screen() instanceof io.flyproject.connectomefly.client.CreditsScreen) && !(c.gui.screen() instanceof io.flyproject.connectomefly.client.FlyMenuScreen)) c.gui.setScreen(null);
       ticks++;
       String mode = System.getProperty("flygenetics.autotest");
       if (mode.equals("breed")) {
@@ -57,6 +57,29 @@ public class AutoTest implements ClientModInitializer {
          if (ticks == 240) run(c, "flylab body model", "tp @a 0.5 -60 0.5 0 25");
          if (ticks == 400) shot(c, "look-3-free.png");
          if (ticks == 420) {
+            System.out.println("[flygenetics autotest] done");
+            c.stop();
+         }
+      } else if (mode.equals("menu")) {
+         // the new readout (compact and full) and the menu screen; one menu button is pressed for real
+         int t = ticks;
+         if (t == 40) {
+            io.flyproject.connectomefly.client.FlyHud.setEnabled(true);
+            io.flyproject.connectomefly.client.FlyHud.setDetail(false);
+            run(c, "flygenes set adult_life_minutes 120", "time set noon", "weather clear", "gamemode creative @a", CLEAR, "kill @e[type=connectomefly:fly_egg]", "tp @a 0.5 -60 0.5 0 20",
+               "summon connectomefly:connectome_fly 0.5 -60 3.0");
+            // stand in for "cheats on": make the test player an operator
+            MinecraftServer srv = c.getSingleplayerServer();
+            srv.execute(() -> srv.getPlayerList().getPlayers().forEach(pl -> srv.getPlayerList().op(pl.nameAndId())));
+         }
+         if (t == 200) shot(c, "hud-compact.png");
+         if (t == 210) io.flyproject.connectomefly.client.FlyHud.setDetail(true);
+         if (t == 260) shot(c, "hud-full.png");
+         if (t == 270) { io.flyproject.connectomefly.client.FlyHud.setDetail(false); c.gui.setScreen(new io.flyproject.connectomefly.client.FlyMenuScreen()); }
+         if (t == 310) shot(c, "menu.png");
+         if (t == 320) { c.gui.setScreen(null); c.player.connection.sendCommand("flygenes spawn mob minecraft:sheep female"); c.player.connection.sendCommand("flygenes set cap 24"); }
+         if (t == 380) { run(c, "flygenes", "flygenes set"); shot(c, "menu-after.png"); }
+         if (t == 400) {
             System.out.println("[flygenetics autotest] done");
             c.stop();
          }

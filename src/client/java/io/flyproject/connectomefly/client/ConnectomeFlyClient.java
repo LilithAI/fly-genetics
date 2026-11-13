@@ -29,11 +29,20 @@ public class ConnectomeFlyClient implements ClientModInitializer {
       net.minecraft.client.KeyMapping hudKey = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(
          new net.minecraft.client.KeyMapping("key.connectomefly.hud", 72, net.minecraft.client.KeyMapping.Category.MISC)
       );
+      net.minecraft.client.KeyMapping menuKey = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(
+         new net.minecraft.client.KeyMapping("key.connectomefly.menu", 71, net.minecraft.client.KeyMapping.Category.MISC)
+      );
       ClientTickEvents.END_CLIENT_TICK.register(client -> {
+         while (menuKey.consumeClick()) {
+            if (client.gui.screen() == null && client.player != null) {
+               client.gui.setScreen(new FlyMenuScreen());
+            }
+         }
+
          while (hudKey.consumeClick()) {
-            FlyHud.setEnabled(!FlyHud.enabled);
+            String m = FlyHud.cycle();
             if (client.player != null) {
-               client.player.sendOverlayMessage(Component.literal("fly readout " + (FlyHud.enabled ? "on" : "off") + " (H, or /flyhud)"));
+               client.player.sendOverlayMessage(Component.literal("fly readout: " + m + " (H cycles compact, full, off)"));
             }
          }
       });

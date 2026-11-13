@@ -62,6 +62,9 @@ See `docs/step4/README.md`. The mod builds and runs on Minecraft 26.3: server an
 
 Tests on 26.3: `JAVA_HOME=<jdk 25> xvfb-run -a ./gradlew runAutoTest -Pautotest=look|breed|reload|select|cap|frog|arena`.
 
+## Bodies, menu and readout (on `port-26.3`)
+See `docs/villagers/README.md` and `docs/mobs/README.md`. The fly's brain can wear a villager's body or any living mob's body; G opens a menu that replaces the commands; H cycles a compact readout with a live map of the whole brain, a full readout, and off.
+
 ## Findings that change the brief
 - `fullbrain.bin.gz` format is plain from the loader: little-endian `int n`, `int nEdges`, `int[n+1] indptr`, `int[nEdges] indices`, `float[nEdges] weight` (CSR, row = source neuron), `byte[n] sensory`, padding to 4 bytes, `byte[n] dnclass`.
 - `brain_circuit_gains.json` has only **7** groups, not one per behaviour: `compass_loop` x2, `compass_out` x1, `kc_mbon` x20, `mbon_out` x1, `lc_out` x1, `aggr_out` x25, `pc1_recurrent` x1. Each is a `src` and `dst` neuron list; every synapse from src to dst is multiplied by the gain, **once, into the shared weights at load**. Per-fly circuit genes therefore need a per-fly multiplier applied in `step`, and behaviour genes such as escape, feeding or sleep need new groups built from the output and channel lists in `brain_outputs.json` and `brain_channels.json`.
