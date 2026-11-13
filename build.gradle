@@ -47,3 +47,8 @@ tasks.register('printClasspath') {
     def cp = sourceSets.main.compileClasspath
     doLast { println 'CLASSPATH=' + cp.asPath }
 }
+
+tasks.register('printClientClasspath') {
+    def cp = sourceSets.client.compileClasspath
+    doLast { println 'CLASSPATH=' + cp.asPath }
+}

@@ -1,8 +1,5 @@
 package io.flyproject.connectomefly.client;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
 import io.flyproject.connectomefly.entity.ConnectomeFlyEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -59,19 +56,15 @@ public final class FlyAnim {
    public final Quaternionf[] poseGhostB;
    public boolean inFlight;
    public boolean ghostsReady;
-   public VertexBuffer legsVb;
-   public VertexBuffer wingLVb;
-   public VertexBuffer wingRVb;
-   public VertexBuffer wingLGhostA;
-   public VertexBuffer wingLGhostB;
-   public VertexBuffer wingRGhostA;
-   public VertexBuffer wingRGhostB;
+   public int skinnedLod = -1;
+   // 26.3 port: skinned vertex positions are kept on the CPU and drawn through the entity pipeline
+   public float[] wingLGhostA;
+   public float[] wingLGhostB;
+   public float[] wingRGhostA;
+   public float[] wingRGhostB;
    public float[] legsOut;
    public float[] wingLOut;
    public float[] wingROut;
-   public BufferBuilder legsBB;
-   public BufferBuilder wingLBB;
-   public BufferBuilder wingRBB;
    private final FlyRig rig;
    private double lastT;
    private double lastYaw;
@@ -142,29 +135,16 @@ public final class FlyAnim {
          this.poseGhostB[W.root] = new Quaternionf(rig.bones[W.root - 1].rest);
       }
 
-      this.legsVb = new VertexBuffer(Usage.DYNAMIC);
-      this.wingLVb = new VertexBuffer(Usage.DYNAMIC);
-      this.wingRVb = new VertexBuffer(Usage.DYNAMIC);
-      this.wingLGhostA = new VertexBuffer(Usage.DYNAMIC);
-      this.wingLGhostB = new VertexBuffer(Usage.DYNAMIC);
-      this.wingRGhostA = new VertexBuffer(Usage.DYNAMIC);
-      this.wingRGhostB = new VertexBuffer(Usage.DYNAMIC);
       this.legsOut = new float[rig.legsG.nVerts * 3];
       this.wingLOut = new float[rig.wingLG.nVerts * 3];
       this.wingROut = new float[rig.wingRG.nVerts * 3];
-      this.legsBB = new BufferBuilder(rig.legsG.nIdx * 24 + 1024);
-      this.wingLBB = new BufferBuilder(rig.wingLG.nIdx * 24 + 1024);
-      this.wingRBB = new BufferBuilder(rig.wingRG.nIdx * 24 + 1024);
+      this.wingLGhostA = new float[rig.wingLG.nVerts * 3];
+      this.wingLGhostB = new float[rig.wingLG.nVerts * 3];
+      this.wingRGhostA = new float[rig.wingRG.nVerts * 3];
+      this.wingRGhostB = new float[rig.wingRG.nVerts * 3];
    }
 
    public void close() {
-      this.legsVb.close();
-      this.wingLVb.close();
-      this.wingRVb.close();
-      this.wingLGhostA.close();
-      this.wingLGhostB.close();
-      this.wingRGhostA.close();
-      this.wingRGhostB.close();
    }
 
    public float pitch() {

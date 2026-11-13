@@ -3,13 +3,8 @@ package io.flyproject.connectomefly.client;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +14,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import org.joml.Matrix4f;
@@ -28,7 +22,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public final class FlyRig {
-   public static final Identifier TEXTURE = new Identifier("connectomefly", "textures/entity/fly_model.png");
+   public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("connectomefly", "textures/entity/fly_model.png");
    private static FlyRig instance;
    private boolean loaded;
    private boolean failed;
@@ -39,8 +33,16 @@ public final class FlyRig {
    public FlyRig.Group legsG;
    public FlyRig.Group wingLG;
    public FlyRig.Group wingRG;
-   private VertexBuffer body;
-   private VertexBuffer head;
+   public FlyRig.Group body;
+   public FlyRig.Group head;
+   /** 26.3 port: simplified copies for flies that are not right at the camera. Index 0 = full detail. */
+   public static final int LODS = 3;
+   private static final int[] LOD_CELLS = {0, 44, 16};
+   public final FlyRig.Group[] bodyL = new FlyRig.Group[LODS];
+   public final FlyRig.Group[] headL = new FlyRig.Group[LODS];
+   public final FlyRig.Group[] legsL = new FlyRig.Group[LODS];
+   public final FlyRig.Group[] wingLL = new FlyRig.Group[LODS];
+   public final FlyRig.Group[] wingRL = new FlyRig.Group[LODS];
    public static final float[] HEAD_PIVOT = new float[]{0.0F, 0.5F, 0.29F};
    public float[] hingeL = new float[]{-0.106F, 0.573F, -0.092F};
    public float[] hingeR = new float[]{0.094F, 0.573F, -0.092F};
@@ -89,8 +91,28 @@ public final class FlyRig {
                this.skin[i] = new Matrix4f();
             }
 
+            StringBuilder tri = new StringBuilder();
+
+            for (int l = 0; l < LODS; l++) {
+               this.bodyL[l] = l == 0 ? this.body : decimate(this.body, LOD_CELLS[l]);
+               this.headL[l] = this.head == null ? null : (l == 0 ? this.head : decimate(this.head, LOD_CELLS[l]));
+               this.legsL[l] = l == 0 ? this.legsG : decimate(this.legsG, LOD_CELLS[l] * 2);
+               this.wingLL[l] = l == 0 ? this.wingLG : decimate(this.wingLG, LOD_CELLS[l]);
+               this.wingRL[l] = l == 0 ? this.wingRG : decimate(this.wingRG, LOD_CELLS[l]);
+               int n = this.bodyL[l].nIdx + (this.headL[l] == null ? 0 : this.headL[l].nIdx) + this.legsL[l].nIdx + this.wingLL[l].nIdx + this.wingRL[l].nIdx;
+               tri.append(l == 0 ? "" : ", ").append(n / 3);
+            }
+
             this.loaded = true;
-            System.out.println("[connectomefly] fly model loaded (" + this.bones.length + " animated bones) in " + (System.currentTimeMillis() - t0) + " ms");
+            System.out
+               .println(
+                  "[connectomefly] fly model loaded ("
+                     + this.bones.length
+                     + " animated bones) in "
+                     + (System.currentTimeMillis() - t0)
+                     + " ms; triangles per detail level: "
+                     + tri
+               );
          } catch (Exception var5) {
             this.failed = true;
             System.err.println("[connectomefly] fly model failed to load, using the box model: " + var5);
@@ -99,7 +121,7 @@ public final class FlyRig {
    }
 
    private static InputStream res(String path) throws IOException {
-      Optional<Resource> r = Minecraft.getInstance().getResourceManager().getResource(new Identifier("connectomefly", path));
+      Optional<Resource> r = Minecraft.getInstance().getResourceManager().getResource(Identifier.fromNamespaceAndPath("connectomefly", path));
       if (r.isEmpty()) {
          throw new IOException("missing " + path);
       } else {
@@ -184,44 +206,36 @@ public final class FlyRig {
       }
    }
 
-   private VertexBuffer loadRigid(String name) throws IOException {
+   private FlyRig.Group loadRigid(String name) throws IOException {
       byte[] raw;
       try (InputStream in = res("fly/" + name + ".fmesh2")) {
          raw = in.readAllBytes();
       }
 
       ByteBuffer bb = ByteBuffer.wrap(raw).order(ByteOrder.LITTLE_ENDIAN);
-      int nVerts = bb.getInt();
-      int nIdx = bb.getInt();
-      float[] v = new float[nVerts * 5];
-      int[] c = new int[nVerts];
+      FlyRig.Group g = new FlyRig.Group();
+      g.nVerts = bb.getInt();
+      g.nIdx = bb.getInt();
+      g.pos = new float[g.nVerts * 3];
+      g.uv = new float[g.nVerts * 2];
+      g.rgba = new int[g.nVerts];
 
-      for (int i = 0; i < nVerts; i++) {
-         v[i * 5] = bb.getFloat();
-         v[i * 5 + 1] = bb.getFloat();
-         v[i * 5 + 2] = bb.getFloat();
-         v[i * 5 + 3] = bb.getFloat();
-         v[i * 5 + 4] = bb.getFloat();
-         c[i] = bb.getInt();
+      for (int i = 0; i < g.nVerts; i++) {
+         g.pos[i * 3] = bb.getFloat();
+         g.pos[i * 3 + 1] = bb.getFloat();
+         g.pos[i * 3 + 2] = bb.getFloat();
+         g.uv[i * 2] = bb.getFloat();
+         g.uv[i * 2 + 1] = bb.getFloat();
+         g.rgba[i] = bb.getInt();
       }
 
-      BufferBuilder builder = new BufferBuilder(nIdx * 24 + 1024);
-      builder.begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+      g.idx = new int[g.nIdx];
 
-      for (int i = 0; i < nIdx; i++) {
-         int k = bb.getInt();
-         int col = c[k];
-         builder.vertex(v[k * 5], v[k * 5 + 1], v[k * 5 + 2])
-            .uv(v[k * 5 + 3], v[k * 5 + 4])
-            .color(col & 0xFF, col >> 8 & 0xFF, col >> 16 & 0xFF, 255)
-            .endVertex();
+      for (int i = 0; i < g.nIdx; i++) {
+         g.idx[i] = bb.getInt();
       }
 
-      VertexBuffer vb = new VertexBuffer(Usage.STATIC);
-      vb.bind();
-      vb.upload(builder.end());
-      VertexBuffer.unbind();
-      return vb;
+      return g;
    }
 
    private FlyRig.Group loadSkinned(String name) throws IOException {
@@ -285,7 +299,84 @@ public final class FlyRig {
       }
    }
 
-   public void uploadSkinned(FlyRig.Group g, VertexBuffer vb, float[] outPos, BufferBuilder builder) {
+   /**
+    * A simplified copy of a mesh: vertices that fall in the same cell of a grid (cells along the longest side)
+    * are merged into the first one seen, and triangles that collapse are dropped. No holes, fewer triangles.
+    */
+   private static FlyRig.Group decimate(FlyRig.Group g, int cells) {
+      float[] lo = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
+      float[] hi = {-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
+
+      for (int i = 0; i < g.nVerts; i++) {
+         for (int k = 0; k < 3; k++) {
+            lo[k] = Math.min(lo[k], g.pos[i * 3 + k]);
+            hi[k] = Math.max(hi[k], g.pos[i * 3 + k]);
+         }
+      }
+
+      float size = Math.max(hi[0] - lo[0], Math.max(hi[1] - lo[1], hi[2] - lo[2])) / cells;
+      java.util.HashMap<Long, Integer> cellToNew = new java.util.HashMap<>();
+      int[] remap = new int[g.nVerts];
+      int[] keep = new int[g.nVerts];
+      int n = 0;
+
+      for (int i = 0; i < g.nVerts; i++) {
+         long cx = (long)((g.pos[i * 3] - lo[0]) / size);
+         long cy = (long)((g.pos[i * 3 + 1] - lo[1]) / size);
+         long cz = (long)((g.pos[i * 3 + 2] - lo[2]) / size);
+         long key = cx << 42 | cy << 21 | cz;
+         Integer have = cellToNew.get(key);
+         if (have == null) {
+            cellToNew.put(key, n);
+            keep[n] = i;
+            have = n++;
+         }
+
+         remap[i] = have;
+      }
+
+      FlyRig.Group o = new FlyRig.Group();
+      o.nVerts = n;
+      o.pos = new float[n * 3];
+      o.uv = new float[n * 2];
+      o.rgba = new int[n];
+      if (g.joints != null) {
+         o.joints = new byte[n * 4];
+         o.w = new float[n * 4];
+      }
+
+      for (int j = 0; j < n; j++) {
+         int i = keep[j];
+         System.arraycopy(g.pos, i * 3, o.pos, j * 3, 3);
+         System.arraycopy(g.uv, i * 2, o.uv, j * 2, 2);
+         o.rgba[j] = g.rgba[i];
+         if (g.joints != null) {
+            System.arraycopy(g.joints, i * 4, o.joints, j * 4, 4);
+            System.arraycopy(g.w, i * 4, o.w, j * 4, 4);
+         }
+      }
+
+      int[] idx = new int[g.nIdx];
+      int m = 0;
+
+      for (int i = 0; i + 2 < g.nIdx; i += 3) {
+         int a = remap[g.idx[i]];
+         int b = remap[g.idx[i + 1]];
+         int c = remap[g.idx[i + 2]];
+         if (a != b && b != c && a != c) {
+            idx[m++] = a;
+            idx[m++] = b;
+            idx[m++] = c;
+         }
+      }
+
+      o.idx = java.util.Arrays.copyOf(idx, m);
+      o.nIdx = m;
+      return o;
+   }
+
+   /** CPU skinning: writes the posed vertex positions of g into outPos. */
+   public void skin(FlyRig.Group g, float[] outPos) {
       float[] p = g.pos;
       float[] w = g.w;
       byte[] jn = g.joints;
@@ -313,62 +404,67 @@ public final class FlyRig {
          outPos[i * 3 + 2] = oz;
       }
 
-      builder.begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+   }
+
+   /**
+    * 26.3 port: draw a mesh through an entity render type. The entity vertex format is quads, so each
+    * triangle is sent as a quad with its last corner repeated. stride > 1 skips triangles (distant flies).
+    */
+   /** time spent sending vertices, and how many triangles, since the last reset (for performance checks) */
+   public static long emitNanos;
+   public static long emitTris;
+
+   public static void emit(VertexConsumer vc, PoseStack.Pose pose, FlyRig.Group g, float[] pos, int light, int overlay, int alpha, int stride) {
+      long t0 = System.nanoTime();
       float[] uv = g.uv;
       int[] col = g.rgba;
       int[] idx = g.idx;
+      int step = 3 * Math.max(1, stride);
 
-      for (int i = 0; i < g.nIdx; i++) {
-         int kx = idx[i];
-         int c = col[kx];
-         builder.vertex(outPos[kx * 3], outPos[kx * 3 + 1], outPos[kx * 3 + 2])
-            .uv(uv[kx * 2], uv[kx * 2 + 1])
-            .color(c & 0xFF, c >> 8 & 0xFF, c >> 16 & 0xFF, 255)
-            .endVertex();
+      for (int i = 0; i + 2 < g.nIdx; i += step) {
+         int a = idx[i];
+         int b = idx[i + 1];
+         int c = idx[i + 2];
+         float ax = pos[a * 3], ay = pos[a * 3 + 1], az = pos[a * 3 + 2];
+         float bx = pos[b * 3], by = pos[b * 3 + 1], bz = pos[b * 3 + 2];
+         float cx = pos[c * 3], cy = pos[c * 3 + 1], cz = pos[c * 3 + 2];
+         float ux = bx - ax, uy = by - ay, uz = bz - az;
+         float vx = cx - ax, vy = cy - ay, vz = cz - az;
+         float nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+         float len = (float)Math.sqrt(nx * nx + ny * ny + nz * nz);
+         if (len < 1.0E-12F) {
+            nx = 0.0F;
+            ny = 1.0F;
+            nz = 0.0F;
+         } else {
+            nx /= len;
+            ny /= len;
+            nz /= len;
+         }
+
+         vert(vc, pose, ax, ay, az, uv, a, col[a], alpha, light, overlay, nx, ny, nz);
+         vert(vc, pose, bx, by, bz, uv, b, col[b], alpha, light, overlay, nx, ny, nz);
+         vert(vc, pose, cx, cy, cz, uv, c, col[c], alpha, light, overlay, nx, ny, nz);
+         vert(vc, pose, cx, cy, cz, uv, c, col[c], alpha, light, overlay, nx, ny, nz);
       }
 
-      vb.bind();
-      vb.upload(builder.end());
-      VertexBuffer.unbind();
+      emitNanos += System.nanoTime() - t0;
+      emitTris += g.nIdx / step;
    }
 
-   public void beginDraw(float bright) {
-      RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-      RenderSystem.setShaderTexture(0, TEXTURE);
-      RenderSystem.setShaderColor(bright, bright, bright, 1.0F);
-      RenderSystem.enableDepthTest();
-      RenderSystem.disableCull();
-   }
-
-   public void endDraw() {
-      RenderSystem.enableCull();
-      RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-   }
-
-   public void drawBody(PoseStack ms) {
-      this.draw(this.body, ms.last().pose());
+   private static void vert(
+      VertexConsumer vc, PoseStack.Pose pose, float x, float y, float z, float[] uv, int k, int c, int alpha, int light, int overlay, float nx, float ny, float nz
+   ) {
+      vc.addVertex(pose, x, y, z)
+         .setColor(c & 0xFF, c >> 8 & 0xFF, c >> 16 & 0xFF, alpha)
+         .setUv(uv[k * 2], uv[k * 2 + 1])
+         .setOverlay(overlay)
+         .setLight(light)
+         .setNormal(pose, nx, ny, nz);
    }
 
    public boolean hasHead() {
       return this.head != null;
-   }
-
-   public void drawHead(PoseStack ms, float yaw, float nod) {
-      if (this.head != null) {
-         ms.pushPose();
-         ms.translate(HEAD_PIVOT[0], HEAD_PIVOT[1], HEAD_PIVOT[2]);
-         ms.mulPose(Axis.YP.rotation(yaw));
-         ms.mulPose(Axis.XP.rotation(nod));
-         ms.translate(-HEAD_PIVOT[0], -HEAD_PIVOT[1], -HEAD_PIVOT[2]);
-         this.draw(this.head, ms.last().pose());
-         ms.popPose();
-      }
-   }
-
-   public void draw(VertexBuffer vb, Matrix4f modelView) {
-      vb.bind();
-      vb.drawWithShader(new Matrix4f(modelView), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-      VertexBuffer.unbind();
    }
 
    public static final class Bone {

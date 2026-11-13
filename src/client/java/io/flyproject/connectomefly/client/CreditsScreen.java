@@ -3,7 +3,7 @@ package io.flyproject.connectomefly.client;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -97,8 +97,8 @@ public class CreditsScreen extends Screen {
       this.addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.onClose()).bounds(this.width / 2 - 50, this.height - 28, 100, 20).build());
    }
 
-   public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-      this.renderBackground(context);
+   public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+      super.extractRenderState(context, mouseX, mouseY, delta);
       int y = 20 - (int)this.scroll;
       int x = (this.width - Math.min(this.width - 60, 340)) / 2;
 
@@ -108,16 +108,15 @@ public class CreditsScreen extends Screen {
          }
 
          if (y > 8 && y < this.height - 34) {
-            context.drawString(this.font, line.text(), x, y, line.color());
+            context.text(this.font, line.text(), x, y, line.color() | 0xFF000000);
          }
 
          y += 10;
       }
 
-      super.render(context, mouseX, mouseY, delta);
    }
 
-   public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+   public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double amount) {
       int max = Math.max(0, this.contentHeight - (this.height - 60));
       this.scroll = Math.max(0.0, Math.min((double)max, this.scroll - amount * 12.0));
       return true;

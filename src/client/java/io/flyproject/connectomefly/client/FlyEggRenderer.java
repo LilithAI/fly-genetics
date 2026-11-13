@@ -4,87 +4,82 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.flyproject.connectomefly.entity.FlyEggEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.TurtleEggBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix4f;
 
-public class FlyEggRenderer extends EntityRenderer<FlyEggEntity> {
-   private static final float TINT_R = 1.0F;
-   private static final float TINT_G = 0.94F;
-   private static final float TINT_B = 0.72F;
+/**
+ * 26.3 port. The original drew a tinted turtle-egg block model. Block models can no longer be drawn that way
+ * from an entity renderer, so the egg is a small rounded box with the mod's own egg texture. It grows a little
+ * as it nears hatching and wobbles in the last three seconds, as before.
+ */
+public class FlyEggRenderer extends EntityRenderer<FlyEggEntity, FlyEggRenderer.EggState> {
+   private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("connectomefly", "textures/entity/fly_egg.png");
+
+   public static class EggState extends EntityRenderState {
+      public int eggAge;
+      public int id;
+   }
 
    public FlyEggRenderer(Context ctx) {
       super(ctx);
       this.shadowRadius = 0.1F;
    }
 
-   public Identifier getTextureLocation(FlyEggEntity entity) {
-      return TextureAtlas.LOCATION_BLOCKS;
+   @Override
+   public EggState createRenderState() {
+      return new EggState();
    }
 
-   public void render(FlyEggEntity entity, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
-      int stage = Math.min(2, entity.getEggAge() * 3 / 600);
-      BlockState state = (BlockState)((BlockState)Blocks.TURTLE_EGG.defaultBlockState().setValue(TurtleEggBlock.EGGS, 1)).setValue(TurtleEggBlock.HATCH, stage);
+   @Override
+   public void extractRenderState(FlyEggEntity entity, EggState s, float tickDelta) {
+      super.extractRenderState(entity, s, tickDelta);
+      s.eggAge = entity.getEggAge();
+      s.id = entity.getId();
+   }
+
+   @Override
+   public void submit(EggState s, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
+      float wobble = s.eggAge > 540 ? (float)Math.sin(s.ageInTicks * 1.4) * 6.0F : 0.0F;
+      float grow = 1.0F + 0.25F * Math.min(1.0F, s.eggAge / 600.0F);
       matrices.pushPose();
-      float wobble = entity.getEggAge() > 540 ? (float)Math.sin((entity.tickCount + tickDelta) * 1.4) * 6.0F : 0.0F;
-      matrices.mulPose(Axis.YP.rotationDegrees(entity.getId() * 37.0F % 360.0F));
-      matrices.mulPose(Axis.ZP.rotationDegrees(wobble));
-      matrices.scale(0.7F, 0.7F, 0.7F);
-      matrices.translate(-0.5, 0.0, -0.5);
-      MultiBufferSource tinted = layer -> new FlyEggRenderer.Tinted(vertexConsumers.getBuffer(layer));
-      Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state, matrices, tinted, light, OverlayTexture.NO_OVERLAY);
+      matrices.mulPose(new Matrix4f().rotation(Axis.YP.rotationDegrees(s.id * 37.0F % 360.0F)));
+      matrices.mulPose(new Matrix4f().rotation(Axis.ZP.rotationDegrees(wobble)));
+      matrices.scale(grow, grow, grow);
+      int light = s.lightCoords;
+      collector.submitCustomGeometry(matrices, RenderTypes.entityCutout(TEXTURE), (pose, vc) -> {
+         box(vc, pose, -0.09F, 0.0F, -0.07F, 0.09F, 0.16F, 0.07F, light);
+         box(vc, pose, -0.07F, 0.16F, -0.05F, 0.07F, 0.21F, 0.05F, light);
+      });
       matrices.popPose();
-      super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+      super.submit(s, matrices, collector, camera);
    }
 
-   private record Tinted(VertexConsumer in) implements VertexConsumer {
-      public VertexConsumer vertex(double x, double y, double z) {
-         this.in.vertex(x, y, z);
-         return this;
-      }
+   private static void box(VertexConsumer vc, PoseStack.Pose p, float x0, float y0, float z0, float x1, float y1, float z1, int light) {
+      quad(vc, p, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1, 0, 0, 1, light);
+      quad(vc, p, x1, y0, z0, x0, y0, z0, x0, y1, z0, x1, y1, z0, 0, 0, -1, light);
+      quad(vc, p, x1, y0, z1, x1, y0, z0, x1, y1, z0, x1, y1, z1, 1, 0, 0, light);
+      quad(vc, p, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0, -1, 0, 0, light);
+      quad(vc, p, x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0, 0, 1, 0, light);
+      quad(vc, p, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, 0, -1, 0, light);
+   }
 
-      public VertexConsumer color(int red, int green, int blue, int alpha) {
-         this.in.color((int)(red * 1.0F), (int)(green * 0.94F), (int)(blue * 0.72F), alpha);
-         return this;
-      }
+   private static void quad(
+      VertexConsumer vc, PoseStack.Pose p, float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, float dx, float dy, float dz, float nx, float ny, float nz, int light
+   ) {
+      v(vc, p, ax, ay, az, 0.0F, 1.0F, nx, ny, nz, light);
+      v(vc, p, bx, by, bz, 1.0F, 1.0F, nx, ny, nz, light);
+      v(vc, p, cx, cy, cz, 1.0F, 0.0F, nx, ny, nz, light);
+      v(vc, p, dx, dy, dz, 0.0F, 0.0F, nx, ny, nz, light);
+   }
 
-      public VertexConsumer uv(float u, float v) {
-         this.in.uv(u, v);
-         return this;
-      }
-
-      public VertexConsumer overlayCoords(int u, int v) {
-         this.in.overlayCoords(u, v);
-         return this;
-      }
-
-      public VertexConsumer uv2(int u, int v) {
-         this.in.uv2(u, v);
-         return this;
-      }
-
-      public VertexConsumer normal(float x, float y, float z) {
-         this.in.normal(x, y, z);
-         return this;
-      }
-
-      public void endVertex() {
-         this.in.endVertex();
-      }
-
-      public void defaultColor(int red, int green, int blue, int alpha) {
-         this.in.defaultColor((int)(red * 1.0F), (int)(green * 0.94F), (int)(blue * 0.72F), alpha);
-      }
-
-      public void unsetDefaultColor() {
-         this.in.unsetDefaultColor();
-      }
+   private static void v(VertexConsumer vc, PoseStack.Pose p, float x, float y, float z, float u, float w, float nx, float ny, float nz, int light) {
+      vc.addVertex(p, x, y, z).setColor(255, 255, 255, 255).setUv(u, w).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(p, nx, ny, nz);
    }
 }

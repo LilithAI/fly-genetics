@@ -23,11 +23,43 @@ public class AutoTest implements ClientModInitializer {
    private void tick(Minecraft c) {
       if (c.level == null || c.player == null || c.getSingleplayerServer() == null) return;
       c.options.pauseOnLostFocus = false;
-      if (c.screen != null) c.setScreen(null);
+      if (c.gui.screen() != null) c.gui.setScreen(null);
       ticks++;
       String mode = System.getProperty("flygenetics.autotest");
       if (mode.equals("breed")) {
          breed(c);
+      } else if (mode.equals("look")) {
+         // port check: flies that cannot move, right in front of the camera, at three distances
+         if (ticks == 20) run(c, CLEAR, "kill @e[type=connectomefly:fly_egg]", "tp @a 0.5 -60 0.5 0 25");
+         if (ticks == 39 || ticks == 139 || ticks == 229 || ticks == 399) {
+            int fps = Math.max(1, c.getFps());
+            System.out.println("[flygenetics autotest] tick " + ticks + " fps " + fps + "; fly vertex sending over the last ~5 s: "
+               + io.flyproject.connectomefly.client.FlyRig.emitNanos / 1000000L + " ms for " + io.flyproject.connectomefly.client.FlyRig.emitTris + " triangles");
+         }
+         if (ticks == 40 || ticks == 130 || ticks == 300) {
+            io.flyproject.connectomefly.client.FlyRig.emitNanos = 0L;
+            io.flyproject.connectomefly.client.FlyRig.emitTris = 0L;
+         }
+         if (ticks == 40) {
+            io.flyproject.connectomefly.client.FlyHud.enabled = false;
+            run(c, "flygenes set adult_life_minutes 120", "time set noon", "weather clear", "gamemode creative @a", CLEAR, "kill @e[type=connectomefly:fly_egg]", "tp @a 0.5 -60 0.5 0 25",
+               "summon connectomefly:connectome_fly 0.5 -60 2.2 {NoAI:1b}", "summon connectomefly:connectome_fly -1.0 -60 3.5 {NoAI:1b,Male:1b}",
+               "summon connectomefly:connectome_fly 2.0 -60 6.0 {NoAI:1b}", "summon connectomefly:fly_egg 1.3 -60 2.2");
+         }
+         if (ticks == 140) {
+            shot(c, "look-1.png");
+         }
+         if (ticks == 150) {
+            io.flyproject.connectomefly.client.FlyHud.enabled = true;
+            run(c, "tp @a 0.5 -60 1.2 0 40", "flylab body bee");
+         }
+         if (ticks == 230) shot(c, "look-2-bee.png");
+         if (ticks == 240) run(c, "flylab body model", "tp @a 0.5 -60 0.5 0 25");
+         if (ticks == 400) shot(c, "look-3-free.png");
+         if (ticks == 420) {
+            System.out.println("[flygenetics autotest] done");
+            c.stop();
+         }
       } else if (mode.equals("cap")) {
          // a fresh, fed pair with the cap (2) already reached by the pair itself: they mate, no egg
          if (ticks == 40) run(c, "kill @e[type=connectomefly:fly_egg]", CLEAR, "kill @e[type=frog]", "tp @a 0.5 -60 0.5 0 35");
@@ -53,9 +85,9 @@ public class AutoTest implements ClientModInitializer {
    /** One female and one male: forced courtship, mating, egg, hatch. Genomes are printed to the log at each stage. */
    private void breed(Minecraft c) {
       if (ticks == 40) {
-         run(c, "time set noon", "weather clear", "gamemode creative @a", "kill @e[type=connectomefly:connectome_fly]", "kill @e[type=connectomefly:fly_egg]",
+         run(c, "flygenes set adult_life_minutes 120", "time set noon", "weather clear", "gamemode creative @a", "kill @e[type=connectomefly:connectome_fly]", "kill @e[type=connectomefly:fly_egg]",
             "tp @a 0.5 -60 0.5 0 35", "summon connectomefly:connectome_fly 0.5 -60 2.5",
-            "execute positioned 0.5 -60 2.5 run flylab mate");
+            "summon connectomefly:connectome_fly 1.5 -60 2.5 {Male:1b}");
       }
       if (ticks == 120) run(c, "flygenes full");
       if (ticks > 120 && ticks % 100 == 0) run(c, "flygenes", "execute as @e[type=connectomefly:fly_egg] run data get entity @s Genome");
@@ -143,14 +175,15 @@ public class AutoTest implements ClientModInitializer {
       MinecraftServer s = c.getSingleplayerServer();
       s.execute(() -> {
          for (String cmd : cmds) {
-            int r = s.getCommands().performPrefixedCommand(s.createCommandSourceStack(), cmd);
+            s.getCommands().performPrefixedCommand(s.createCommandSourceStack(), cmd);
+            int r = 0;
             System.out.println("[flygenetics autotest] /" + cmd + " -> " + r);
          }
       });
    }
 
    private static void shot(Minecraft c, String name) {
-      Screenshot.grab(c.gameDirectory, name, c.getMainRenderTarget(),
+      Screenshot.grab(c.gameDirectory, name, c.gameRenderer.mainRenderTarget(), 1,
          t -> System.out.println("[flygenetics autotest] screenshot " + name + ": " + t.getString()));
    }
 }

@@ -5,11 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.minecraft.resources.Identifier;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.phys.AABB;
 
 public final class FlyHud {
@@ -44,13 +45,13 @@ public final class FlyHud {
    }
 
    public static void register() {
-      HudRenderCallback.EVENT.register(FlyHud::render);
+      HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("connectomefly", "readout"), (ctx, delta) -> render(ctx));
    }
 
-   private static void render(GuiGraphics ctx, float tickDelta) {
+   private static void render(GuiGraphicsExtractor ctx) {
       if (enabled) {
          Minecraft mc = Minecraft.getInstance();
-         if (mc.player != null && mc.level != null && !mc.options.hideGui) {
+         if (mc.player != null && mc.level != null && !mc.gui.hud.isHidden()) {
             ConnectomeFlyEntity fly = null;
             double best = 1600.0;
 
@@ -241,33 +242,33 @@ public final class FlyHud {
                }
 
                Font tr = mc.font;
-               ctx.pose().pushPose();
-               ctx.pose().scale(scale, scale, 1.0F);
+               ctx.pose().pushMatrix();
+               ctx.pose().scale(scale, scale);
                int x = 6;
                int y = 6;
                int h = 22 + lines.size() * 10 + 12 + 4;
                ctx.fill(x - 2, y - 2, x + 236, y + h, -1609560044);
                ctx.fill(x - 2, y - 2, x + 236, y - 1, -11606332);
-               ctx.drawString(tr, "CONNECTOME FLY" + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
+               ctx.text(tr, "CONNECTOME FLY" + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
                String live = "LIVE";
-               ctx.drawString(tr, live, x + 236 - 6 - tr.width(live), y + 2, -11606332);
-               ctx.drawString(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
+               ctx.text(tr, live, x + 236 - 6 - tr.width(live), y + 2, -11606332);
+               ctx.text(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
                int yy = y + 2 + 20 + 4;
 
                for (FlyHud.Line l : lines) {
-                  ctx.drawString(tr, l.key(), x + 2, yy, -7697248);
+                  ctx.text(tr, l.key(), x + 2, yy, -7697248);
                   String v = l.value();
                   int maxW = 148;
                   if (tr.width(v) > maxW) {
                      v = tr.plainSubstrByWidth(v, maxW - 6) + "…";
                   }
 
-                  ctx.drawString(tr, v, x + 82, yy, l.color());
+                  ctx.text(tr, v, x + 82, yy, l.color() | 0xFF000000);
                   yy += 10;
                }
 
-               ctx.drawString(tr, "speech: translated, not decoded · /flyhud hides this", x + 2, yy + 3, -9802624);
-               ctx.pose().popPose();
+               ctx.text(tr, "speech: translated, not decoded · /flyhud hides this", x + 2, yy + 3, -9802624);
+               ctx.pose().popMatrix();
             }
          }
       }
