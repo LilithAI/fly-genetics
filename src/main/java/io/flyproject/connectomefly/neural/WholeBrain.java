@@ -88,6 +88,9 @@ public final class WholeBrain {
    private volatile long lastKeepAlive = System.nanoTime();
    private Thread thread;
    private final String label;
+   /** activity map for the readout: neurons in index order, split into MAP_BINS equal groups */
+   public static final int MAP_BINS = 512;
+   private final int[] binAcc = new int[MAP_BINS];
    // [model] genetics: per-fly tuning. Defaults are the author's constants; a Genome multiplies them.
    private final Genome genome;
    private final float gDecay;
@@ -647,6 +650,16 @@ public final class WholeBrain {
                l.memApproach = np > 0 ? (float)(sp / np) : 1.0F;
             }
 
+            float[] bins = new float[MAP_BINS];
+            float perBin = (float)this.d.n / MAP_BINS;
+
+            for (int bi = 0; bi < MAP_BINS; bi++) {
+               // mean firing rate of the group's neurons, in spikes per second (one step = 1 ms)
+               bins[bi] = this.binAcc[bi] * 1000.0F / ((float)accSteps * perBin);
+               this.binAcc[bi] = 0;
+            }
+
+            l.bins = bins;
             this.loco = l;
             spkAcc = 0L;
             accSteps = 0L;
@@ -845,6 +858,7 @@ public final class WholeBrain {
          if (V[i] >= vth) {
             V[i] = 0.0F;
             this.spk[sn++] = i;
+            this.binAcc[(int)((long)i * MAP_BINS / n)]++;
             int s = indptr[i];
             int e = indptr[i + 1];
             float g = sensory[i] != 0 ? this.gSyn * this.gSens : this.gSyn;
@@ -1024,6 +1038,8 @@ public final class WholeBrain {
       public float epgRate;
       public float memAvoid = 1.0F;
       public float memApproach = 1.0F;
+      /** mean firing rate (Hz) of each of MAP_BINS groups of neurons, in index order */
+      public float[] bins = new float[0];
 
       Loco(float turnBias, float walkDrive, float activity, float[] chanSpikes, float stepsPerSec, float dnLeft, float dnRight) {
          this.turnBias = turnBias;

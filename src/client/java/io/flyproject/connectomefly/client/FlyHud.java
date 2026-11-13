@@ -15,9 +15,97 @@ import net.minecraft.world.phys.AABB;
 
 public final class FlyHud {
    public static boolean enabled = true;
+   /** false = compact card (the default), true = every line the original mod shows */
+   public static boolean detail = false;
+   private static final java.util.Set<String> COMPACT = java.util.Set.of(
+      "Doing", "Body [model]", "Generation", "Parents", "Genes [model]", "Age [model]", "Senses firing", "Brain outputs", "Circuit"
+   );
+
+   private static Path detailFile() {
+      return FabricLoader.getInstance().getConfigDir().resolve("connectomefly_hud_detail");
+   }
+
+   public static void setDetail(boolean on) {
+      detail = on;
+
+      try {
+         if (on) {
+            Files.writeString(detailFile(), "on");
+         } else {
+            Files.deleteIfExists(detailFile());
+         }
+      } catch (Exception var2) {
+      }
+   }
+
+   /** compact -> full -> off -> compact */
+   public static String cycle() {
+      if (!enabled) {
+         setEnabled(true);
+         setDetail(false);
+      } else if (!detail) {
+         setDetail(true);
+      } else {
+         setEnabled(false);
+      }
+
+      return modeName();
+   }
+
+   public static String modeName() {
+      return !enabled ? "off" : (detail ? "full" : "compact");
+   }
+
+   private static float num(String s, float fallback) {
+      try {
+         return Float.parseFloat(s.trim());
+      } catch (Exception var3) {
+         return fallback;
+      }
+   }
+
+   /** silent = dark blue-grey, then teal, cyan, near white at 13 Hz and above */
+   private static int heat(int level) {
+      if (level <= 0) {
+         return 0xFF14222B;
+      }
+
+      float t = Math.min(1.0F, level / 15.0F);
+      int r = (int)(20 + 235 * t * t);
+      int g = (int)(60 + 195 * Math.sqrt(t));
+      int b = (int)(90 + 165 * Math.sqrt(t));
+      return 0xFF000000 | r << 16 | g << 8 | b;
+   }
+
+   private static void bar(GuiGraphicsExtractor ctx, Font tr, String label, float frac, String text, int x, int y, int w, int color) {
+      ctx.text(tr, label, x, y, -7697248);
+      int bx = x + tr.width(label) + 3;
+      int bw = w - tr.width(label) - 3;
+      ctx.fill(bx, y + 1, bx + bw, y + 7, 0xFF1B2A33);
+      ctx.fill(bx, y + 1, bx + Math.round(bw * Math.max(0.0F, Math.min(1.0F, frac))), y + 7, color);
+   }
+
    public static float scale = 1.0F;
    private static final int PANEL_W = 236;
    private static final int LINE = 10;
+
+   private static Path offFile() {
+      return FabricLoader.getInstance().getConfigDir().resolve("connectomefly_hud_off");
+   }
+
+   /** Shows or hides the readout and remembers the choice for next time. */
+   public static void setEnabled(boolean on) {
+      enabled = on;
+
+      try {
+         if (on) {
+            Files.deleteIfExists(offFile());
+         } else {
+            Files.writeString(offFile(), "off");
+         }
+      } catch (Exception var2) {
+      }
+   }
 
    private static Path sizeFile() {
       return FabricLoader.getInstance().getConfigDir().resolve("connectomefly_hud.txt");
@@ -33,6 +121,12 @@ public final class FlyHud {
    }
 
    public static void loadSize() {
+      try {
+         enabled = !Files.exists(offFile());
+         detail = Files.exists(detailFile());
+      } catch (Exception var2) {
+      }
+
       try {
          if (Files.exists(sizeFile())) {
             setSize(Files.readString(sizeFile()).trim());
@@ -237,9 +331,9 @@ public final class FlyHud {
                   lines.add(new FlyHud.Line("Flight", air.isEmpty() ? "-" : air, -4660993));
                }
 
-               boolean villager = gBody.equals("villager");
+               boolean villager = !gBody.isEmpty() && !gBody.equals("fly");
                if (villager) {
-                  lines.add(3, new FlyHud.Line("Body [model]", "villager body, fly brain: no trading, farming or orders", -5570646));
+                  lines.add(3, new FlyHud.Line("Body [model]", gBody + " body, fly brain: none of that mob's own behaviour", -5570646));
                }
 
                if (!gGen.isEmpty()) {
@@ -250,15 +344,27 @@ public final class FlyHud {
                   lines.add(6 + (villager ? 1 : 0), new FlyHud.Line("Age [model]", gLife, -5570646));
                }
 
+               if (!detail) {
+                  lines.removeIf(l -> !COMPACT.contains(l.key()));
+               }
+
                Font tr = mc.font;
-               ctx.pose().pushMatrix();
-               ctx.pose().scale(scale, scale);
+               String map = male ? "" : fly.getBrainMap();
+               int cols = 32;
+               int rows = map.isEmpty() ? 0 : (map.length() + cols - 1) / cols;
+               int cw = 7;
+               int ch = 4;
+               int mapH = rows == 0 ? 0 : 12 + rows * ch + 12;
                int x = 6;
                int y = 6;
-               int h = 22 + lines.size() * 10 + 12 + 4;
+               int h = 22 + lines.size() * 10 + 14 + mapH + 12 + 4;
+               // never taller than the window: shrink the whole card if it would run off the bottom
+               float fit = Math.min(scale, (mc.getWindow().getGuiScaledHeight() - 6) / (float)(h + y + 2));
+               ctx.pose().pushMatrix();
+               ctx.pose().scale(fit, fit);
                ctx.fill(x - 2, y - 2, x + 236, y + h, -1609560044);
                ctx.fill(x - 2, y - 2, x + 236, y - 1, -11606332);
-               ctx.text(tr, (villager ? "FLY-BRAINED VILLAGER [model]" : "CONNECTOME FLY") + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
+               ctx.text(tr, (villager ? "FLY-BRAINED " + gBody.toUpperCase(java.util.Locale.ROOT) + " [model]" : "CONNECTOME FLY") + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
                String live = "LIVE";
                ctx.text(tr, live, x + 236 - 6 - tr.width(live), y + 2, -11606332);
                ctx.text(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
@@ -276,7 +382,38 @@ public final class FlyHud {
                   yy += 10;
                }
 
-               ctx.text(tr, "speech: translated, not decoded · /flyhud hides this", x + 2, yy + 3, -9802624);
+               // health, hunger and thirst as bars
+               yy += 2;
+               bar(ctx, tr, "Health", num(hp, 0.0F) / 10.0F, hp, x + 2, yy, male ? 110 : 72, 0xFFE0524E);
+               if (!male) {
+                  bar(ctx, tr, "Food", num(hunger, 0.0F) / 20.0F, hunger, x + 80, yy, 72, 0xFFE0B040);
+                  bar(ctx, tr, "Thirst", num(thirst, 0.0F) / 20.0F, thirst, x + 158, yy, 74, 0xFF58A6FF);
+               }
+
+               yy += 12;
+               if (rows > 0) {
+                  // the whole brain, live: one cell per group of about 309 neurons
+                  ctx.text(tr, "Whole brain, live · " + brain + " spikes/ms", x + 2, yy, -1513240);
+                  yy += 11;
+                  int active = 0;
+
+                  for (int i = 0; i < map.length(); i++) {
+                     int level = map.charAt(i) - 'a';
+                     if (level > 0) {
+                        active++;
+                     }
+
+                     int cx = x + 2 + i % cols * cw;
+                     int cy = yy + i / cols * ch;
+                     ctx.fill(cx, cy, cx + cw - 1, cy + ch - 1, heat(level));
+                  }
+
+                  yy += rows * ch + 2;
+                  ctx.text(tr, active + " of " + map.length() + " groups firing · index order, not anatomy", x + 2, yy, -9802624);
+                  yy += 11;
+               }
+
+               ctx.text(tr, "G menu · H readout: " + modeName() + " · speech is translated", x + 2, yy + 1, -9802624);
                ctx.pose().popMatrix();
             }
          }

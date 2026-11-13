@@ -45,6 +45,9 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
    private final Map<Integer, FlyAnim> anims = new HashMap<>();
    private final Map<Integer, Double> lastSkin = new HashMap<>();
    private final Map<Integer, Long> lastSeen = new HashMap<>();
+   // borrowed mob bodies: a never-spawned stand-in of the chosen type per creature, drawn by that mob's own renderer
+   private final Map<Integer, net.minecraft.world.entity.Entity> standIns = new HashMap<>();
+   private final java.util.Set<String> brokenBodies = new java.util.HashSet<>();
 
    public ConnectomeFlyRenderer(Context context) {
       super(context);
@@ -83,6 +86,11 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
       FlyRig rig = FlyRig.get();
       s.rigged = s.bodyMode == 0 && rig.ready();
       s.asleep = entity.isSleeping();
+      s.mobRenderer = null;
+      s.mobState = null;
+      if (s.bodyMode == ConnectomeFlyEntity.BODY_MOB) {
+         this.extractMob(entity, s, tickDelta);
+      }
       s.anim = null;
       if (s.rigged) {
          double t = System.nanoTime() / 1.0E9;
@@ -94,7 +102,7 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
          }
 
          this.lastSeen.put(id, System.currentTimeMillis());
-         if (this.anims.size() > 1 && (System.nanoTime() & 255L) == 0L) {
+         if (this.lastSeen.size() > 1 && (System.nanoTime() & 255L) == 0L) {
             this.gc();
          }
 
@@ -131,7 +139,9 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
 
    @Override
    public void submit(FlyRenderState s, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
-      if (s.bodyMode == ConnectomeFlyEntity.BODY_VILLAGER) {
+      if (s.mobRenderer != null && s.mobState != null) {
+         this.submitMob(s, matrices, collector, camera);
+      } else if (s.bodyMode == ConnectomeFlyEntity.BODY_VILLAGER) {
          this.submitVillager(s, matrices, collector);
       } else if (s.rigged && s.anim != null) {
          this.submitRigged(s, matrices, collector);
@@ -222,6 +232,105 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
       }
 
       matrices.popPose();
+   }
+
+   /**
+    * [model] Any mob's body. A stand-in entity of the chosen type (never added to the world) is posed like the
+    * fly-brained creature and handed to that mob's own vanilla renderer. If a mob's renderer cannot cope, the bee is drawn.
+    */
+   @SuppressWarnings({"rawtypes", "unchecked"})
+   private void extractMob(ConnectomeFlyEntity entity, FlyRenderState s, float tickDelta) {
+      String typeId = entity.getBodyType();
+      if (typeId.isEmpty() || this.brokenBodies.contains(typeId)) {
+         return;
+      }
+
+      try {
+         int id = entity.getId();
+         net.minecraft.world.entity.Entity d = this.standIns.get(id);
+         net.minecraft.world.entity.EntityType<?> type = entity.bodyEntityType();
+         if (type == null) {
+            return;
+         }
+
+         if (d == null || d.getType() != type || d.level() != entity.level()) {
+            d = type.create(entity.level(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            if (d == null) {
+               this.brokenBodies.add(typeId);
+               return;
+            }
+
+            // a stand-in is never in the world, but renderers ask for an id; negative ids cannot clash with real ones
+            d.setId(-1000000 - id);
+            this.standIns.put(id, d);
+         }
+
+         this.lastSeen.put(id, System.currentTimeMillis());
+         d.setPos(entity.getX(), entity.getY(), entity.getZ());
+         d.xo = entity.xo;
+         d.yo = entity.yo;
+         d.zo = entity.zo;
+         d.xOld = entity.xOld;
+         d.yOld = entity.yOld;
+         d.zOld = entity.zOld;
+         d.setYRot(entity.getYRot());
+         d.setXRot(entity.getXRot());
+         d.yRotO = entity.yRotO;
+         d.xRotO = entity.xRotO;
+         d.setOnGround(entity.onGround());
+         d.setDeltaMovement(entity.getDeltaMovement());
+         boolean newTick = d.tickCount != entity.tickCount;
+         d.tickCount = entity.tickCount;
+         if (d instanceof net.minecraft.world.entity.LivingEntity l) {
+            l.yBodyRot = entity.yBodyRot;
+            l.yBodyRotO = entity.yBodyRotO;
+            l.yHeadRot = entity.yHeadRot;
+            l.yHeadRotO = entity.yHeadRotO;
+            l.hurtTime = entity.hurtTime;
+            l.deathTime = entity.deathTime;
+            if (newTick) {
+               l.walkAnimation.update(entity.walkAnimation.speed(), 1.0F, 1.0F);
+            }
+
+            if (l instanceof net.minecraft.world.entity.AgeableMob am) {
+               am.setBaby(entity.isBabyFly());
+            } else {
+               net.minecraft.world.entity.ai.attributes.AttributeInstance sc = l.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+               if (sc != null) {
+                  sc.setBaseValue(entity.getAgeScale());
+               }
+            }
+         }
+
+         net.minecraft.client.renderer.entity.EntityRenderer r = this.entityRenderDispatcher.getRenderer(d);
+         s.mobState = r.createRenderState(d, tickDelta);
+         s.mobRenderer = r;
+      } catch (Throwable t) {
+         this.brokenBodies.add(typeId);
+         s.mobRenderer = null;
+         s.mobState = null;
+         System.err.println("[connectomefly] cannot draw the body of " + typeId + " (" + t + "); drawing the bee instead");
+      }
+   }
+
+   @SuppressWarnings({"rawtypes", "unchecked"})
+   private void submitMob(FlyRenderState s, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
+      try {
+         ((net.minecraft.client.renderer.entity.EntityRenderer)s.mobRenderer).submit((net.minecraft.client.renderer.entity.state.EntityRenderState)s.mobState, matrices, collector, camera);
+      } catch (Throwable t) {
+         System.err.println("[connectomefly] a borrowed body failed while drawing (" + t + "); drawing the bee instead from now on");
+         this.brokenBodies.addAll(this.standInTypes());
+      }
+   }
+
+   private java.util.List<String> standInTypes() {
+      java.util.List<String> out = new java.util.ArrayList<>();
+
+      for (net.minecraft.world.entity.Entity e : this.standIns.values()) {
+         out.add(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString());
+      }
+
+      return out;
    }
 
    /** [model] A villager's body moved by the fly's brain. The plain vanilla villager model and skin, no profession. */
@@ -331,6 +440,7 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
             }
 
             this.lastSkin.remove(e.getKey());
+            this.standIns.remove(e.getKey());
             it.remove();
          }
       }

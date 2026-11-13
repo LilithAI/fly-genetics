@@ -29,12 +29,32 @@ public final class GeneticsCommand {
             .then(Commands.literal("full").executes(ctx -> list(ctx.getSource(), true)))
             .then(Commands.literal("stats").executes(ctx -> stats(ctx.getSource())))
             .then(
+               Commands.literal("body")
+                  .then(Commands.literal("fly").executes(ctx -> rebody(ctx.getSource(), null, (byte)0)))
+                  .then(Commands.literal("villager").executes(ctx -> rebody(ctx.getSource(), null, ConnectomeFlyEntity.BODY_VILLAGER)))
+                  .then(
+                     Commands.argument("type", net.minecraft.commands.arguments.IdentifierArgument.id())
+                        .suggests(net.minecraft.commands.synchronization.SuggestionProviders.cast(net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES))
+                        .executes(ctx -> rebody(ctx.getSource(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "type"), ConnectomeFlyEntity.BODY_MOB))
+                  )
+            )
+            .then(
                Commands.literal("spawn")
                   .then(
                      Commands.literal("villager")
                         .executes(ctx -> spawn(ctx.getSource(), ConnectomeFlyEntity.BODY_VILLAGER, false))
                         .then(Commands.literal("male").executes(ctx -> spawn(ctx.getSource(), ConnectomeFlyEntity.BODY_VILLAGER, true)))
                         .then(Commands.literal("female").executes(ctx -> spawn(ctx.getSource(), ConnectomeFlyEntity.BODY_VILLAGER, false)))
+                  )
+                  .then(
+                     Commands.literal("mob")
+                        .then(
+                           Commands.argument("type", net.minecraft.commands.arguments.IdentifierArgument.id())
+                              .suggests(net.minecraft.commands.synchronization.SuggestionProviders.cast(net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES))
+                              .executes(ctx -> spawnMob(ctx.getSource(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "type"), false))
+                              .then(Commands.literal("male").executes(ctx -> spawnMob(ctx.getSource(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "type"), true)))
+                              .then(Commands.literal("female").executes(ctx -> spawnMob(ctx.getSource(), net.minecraft.commands.arguments.IdentifierArgument.getId(ctx, "type"), false)))
+                        )
                   )
                   .then(
                      Commands.literal("fly")
@@ -109,6 +129,93 @@ public final class GeneticsCommand {
             : "a " + (male ? "male" : "female") + " fly",
          ChatFormatting.AQUA
       );
+      return 1;
+   }
+
+   /** Is this entity type a living mob whose body can be borrowed? Returns its name, or null with a message sent. */
+   private static String mobName(CommandSourceStack src, net.minecraft.resources.Identifier id) {
+      net.minecraft.world.entity.EntityType<?> t = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getOptional(id).orElse(null);
+      if (t == null) {
+         say(src, "there is no entity type " + id, ChatFormatting.RED);
+         return null;
+      } else if (t == ConnectomeFlyMod.CONNECTOME_FLY) {
+         say(src, "that is the fly itself: use /flygenes spawn fly", ChatFormatting.RED);
+         return null;
+      }
+
+      net.minecraft.world.entity.Entity probe = null;
+
+      try {
+         probe = t.create(src.getLevel(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+      } catch (Exception var5) {
+      }
+
+      boolean living = probe instanceof net.minecraft.world.entity.LivingEntity && !(probe instanceof net.minecraft.world.entity.player.Player);
+      if (probe != null) {
+         probe.discard();
+      }
+
+      if (!living) {
+         say(src, id + " is not a living mob (it may be an item, a projectile, a vehicle or a player), so the fly's brain cannot wear it", ChatFormatting.RED);
+         return null;
+      }
+
+      return t.getDescription().getString();
+   }
+
+   private static int spawnMob(CommandSourceStack src, net.minecraft.resources.Identifier id, boolean male) {
+      String name = mobName(src, id);
+      if (name == null) {
+         return 0;
+      }
+
+      ServerLevel world = src.getLevel();
+      ConnectomeFlyEntity f = ConnectomeFlyMod.CONNECTOME_FLY.create(world, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+      if (f == null) {
+         return 0;
+      }
+
+      f.setMale(male);
+      f.setMobBody(id.toString());
+      net.minecraft.world.phys.Vec3 at = src.getPosition();
+      f.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+      world.addFreshEntity(f);
+      say(
+         src,
+         "[model] a fly-brained " + name.toLowerCase(java.util.Locale.ROOT) + " (" + (male ? "male" : "female") + "): that mob's body moved by the fly's whole brain. It has none of the real mob's behaviour or abilities, and @e[type=" + id + "] does not select it.",
+         ChatFormatting.AQUA
+      );
+      return 1;
+   }
+
+   /** Changes the body of the nearest fly-brained creature within 16 blocks. */
+   private static int rebody(CommandSourceStack src, net.minecraft.resources.Identifier id, byte mode) {
+      String name = mode == ConnectomeFlyEntity.BODY_MOB ? mobName(src, id) : (mode == ConnectomeFlyEntity.BODY_VILLAGER ? "villager" : "fly");
+      if (name == null) {
+         return 0;
+      }
+
+      net.minecraft.world.phys.Vec3 at = src.getPosition();
+      ConnectomeFlyEntity best = null;
+
+      for (ConnectomeFlyEntity f : src.getLevel().getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(BlockPos.containing(at)).inflate(16.0), e -> e.isAlive())) {
+         if (best == null || f.distanceToSqr(at) < best.distanceToSqr(at)) {
+            best = f;
+         }
+      }
+
+      if (best == null) {
+         say(src, "no fly-brained creature within 16 blocks", ChatFormatting.RED);
+         return 0;
+      }
+
+      if (mode == ConnectomeFlyEntity.BODY_MOB) {
+         best.setMobBody(id.toString());
+      } else {
+         best.setBodyMode(mode);
+      }
+
+      say(src, "[model] the nearest one now wears the body of a " + name.toLowerCase(java.util.Locale.ROOT) + ". Same brain, same genes.", ChatFormatting.AQUA);
       return 1;
    }
 

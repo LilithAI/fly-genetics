@@ -1,4 +1,6 @@
 {
   "entity.connectomefly.connectome_fly": "Connectome Fly",
-  "item.connectomefly.connectome_fly_spawn_egg": "Connectome Fly Spawn Egg"
+  "item.connectomefly.connectome_fly_spawn_egg": "Connectome Fly Spawn Egg",
+  "key.connectomefly.hud": "Fly readout: compact, full, off",
+  "key.connectomefly.menu": "Open the fly lab menu"
 }
