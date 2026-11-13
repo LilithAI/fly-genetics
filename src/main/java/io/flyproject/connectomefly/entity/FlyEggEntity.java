@@ -26,9 +26,11 @@ public class FlyEggEntity extends Entity {
    private Genome genome;
    private float[] memory;
    private byte body = -1;
+   private String bodyType = "";
 
-   public void setBody(byte b) {
+   public void setBody(byte b, String type) {
       this.body = b;
+      this.bodyType = type == null ? "" : type;
    }
 
    public void setGenome(Genome g) {
@@ -63,6 +65,7 @@ public class FlyEggEntity extends Entity {
       this.entityData.set(AGE, nbt.getIntOr("EggAge", 0));
       this.fertile = nbt.getBooleanOr("Fertile", true);
       this.body = nbt.getByteOr("Body", (byte)-1);
+      this.bodyType = nbt.getStringOr("BodyType", "");
       nbt.read("Genome", CompoundTag.CODEC).ifPresent(t -> this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(t));
       nbt.getIntArray("Memory").ifPresent(bits -> {
          this.memory = new float[bits.length];
@@ -77,6 +80,7 @@ public class FlyEggEntity extends Entity {
       nbt.putInt("EggAge", this.getEggAge());
       nbt.putBoolean("Fertile", this.fertile);
       nbt.putByte("Body", this.body);
+      nbt.putString("BodyType", this.bodyType);
       if (this.genome != null) {
          nbt.store("Genome", CompoundTag.CODEC, io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome));
       }
@@ -163,7 +167,11 @@ public class FlyEggEntity extends Entity {
          }
 
          baby.setMale(male);
-         baby.setBodyMode(this.body >= 0 ? this.body : ConnectomeFlyEntity.defaultBody);
+         if (this.body == ConnectomeFlyEntity.BODY_MOB && !this.bodyType.isEmpty()) {
+            baby.setMobBody(this.bodyType);
+         } else {
+            baby.setBodyMode(this.body >= 0 ? this.body : ConnectomeFlyEntity.defaultBody);
+         }
          baby.setGrowth(0);
          if (this.genome != null) {
             baby.setGenome(this.genome);

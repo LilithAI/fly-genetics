@@ -26,31 +26,42 @@ public class ConnectomeFlyClient implements ClientModInitializer {
       EntityRendererRegistry.register(ConnectomeFlyMod.FLY_EGG, FlyEggRenderer::new);
       FlyHud.register();
       FlyHud.loadSize();
+      net.minecraft.client.KeyMapping hudKey = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(
+         new net.minecraft.client.KeyMapping("key.connectomefly.hud", 72, net.minecraft.client.KeyMapping.Category.MISC)
+      );
+      ClientTickEvents.END_CLIENT_TICK.register(client -> {
+         while (hudKey.consumeClick()) {
+            FlyHud.setEnabled(!FlyHud.enabled);
+            if (client.player != null) {
+               client.player.sendOverlayMessage(Component.literal("fly readout " + (FlyHud.enabled ? "on" : "off") + " (H, or /flyhud)"));
+            }
+         }
+      });
       ClientCommandRegistrationCallback.EVENT
          .register(
             (ClientCommandRegistrationCallback)(dispatcher, registryAccess) -> {
                dispatcher.register(
                   (LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)ClientCommands.literal("flyhud")
                               .executes(ctx -> {
-                                 FlyHud.enabled = !FlyHud.enabled;
+                                 FlyHud.setEnabled(!FlyHud.enabled);
                                  ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout " + (FlyHud.enabled ? "on" : "off")));
                                  return 1;
                               }))
                            .then(ClientCommands.literal("small").executes(ctx -> {
                               FlyHud.setSize("small");
-                              FlyHud.enabled = true;
+                              FlyHud.setEnabled(true);
                               ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout: small"));
                               return 1;
                            })))
                         .then(ClientCommands.literal("medium").executes(ctx -> {
                            FlyHud.setSize("medium");
-                           FlyHud.enabled = true;
+                           FlyHud.setEnabled(true);
                            ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout: medium"));
                            return 1;
                         })))
                      .then(ClientCommands.literal("big").executes(ctx -> {
                         FlyHud.setSize("big");
-                        FlyHud.enabled = true;
+                        FlyHud.setEnabled(true);
                         ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout: big"));
                         return 1;
                      }))

@@ -64,6 +64,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class ConnectomeFlyEntity extends PathfinderMob {
    private static final EntityDataAccessor<String> SPEECH = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
+   private static final EntityDataAccessor<String> BODY_TYPE = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<Byte> BODY = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Byte> SEX = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Byte> ANIM = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
@@ -304,6 +305,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       super.defineSynchedData(builder);
       builder.define(SPEECH, "");
       builder.define(BODY, defaultBody);
+      builder.define(BODY_TYPE, "");
       builder.define(SEX, (byte)0);
       builder.define(ANIM, (byte)0);
       builder.define(HUD, "");
@@ -457,8 +459,8 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    private void surfaceTick() {
-      if (this.isVillagerBody()) {
-         // a villager body does not walk on walls or ceilings
+      if (this.grounded()) {
+         // a borrowed ground body does not walk on walls or ceilings
          if (this.surface() != null) {
             this.entityData.set(SURFACE, (byte)-1);
             this.setNoGravity(false);
@@ -682,7 +684,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          if (egg != null) {
             double yawRad = Math.toRadians(this.getYRot());
             egg.setFertile(fertile);
-            egg.setBody(this.getBodyMode());
+            egg.setBody(this.getBodyMode(), this.getBodyType());
             if (fertile) {
                egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUUID(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.getRandom().nextLong())));
                if (Genome.inheritMemory && this.whole != null) {
@@ -912,7 +914,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          sb.append("thirst=").append(String.format(Locale.ROOT, "%.1f", this.getThirst())).append(';');
          Genome gn = this.genome();
          GeneticsState gs = this.gstate();
-         sb.append("bodykind=").append(this.isVillagerBody() ? "villager" : "fly").append(';');
+         sb.append("bodykind=").append(this.bodyLabel().replace(';', ',')).append(';');
          sb.append("gen=").append(gn.generation).append(';');
          sb.append("par=").append(gn.mother == null ? "founder (spawned)" : Genome.shortId(gn.mother) + " x " + Genome.shortId(gn.father)).append(';');
          sb.append("genes=").append(gn.top(3)).append(';');
@@ -953,17 +955,74 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    /** Body 2: [model] a villager's body driven by the fly's brain. Still this mod's own entity, never a real villager. */
    public static final byte BODY_VILLAGER = 2;
 
+   /** Body 3: [model] the body of any mob, named by BodyType, driven by the fly's brain. Still this mod's own entity. */
+   public static final byte BODY_MOB = 3;
+   private static final java.util.Set<String> FLYING_BODIES = java.util.Set.of(
+      "bee", "parrot", "bat", "phantom", "allay", "vex", "ghast", "happy_ghast", "blaze", "wither", "ender_dragon", "breeze"
+   );
+
+   /** True for the villager body and for any borrowed mob body (kept under its old name: these are the non-fly bodies). */
    public boolean isVillagerBody() {
-      return this.getBodyMode() == BODY_VILLAGER;
+      byte b = this.getBodyMode();
+      return b == BODY_VILLAGER || b == BODY_MOB;
+   }
+
+   /** The entity type id of the borrowed body, e.g. "minecraft:cow"; "" for fly, bee and villager bodies. */
+   public String getBodyType() {
+      return this.getBodyMode() == BODY_MOB ? (String)this.entityData.get(BODY_TYPE) : "";
+   }
+
+   public void setMobBody(String entityTypeId) {
+      this.entityData.set(BODY_TYPE, entityTypeId);
+      this.setBodyMode(BODY_MOB);
+   }
+
+   public net.minecraft.world.entity.EntityType<?> bodyEntityType() {
+      String id = this.getBodyType();
+      if (id.isEmpty()) {
+         return null;
+      }
+
+      net.minecraft.resources.Identifier key = net.minecraft.resources.Identifier.tryParse(id);
+      return key == null ? null : net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getOptional(key).orElse(null);
+   }
+
+   /** A borrowed body stays on the ground unless it is one of the mobs that fly. */
+   private boolean grounded() {
+      if (!this.isVillagerBody()) {
+         return false;
+      }
+
+      String id = this.getBodyType();
+      return !FLYING_BODIES.contains(id.substring(id.indexOf(58) + 1));
+   }
+
+   public String bodyLabel() {
+      byte b = this.getBodyMode();
+      if (b == BODY_VILLAGER) {
+         return "villager";
+      } else if (b == BODY_MOB) {
+         net.minecraft.world.entity.EntityType<?> t = this.bodyEntityType();
+         return t == null ? "mob" : t.getDescription().getString().toLowerCase(Locale.ROOT);
+      } else {
+         return "fly";
+      }
    }
 
    protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
-      return this.isVillagerBody() ? net.minecraft.world.entity.EntityDimensions.scalable(0.6F, 1.95F).withEyeHeight(1.62F) : super.getDefaultDimensions(pose);
+      if (this.getBodyMode() == BODY_MOB) {
+         net.minecraft.world.entity.EntityType<?> t = this.bodyEntityType();
+         if (t != null && t != this.getType()) {
+            return t.getDimensions();
+         }
+      }
+
+      return this.getBodyMode() == BODY_VILLAGER ? net.minecraft.world.entity.EntityDimensions.scalable(0.6F, 1.95F).withEyeHeight(1.62F) : super.getDefaultDimensions(pose);
    }
 
    public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
       super.onSyncedDataUpdated(key);
-      if (BODY.equals(key) || GROWTH.equals(key)) {
+      if (BODY.equals(key) || GROWTH.equals(key) || BODY_TYPE.equals(key)) {
          this.refreshDimensions();
       }
    }
@@ -1046,8 +1105,8 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    public void brainJump() {
-      if (this.isVillagerBody()) {
-         // the giant-fibre escape still fires; in a villager body it is a startled hop, not a take-off
+      if (this.grounded()) {
+         // the giant-fibre escape still fires; in a ground body it is a startled hop, not a take-off
          if (this.onGround()) {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.42, 0.0));
             this.needsSync = true;
@@ -1197,8 +1256,8 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    private void flightTick() {
-      if (this.isVillagerBody()) {
-         // no wings: whatever the brain's flight outputs ask for, the villager body stays on the ground
+      if (this.grounded()) {
+         // no wings: whatever the brain's flight outputs ask for, a ground body stays on the ground
          this.flying = false;
          this.flightTicks = 0;
          this.prepTicks = -1;
@@ -1354,6 +1413,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput nbt) {
       super.addAdditionalSaveData(nbt);
       nbt.putByte("Body", this.getBodyMode());
+      nbt.putString("BodyType", (String)this.entityData.get(BODY_TYPE));
       nbt.putBoolean("Male", this.isMale());
       nbt.putFloat("Hunger", this.getHunger());
       nbt.putInt("Growth", this.getGrowth());
@@ -1373,6 +1433,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput nbt) {
       super.readAdditionalSaveData(nbt);
+      this.entityData.set(BODY_TYPE, nbt.getStringOr("BodyType", ""));
       this.setBodyMode(nbt.getByteOr("Body", this.getBodyMode()));
       this.setMale(nbt.getBooleanOr("Male", false));
       this.setHunger(nbt.getFloatOr("Hunger", this.getHunger()));

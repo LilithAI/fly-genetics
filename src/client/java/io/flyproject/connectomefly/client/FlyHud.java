@@ -19,6 +19,24 @@ public final class FlyHud {
    private static final int PANEL_W = 236;
    private static final int LINE = 10;
 
+   private static Path offFile() {
+      return FabricLoader.getInstance().getConfigDir().resolve("connectomefly_hud_off");
+   }
+
+   /** Shows or hides the readout and remembers the choice for next time. */
+   public static void setEnabled(boolean on) {
+      enabled = on;
+
+      try {
+         if (on) {
+            Files.deleteIfExists(offFile());
+         } else {
+            Files.writeString(offFile(), "off");
+         }
+      } catch (Exception var2) {
+      }
+   }
+
    private static Path sizeFile() {
       return FabricLoader.getInstance().getConfigDir().resolve("connectomefly_hud.txt");
    }
@@ -33,6 +51,11 @@ public final class FlyHud {
    }
 
    public static void loadSize() {
+      try {
+         enabled = !Files.exists(offFile());
+      } catch (Exception var2) {
+      }
+
       try {
          if (Files.exists(sizeFile())) {
             setSize(Files.readString(sizeFile()).trim());
@@ -237,9 +260,9 @@ public final class FlyHud {
                   lines.add(new FlyHud.Line("Flight", air.isEmpty() ? "-" : air, -4660993));
                }
 
-               boolean villager = gBody.equals("villager");
+               boolean villager = !gBody.isEmpty() && !gBody.equals("fly");
                if (villager) {
-                  lines.add(3, new FlyHud.Line("Body [model]", "villager body, fly brain: no trading, farming or orders", -5570646));
+                  lines.add(3, new FlyHud.Line("Body [model]", gBody + " body, fly brain: none of that mob's own behaviour", -5570646));
                }
 
                if (!gGen.isEmpty()) {
@@ -258,7 +281,7 @@ public final class FlyHud {
                int h = 22 + lines.size() * 10 + 12 + 4;
                ctx.fill(x - 2, y - 2, x + 236, y + h, -1609560044);
                ctx.fill(x - 2, y - 2, x + 236, y - 1, -11606332);
-               ctx.text(tr, (villager ? "FLY-BRAINED VILLAGER [model]" : "CONNECTOME FLY") + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
+               ctx.text(tr, (villager ? "FLY-BRAINED " + gBody.toUpperCase(java.util.Locale.ROOT) + " [model]" : "CONNECTOME FLY") + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
                String live = "LIVE";
                ctx.text(tr, live, x + 236 - 6 - tr.width(live), y + 2, -11606332);
                ctx.text(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
@@ -276,7 +299,7 @@ public final class FlyHud {
                   yy += 10;
                }
 
-               ctx.text(tr, "speech: translated, not decoded · /flyhud hides this", x + 2, yy + 3, -9802624);
+               ctx.text(tr, "speech: translated, not decoded · H or /flyhud hides this", x + 2, yy + 3, -9802624);
                ctx.pose().popMatrix();
             }
          }

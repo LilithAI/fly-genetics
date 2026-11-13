@@ -60,6 +60,33 @@ public class AutoTest implements ClientModInitializer {
             System.out.println("[flygenetics autotest] done");
             c.stop();
          }
+      } else if (mode.equals("mobs")) {
+         // fly brain in other mobs' bodies: several types side by side, a pair of cows left to breed
+         int t = ticks;
+         if (t == 30) io.flyproject.connectomefly.client.FlyHud.enabled = false;
+         if (t == 40) {
+            run(c, "flygenes set adult_life_minutes 120", "flygenes set cap 20", "time set noon", "weather clear", "gamemode creative @a", CLEAR, "kill @e[type=connectomefly:fly_egg]",
+               "tp @a 0.5 -60 0.5 0 12",
+               "execute positioned -4.0 -60 6.0 run flygenes spawn mob minecraft:cow female", "execute positioned -2.5 -60 6.5 run flygenes spawn mob minecraft:cow male",
+               "execute positioned -0.5 -60 6.0 run flygenes spawn mob minecraft:zombie", "execute positioned 1.0 -60 6.0 run flygenes spawn mob minecraft:creeper",
+               "execute positioned 2.5 -60 6.0 run flygenes spawn mob minecraft:chicken", "execute positioned 4.0 -60 6.0 run flygenes spawn mob minecraft:iron_golem male",
+               "execute positioned 0.5 -60 9.0 run flygenes spawn mob minecraft:parrot male", "execute positioned 5.5 -60 7.0 run flygenes spawn mob minecraft:axolotl male",
+               "flygenes spawn mob minecraft:arrow", "flygenes spawn mob minecraft:not_a_mob");
+         }
+         if (t == 60) run(c, "data merge entity @e[type=connectomefly:connectome_fly,limit=1,sort=nearest] {}", "flygenes full");
+         if (t == 100) { shot(c, "mobs-1.png"); io.flyproject.connectomefly.client.FlyHud.enabled = true; }
+         if (t == 160) shot(c, "mobs-2-hud.png");
+         if (t == 170) io.flyproject.connectomefly.client.FlyHud.enabled = false;
+         if (t > 220 && t % 300 == 0) run(c, "flygenes");
+         if (t == 2100) {
+            run(c, "flygenes full", "execute as @e[type=connectomefly:connectome_fly] run data get entity @s BodyType", "execute if entity @e[type=cow] run say REAL COW SELECTED",
+               "execute unless entity @e[type=cow] run say no entity matches type=cow", "execute as @e[type=connectomefly:connectome_fly,limit=1,sort=nearest] at @s run flygenes body minecraft:pig");
+         }
+         if (t == 2160) shot(c, "mobs-3-after.png");
+         if (t == 2180) {
+            System.out.println("[flygenetics autotest] done");
+            c.stop();
+         }
       } else if (mode.equals("villager")) {
          villager(c);
       } else if (mode.equals("arena")) {
