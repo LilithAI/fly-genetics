@@ -11,7 +11,7 @@ Full brief: `FLY-PROJECT.md`.
 ## Owner decisions (2026-11-12)
 - Flies die of old age, hunger and predators.
 - Vivarium cap: 12 flies. Location to be given at step 5.
-- Inherited memory: built as a toggle, off by default.
+- Inherited memory: built as a toggle, off by default (`/flygenes memory true`, saved with the world).
 - CPU core count: unknown. Plan for 2 live brains until checked.
 
 ## Layout
@@ -48,6 +48,11 @@ See `docs/step1/README.md`. Short version: a flat plus or minus 20 percent break
 See `docs/step2/README.md`. The mod is now source in `src/main/java`; each fly has a 29-gene `[model]` genome that tunes its brain; children get each gene from mother or father plus mutations; genomes travel in eggs and survive save and reload. `/flygenes` shows them. Checked headless and in a breeding test in game; behaviour differences between flies have not been observed yet.
 
 Commands: `./gradlew build`, `./headless/check-genome.sh`, `xvfb-run -a ./gradlew runAutoTest [-Pautotest=breed|reload]`.
+
+## Step 3 status (done)
+See `docs/step3/README.md`. Old age, starvation, fed-only breeding, a population cap and frog predation are in, with settings and statistics saved in the world, four `[model]` lines on the HUD, and `/flygenes stats`. Each rule was triggered once in game. No multi-generation run has been done, and frogs caught no free-moving fly.
+
+Extra test modes: `-Pautotest=select`, `-Pautotest=cap`.
 
 ## Findings that change the brief
 - `fullbrain.bin.gz` format is plain from the loader: little-endian `int n`, `int nEdges`, `int[n+1] indptr`, `int[nEdges] indices`, `float[nEdges] weight` (CSR, row = source neuron), `byte[n] sensory`, padding to 4 bytes, `byte[n] dnclass`.

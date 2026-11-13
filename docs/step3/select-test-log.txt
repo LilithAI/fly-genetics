@@ -1,0 +1,83 @@
+04:03:16 [connectomefly genetics] death: 2569426f female gen 0 cause removed adult minutes 0.0
+04:03:16 [connectomefly genetics] death: 4ca30a9c female gen 0 cause removed adult minutes 0.0
+04:03:16 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:03:16 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=0.3 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:03:16 [Server] PHASE A old age
+04:03:30 [connectomefly genetics] death: ae62e753 female gen 0 cause old age adult minutes 0.2
+04:03:35 [connectomefly genetics] death: 1c5ad68e male gen 0 cause old age adult minutes 0.3
+04:03:46 alive in loaded chunks: 0
+04:03:46 born: gen 0: 4; eggs laid 0, eggs refused by cap 0, matings refused (hungry) 0
+04:03:46 deaths: old age 2 (mean adult age 0.3 min); starvation 0; predator 0; other 0; removed 2 (mean adult age 0.0 min);
+04:03:47 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:03:47 [Server] PHASE B starvation
+04:04:03 [connectomefly genetics] death: 6115f313 female gen 0 cause starvation adult minutes 0.3
+04:04:12 alive in loaded chunks: 0
+04:04:12 born: gen 0: 5; eggs laid 0, eggs refused by cap 0, matings refused (hungry) 0
+04:04:12 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 2 (mean adult age 0.0 min);
+04:04:13 [Server] PHASE C hungry female
+04:04:20 [connectomefly genetics] mating refused: 344776d0 hunger 5.0 below 12.0
+04:04:32 [connectomefly genetics] mating refused: 344776d0 hunger 5.0 below 12.0
+04:04:57 alive in loaded chunks: 2; gen 0: 1 female 1 male
+04:04:57 born: gen 0: 7; eggs laid 0, eggs refused by cap 0, matings refused (hungry) 2
+04:04:57 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 2 (mean adult age 0.0 min);
+04:04:57 gene means, flies alive now against generation 0, largest shifts:
+04:04:57   smell 1.093 -> 0.857, kc_mbon 0.932 -> 1.115, aggr_out 1.163 -> 1.361, eta 0.965 -> 0.840, hearing 0.973 -> 0.853, forget 0.982 -> 0.868
+04:04:57 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+04:04:58 [connectomefly genetics] death: 344776d0 female gen 0 cause removed adult minutes 0.8
+04:04:58 [connectomefly genetics] death: 02f48dd9 male gen 0 cause removed adult minutes 0.8
+04:04:58 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=2 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:04:58 [Server] PHASE D cap
+04:05:39 alive in loaded chunks: 1; gen 0: 1 female 0 male
+04:05:39 born: gen 0: 8; eggs laid 0, eggs refused by cap 0, matings refused (hungry) 2
+04:05:39 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 4 (mean adult age 0.4 min);
+04:05:39 gene means, flies alive now against generation 0, largest shifts:
+04:05:39   pheromone 1.056 -> 1.514, sleep_need 1.024 -> 0.778, aggr_out 1.133 -> 0.924, vision 0.946 -> 0.781, taste 0.981 -> 0.825, hunger_drive 0.986 -> 0.856
+04:05:39 [model] inherited tuning on real wiring, not real genetics. 1 flies, 0 eggs within 64 blocks
+04:05:43 [connectomefly genetics] death: fdeabcf1 female gen 0 cause removed adult minutes 0.8
+04:05:43 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:05:43 [Server] PHASE E breeding allowed
+04:06:39 alive in loaded chunks: 3; gen 0: 1 female 1 male; gen 1: 0 female 1 male
+04:06:39 born: gen 0: 10; gen 1: 1; eggs laid 1, eggs refused by cap 0, matings refused (hungry) 2
+04:06:39 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 5 (mean adult age 0.5 min);
+04:06:39 gene means, generation 1 (1 born) against generation 0 (10 born), largest shifts:
+04:06:39   smell 1.081 -> 0.672, reward 0.922 -> 0.680, compass_loop 0.904 -> 1.080, pain 1.046 -> 0.895, dn_drive_rate 0.977 -> 0.851, kc_mbon 0.930 -> 0.812
+04:06:39 gene means, flies alive now against generation 0, largest shifts:
+04:06:39   smell 1.081 -> 0.861, reward 0.922 -> 0.789, compass_out 0.973 -> 0.860, forget 1.028 -> 1.161, dn_drive_rate 0.977 -> 0.866, sleep_need 1.055 -> 1.179
+04:06:39 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+04:06:40 [connectomefly genetics] death: 9b3e3019 female gen 0 cause removed adult minutes 1.0
+04:06:40 [connectomefly genetics] death: 17a1d135 male gen 0 cause removed adult minutes 1.0
+04:06:40 [connectomefly genetics] death: 9862e966 male gen 1 cause removed adult minutes 0.0
+04:06:40 [Server] PHASE F1 frog and a fly that cannot move
+04:06:40 [Server] fly is tagged frog_food
+04:06:54 [connectomefly genetics] death: 52b4e34b male gen 0 cause predator (frog) adult minutes 0.2
+04:07:09 alive in loaded chunks: 0
+04:07:09 born: gen 0: 11; gen 1: 1; eggs laid 1, eggs refused by cap 0, matings refused (hungry) 2
+04:07:09 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 1 (mean adult age 0.2 min); other 0; removed 8 (mean adult age 0.5 min);
+04:07:09 gene means, generation 1 (1 born) against generation 0 (11 born), largest shifts:
+04:07:09   smell 1.082 -> 0.672, reward 0.919 -> 0.680, pain 1.070 -> 0.895, compass_loop 0.909 -> 1.080, kc_mbon 0.948 -> 0.812, dn_drive_rate 0.972 -> 0.851
+04:07:10 [Server] PHASE F2 frogs and free flies
+04:08:29 alive in loaded chunks: 3; gen 0: 1 female 1 male; gen 1: 1 female 0 male
+04:08:29 born: gen 0: 13; gen 1: 2; eggs laid 2, eggs refused by cap 0, matings refused (hungry) 2
+04:08:29 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 1 (mean adult age 0.2 min); other 0; removed 8 (mean adult age 0.5 min);
+04:08:29 gene means, generation 1 (2 born) against generation 0 (13 born), largest shifts:
+04:08:29   smell 1.098 -> 0.843, pain 1.040 -> 0.861, hunger_drive 0.984 -> 0.854, kc_mbon 0.969 -> 0.861, pheromone 0.994 -> 0.888, reward 0.912 -> 0.824
+04:08:29 gene means, flies alive now against generation 0, largest shifts:
+04:08:29   pheromone 0.994 -> 0.725, pain 1.040 -> 0.862, aggr_out 1.065 -> 0.894, hunger_drive 0.984 -> 0.841, sens_mult 1.020 -> 0.924, vision 0.971 -> 1.066
+04:08:29 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+04:08:29 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:09:16 [connectomefly genetics] death: 420f7019 female gen 1 cause removed adult minutes 0.0
+04:09:16 [connectomefly genetics] death: f2758cb9 female gen 0 cause removed adult minutes 1.4
+04:09:16 [connectomefly genetics] death: 5703b0af male gen 0 cause removed adult minutes 1.4
+04:09:16 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=2 cap_radius=48 growth_speed=1.0 inherit_memory=false
+04:09:16 [Server] PHASE D cap
+04:09:35 [connectomefly genetics] egg refused by cap: 2 of 2
+04:10:15 [connectomefly genetics] egg refused by cap: 2 of 2
+04:10:18 alive in loaded chunks: 2; gen 0: 1 female 1 male
+04:10:18 born: gen 0: 15; gen 1: 2; eggs laid 2, eggs refused by cap 2, matings refused (hungry) 2
+04:10:18 deaths: old age 2 (mean adult age 0.3 min); starvation 1 (mean adult age 0.3 min); predator 1 (mean adult age 0.2 min); other 0; removed 11 (mean adult age 0.6 min);
+04:10:18 gene means, generation 1 (2 born) against generation 0 (15 born), largest shifts:
+04:10:18   smell 1.065 -> 0.843, pain 1.025 -> 0.861, aggr_out 1.132 -> 0.963, hunger_drive 0.959 -> 0.854, reward 0.920 -> 0.824, hearing 1.025 -> 0.922
+04:10:18 gene means, flies alive now against generation 0, largest shifts:
+04:10:18   forget 1.034 -> 1.487, aggr_out 1.132 -> 1.571, smell 1.065 -> 0.856, hunger_drive 0.959 -> 0.792, kc_mbon 0.945 -> 0.784, compass_loop 0.950 -> 1.090
+04:10:18 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+04:10:19 [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=1.0 inherit_memory=false

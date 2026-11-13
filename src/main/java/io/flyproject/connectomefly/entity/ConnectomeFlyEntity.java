@@ -5,6 +5,7 @@ import io.flyproject.connectomefly.lab.ArenaBuilder;
 import io.flyproject.connectomefly.lab.LoomStimulus;
 import io.flyproject.connectomefly.neural.EscapeBrain;
 import io.flyproject.connectomefly.neural.LoomingMath;
+import io.flyproject.connectomefly.genetics.GeneticsState;
 import io.flyproject.connectomefly.genetics.Genome;
 import io.flyproject.connectomefly.neural.WholeBrain;
 import java.util.ArrayList;
@@ -139,6 +140,72 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    private Genome sireGenome;
    private java.util.UUID sireId;
    private float[] bornMemory;
+   // [model] selection
+   private int adultTicks;
+   private float lifeFactor = -1.0F;
+   private boolean counted;
+   private boolean diedOfAge;
+   private boolean deathRecorded;
+
+   private GeneticsState gstate() {
+      return GeneticsState.get(((ServerWorld)this.getWorld()).getServer());
+   }
+
+   /** [model] this fly's own share of the adult lifespan, 0.8 to 1.2, fixed at birth, not inherited */
+   private float lifeFactor() {
+      if (this.lifeFactor < 0.0F) {
+         this.lifeFactor = 0.8F + 0.4F * new java.util.Random(this.getUuid().getMostSignificantBits() * 31L + this.getUuid().getLeastSignificantBits()).nextFloat();
+      }
+
+      return this.lifeFactor;
+   }
+
+   public double adultMinutes() {
+      return this.adultTicks / 1200.0;
+   }
+
+   private void selectionTick() {
+      GeneticsState st = this.gstate();
+      if (!this.counted) {
+         this.counted = true;
+         st.recordBirth(this.genome());
+      }
+
+      if (st.selection && this.isAlive() && !this.isBabyFly()) {
+         this.adultTicks++;
+         if (this.adultTicks > st.adultLifeMinutes * 1200.0F * this.lifeFactor()) {
+            this.diedOfAge = true;
+            this.sayNow("[model] dies of old age");
+            this.damage(this.getWorld().getDamageSources().generic(), 1000.0F);
+         }
+      }
+   }
+
+   public void onDeath(DamageSource source) {
+      super.onDeath(source);
+      if (!this.getWorld().isClient && !this.deathRecorded) {
+         this.deathRecorded = true;
+         String cause = this.diedOfAge
+            ? "old age"
+            : (
+               source.isOf(DamageTypes.STARVE)
+                  ? "starvation"
+                  : (source.getAttacker() != null && !(source.getAttacker() instanceof PlayerEntity) ? "predator" : (source.isOf(DamageTypes.GENERIC_KILL) ? "removed" : "other"))
+            );
+         this.gstate().recordDeath(cause, this.adultMinutes());
+         System.out.println(
+            "[connectomefly genetics] death: "
+               + Genome.shortId(this.getUuid())
+               + (this.isMale() ? " male" : " female")
+               + " gen "
+               + this.genome().generation
+               + " cause "
+               + cause
+               + (source.getAttacker() != null ? " (" + source.getAttacker().getType().getUntranslatedName() + ")" : "")
+               + String.format(Locale.ROOT, " adult minutes %.1f", this.adultMinutes())
+         );
+      }
+   }
 
    /** This fly's inherited tuning. Flies that were spawned rather than hatched become founders (generation 0). */
    public Genome genome() {
@@ -494,6 +561,18 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
 
    public void acceptMate(ConnectomeFlyEntity male) {
       if (!this.isMale() && !(this.matingT > 0.0) && !(this.courtCd > 0.0) && male != null && male.isAlive()) {
+         GeneticsState st = this.gstate();
+         if (st.selection && this.getHunger() < st.breedHunger) {
+            // [model] fed-only breeding: a hungry female turns him down and he has to start again
+            this.courtedT = 0.0;
+            this.courtCd = 8.0;
+            st.matingsRefusedHungry++;
+            st.markDirty();
+            this.sayNow("[model] too hungry to breed: she turns him down");
+            System.out.println("[connectomefly genetics] mating refused: " + Genome.shortId(this.getUuid()) + String.format(Locale.ROOT, " hunger %.1f below %.1f", this.getHunger(), st.breedHunger));
+            return;
+         }
+
          this.courtedT = 0.0;
          this.matingT = 10.0;
          male.matingT = 10.0;
@@ -573,6 +652,27 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    public void layEgg(String why, boolean fertile) {
       if (!this.getWorld().isClient && !this.isMale() && !this.isBabyFly()) {
          ServerWorld world = (ServerWorld)this.getWorld();
+         GeneticsState st = this.gstate();
+         if (st.selection && fertile) {
+            net.minecraft.util.math.Box capBox = this.getBoundingBox().expand(st.capRadius);
+            int here = world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, capBox, e -> e.isAlive()).size()
+               + world.getEntitiesByType(ConnectomeFlyMod.FLY_EGG, capBox, e -> e.isAlive()).size();
+            if (here >= st.cap) {
+               st.eggsRefusedCap++;
+               st.markDirty();
+               this.sayNow("[model] no room: " + here + " flies and eggs here, the cap is " + st.cap + ". No egg.");
+               System.out.println("[connectomefly genetics] egg refused by cap: " + here + " of " + st.cap);
+               return;
+            }
+
+            this.setHunger(this.getHunger() - st.eggCost);
+         }
+
+         if (fertile) {
+            st.eggsLaid++;
+            st.markDirty();
+         }
+
          FlyEggEntity egg = (FlyEggEntity)ConnectomeFlyMod.FLY_EGG.create(world);
          if (egg != null) {
             double yawRad = Math.toRadians(this.getYaw());
@@ -589,9 +689,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                      egg.setMemory(m);
                   }
                }
-
-               this.sireGenome = null;
-               this.sireId = null;
+               // [model] the last mate's genome stays with her (flies store sperm), so later eggs
+               // that her brain decides to lay have the same father until she mates again
             }
 
             egg.refreshPositionAndAngles(this.getX() + Math.sin(yawRad) * 0.25, this.getY(), this.getZ() - Math.cos(yawRad) * 0.25, 0.0F, 0.0F);
@@ -607,7 +706,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       int g = this.getGrowth();
       if (g < 108000) {
          if (this.age % 20 == 0) {
-            this.setGrowth(g + 20);
+            this.setGrowth(g + Math.round(20.0F * this.gstate().growthSpeed));
          }
       }
    }
@@ -648,7 +747,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             this.heal(0.5F);
          } else if (h >= 12.0F && this.getHealth() < this.getMaxHealth() && this.age % 60 == 0) {
             this.heal(0.25F);
-         } else if (h <= 0.0F && ++this.starveTick >= 80 && this.getHealth() > 1.0F) {
+         } else if (h <= 0.0F && ++this.starveTick >= 80 && (this.getHealth() > 1.0F || this.gstate().selection)) {
             this.starveTick = 0;
             this.damage(this.getWorld().getDamageSources().starve(), 0.5F);
          }
@@ -805,6 +904,22 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          sb.append("hp=").append(String.format(Locale.ROOT, "%.1f", this.getHealth())).append(';');
          sb.append("hunger=").append(String.format(Locale.ROOT, "%.1f", this.getHunger())).append(';');
          sb.append("thirst=").append(String.format(Locale.ROOT, "%.1f", this.getThirst())).append(';');
+         Genome gn = this.genome();
+         GeneticsState gs = this.gstate();
+         sb.append("gen=").append(gn.generation).append(';');
+         sb.append("par=").append(gn.mother == null ? "founder (spawned)" : Genome.shortId(gn.mother) + " x " + Genome.shortId(gn.father)).append(';');
+         sb.append("genes=").append(gn.top(3)).append(';');
+         sb.append("life=")
+            .append(
+               this.isBabyFly()
+                  ? "young, " + Math.round(this.getGrowth() / 1080.0F) + "% grown"
+                  : (
+                     gs.selection
+                        ? String.format(Locale.ROOT, "adult %.0f of about %.0f min", this.adultMinutes(), gs.adultLifeMinutes * this.lifeFactor())
+                        : String.format(Locale.ROOT, "adult %.0f min, no ageing (selection off)", this.adultMinutes())
+                  )
+            )
+            .append(';');
          String s = sb.toString();
          if (!s.equals(this.dataTracker.get(HUD))) {
             this.dataTracker.set(HUD, s);
@@ -1196,6 +1311,9 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       nbt.putInt("Growth", this.getGrowth());
       nbt.putFloat("Thirst", this.getThirst());
       nbt.putBoolean("Mated", this.mated);
+      nbt.putInt("AdultTicks", this.adultTicks);
+      nbt.putFloat("LifeFactor", this.lifeFactor());
+      nbt.putBoolean("GenomeCounted", this.counted);
       nbt.put("Genome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome()));
       if (this.sireGenome != null) {
          nbt.put("SireGenome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.sireGenome));
@@ -1221,6 +1339,12 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       }
 
       this.mated = nbt.getBoolean("Mated");
+      this.adultTicks = nbt.getInt("AdultTicks");
+      if (nbt.contains("LifeFactor")) {
+         this.lifeFactor = nbt.getFloat("LifeFactor");
+      }
+
+      this.counted = nbt.getBoolean("GenomeCounted");
       if (nbt.contains("Genome")) {
          this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("Genome"));
       }
@@ -1307,6 +1431,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.flightTick();
          this.surfaceTick();
          this.hungerTick();
+         this.selectionTick();
          this.thirstTick();
          this.growthTick();
          this.matingTick();

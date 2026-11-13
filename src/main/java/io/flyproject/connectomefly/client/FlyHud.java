@@ -66,6 +66,10 @@ public final class FlyHud {
                String hud = fly.getHud();
                List<FlyHud.Line> lines = new ArrayList<>();
                String[] fields = hud.split(";");
+               String gGen = "";
+               String gPar = "";
+               String gGenes = "";
+               String gLife = "";
                String body = "";
                String doing = "";
                String box = "";
@@ -129,6 +133,18 @@ public final class FlyHud {
                            break;
                         case "hunger":
                            hunger = val;
+                           break;
+                        case "gen":
+                           gGen = val;
+                           break;
+                        case "par":
+                           gPar = val;
+                           break;
+                        case "genes":
+                           gGenes = val;
+                           break;
+                        case "life":
+                           gLife = val;
                            break;
                         case "outs":
                            outs = val;
@@ -214,6 +230,14 @@ public final class FlyHud {
                   lines.add(new FlyHud.Line("Hunger", bar + "  " + hunger + " / 20", -2052000));
                   lines.add(new FlyHud.Line("Thirst", thirst.isEmpty() ? "-" : thirst + " / 20", -7288577));
                   lines.add(new FlyHud.Line("Flight", air.isEmpty() ? "-" : air, -4660993));
+               }
+
+               if (!gGen.isEmpty()) {
+                  // [model] genetics readout: invented inheritance rules, labelled as such
+                  lines.add(3, new FlyHud.Line("Generation", gGen + " [model]" + (male ? " · genes unused in him" : ""), -5570646));
+                  lines.add(4, new FlyHud.Line("Parents", gPar, -5570646));
+                  lines.add(5, new FlyHud.Line("Genes [model]", gGenes, -5570646));
+                  lines.add(6, new FlyHud.Line("Age [model]", gLife, -5570646));
                }
 
                TextRenderer tr = mc.textRenderer;
