@@ -31,3 +31,15 @@ What it shows:
 - Permanent noon: sleep, the clock and night behaviour played no part.
 - Whether thirst mattered (not logged).
 - Why the one founder female never fed.
+
+## Run 3: scarce food, no frogs (`run3-scarce-a.log`), stopped at minute 11
+Same pen, but only 2 berry bushes and no melons. The sex-balance rule was on.
+- Founders bred once (6 eggs, 6 hatchlings), then **every female starved**: 3 founders at about 6.5 adult minutes and all 4 daughters at about 6.4. 51 matings were refused for hunger. Only two males were left.
+- A bush gives one bite (0.75 hunger) and then needs about 50 s to regrow even at `randomTickSpeed 20`; a female burns 2.5 to 5 hunger a minute. Two bushes cannot keep one female alive, let alone seven.
+- So the mod's foods give no middle ground: melons never run out (run 2: no pressure), bushes give almost nothing (run 3: collapse). At Zion's normal `randomTickSpeed 3` bushes are worse still.
+
+**Conclusion for step 5.** Food supply is the right selection lever, but it needs a feeder with an adjustable rate, for example a `[model]` rule that a food block yields one meal every N seconds. That is vivarium design and is left for step 5. A second scarce run was cancelled because it would have repeated this one.
+
+## Decisions taken after these runs
+- No frogs in the vivarium. The frog-food tag stays, so a fly that gets out can still be eaten.
+- Sex-balance rule added (`sex_balance`, on by default): a hatchling takes the rarer sex when one sex nearby is outnumbered more than 2 to 1. Not biology; labelled `[model]`. It compiled and ran in run 3 but never had to act there (0 hatchlings changed), so **it is untested in effect**.
