@@ -1,0 +1,163 @@
+=== breed
+06:06:34 [connectomefly genetics] death: 6b56fb03 female gen 0 cause removed adult minutes 0.4
+06:06:34 [connectomefly genetics] death: 67be39c9 female gen 0 cause removed adult minutes 0.4
+06:06:34 [connectomefly genetics] death: 926c37f3 male gen 0 cause removed adult minutes 0.4
+06:06:38 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:06:38 fly c2ca3164 female gen 0 mother none father none mutations 0: tau_m=0.973 v_th=1.029 tau_syn=0.979 drive_rate=0.979 drive_amp=0.946 dn_drive_rate=0.939 syn_mult=1.012 sens_mult=1.234 inh_mult=0.823 adapt_inc=1.046 adapt_tau=0.950 bus_rate=0.990 eta=0.808 forget=1.325 aggr_out=0.696 kc_mbon=1.144 compass_out=1.209 compass_loop=0.928 smell=1.081 taste=1.043 touch=1.174 hearing=0.924 vision=0.887 pheromone=1.078 pain=0.769 reward=1.225 hunger_drive=1.028 sleep_need=1.003 climate=1.316
+06:06:38 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.026 v_th=0.980 tau_syn=1.025 drive_rate=1.090 drive_amp=1.069 dn_drive_rate=1.134 syn_mult=0.987 sens_mult=1.009 inh_mult=0.983 adapt_inc=0.978 adapt_tau=1.001 bus_rate=0.983 eta=0.701 forget=1.624 aggr_out=0.951 kc_mbon=1.099 compass_out=0.968 compass_loop=1.115 smell=0.923 taste=0.812 touch=1.064 hearing=0.641 vision=1.021 pheromone=1.278 pain=1.034 reward=0.823 hunger_drive=1.176 sleep_need=0.874 climate=0.891
+06:06:42 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:06:42 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:06:42 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:06:47 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:06:47 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:06:47 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:06:52 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:06:52 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:06:52 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:06:57 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:06:57 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:06:57 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:06:57 egg 66555b3b gen 1 mother c2ca3164 father ec217314 mutations 6: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:02 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:07:02 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:02 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:02 egg 66555b3b gen 1 mother c2ca3164 father ec217314 mutations 6: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:07 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:07:07 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:07 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:07 egg 66555b3b gen 1 mother c2ca3164 father ec217314 mutations 6: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:12 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:07:12 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:12 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:12 egg 66555b3b gen 1 mother c2ca3164 father ec217314 mutations 6: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:17 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:07:17 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:17 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:17 egg 66555b3b gen 1 mother c2ca3164 father ec217314 mutations 6: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:22 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:07:22 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:22 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:22 egg 66555b3b gen 1 mother c2ca3164 father ec217314 mutations 6: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:27 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+06:07:27 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:27 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:27 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:32 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+06:07:32 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:32 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:32 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:37 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+06:07:37 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:37 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:37 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:42 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:07:42 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:42 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:42 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:42 egg 959d2060 gen 1 mother c2ca3164 father ec217314 mutations 2: hearing x0.64, forget x1.62, sens_mult x1.23, aggr_out x0.70, pain x0.78
+06:07:47 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:07:47 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:47 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:47 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:47 egg 959d2060 gen 1 mother c2ca3164 father ec217314 mutations 2: hearing x0.64, forget x1.62, sens_mult x1.23, aggr_out x0.70, pain x0.78
+06:07:52 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:07:52 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:52 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:52 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:52 egg 959d2060 gen 1 mother c2ca3164 father ec217314 mutations 2: hearing x0.64, forget x1.62, sens_mult x1.23, aggr_out x0.70, pain x0.78
+06:07:57 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:07:57 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:07:57 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:07:57 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:07:57 egg 959d2060 gen 1 mother c2ca3164 father ec217314 mutations 2: hearing x0.64, forget x1.62, sens_mult x1.23, aggr_out x0.70, pain x0.78
+06:08:02 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:08:02 fly c2ca3164 female gen 0 mother none father none mutations 0: sens_mult x1.23, inh_mult x0.82, climate x1.32, pain x0.77, aggr_out x0.70
+06:08:02 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: forget x1.57, sens_mult x1.23, inh_mult x0.82, pheromone x1.28, reward x0.82
+06:08:02 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: hearing x0.64, forget x1.62, eta x0.70, pheromone x1.28, taste x0.81
+06:08:02 egg 959d2060 gen 1 mother c2ca3164 father ec217314 mutations 2: hearing x0.64, forget x1.62, sens_mult x1.23, aggr_out x0.70, pain x0.78
+06:08:02 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:08:02 fly c2ca3164 female gen 0 mother none father none mutations 0: tau_m=0.973 v_th=1.029 tau_syn=0.979 drive_rate=0.979 drive_amp=0.946 dn_drive_rate=0.939 syn_mult=1.012 sens_mult=1.234 inh_mult=0.823 adapt_inc=1.046 adapt_tau=0.950 bus_rate=0.990 eta=0.808 forget=1.325 aggr_out=0.696 kc_mbon=1.144 compass_out=1.209 compass_loop=0.928 smell=1.081 taste=1.043 touch=1.174 hearing=0.924 vision=0.887 pheromone=1.078 pain=0.769 reward=1.225 hunger_drive=1.028 sleep_need=1.003 climate=1.316
+06:08:02 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: tau_m=1.026 v_th=1.029 tau_syn=0.979 drive_rate=0.979 drive_amp=1.069 dn_drive_rate=0.927 syn_mult=0.987 sens_mult=1.234 inh_mult=0.823 adapt_inc=1.073 adapt_tau=0.950 bus_rate=0.990 eta=0.808 forget=1.566 aggr_out=0.951 kc_mbon=0.915 compass_out=1.209 compass_loop=0.928 smell=1.081 taste=1.043 touch=1.064 hearing=0.924 vision=0.908 pheromone=1.278 pain=0.909 reward=0.823 hunger_drive=1.028 sleep_need=0.874 climate=0.891
+06:08:02 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.026 v_th=0.980 tau_syn=1.025 drive_rate=1.090 drive_amp=1.069 dn_drive_rate=1.134 syn_mult=0.987 sens_mult=1.009 inh_mult=0.983 adapt_inc=0.978 adapt_tau=1.001 bus_rate=0.983 eta=0.701 forget=1.624 aggr_out=0.951 kc_mbon=1.099 compass_out=0.968 compass_loop=1.115 smell=0.923 taste=0.812 touch=1.064 hearing=0.641 vision=1.021 pheromone=1.278 pain=1.034 reward=0.823 hunger_drive=1.176 sleep_need=0.874 climate=0.891
+06:08:02 egg 959d2060 gen 1 mother c2ca3164 father ec217314 mutations 2: tau_m=0.973 v_th=0.980 tau_syn=1.025 drive_rate=0.979 drive_amp=0.946 dn_drive_rate=0.996 syn_mult=1.012 sens_mult=1.234 inh_mult=0.983 adapt_inc=1.046 adapt_tau=1.001 bus_rate=0.983 eta=0.808 forget=1.624 aggr_out=0.696 kc_mbon=1.144 compass_out=0.968 compass_loop=1.115 smell=1.081 taste=1.043 touch=1.064 hearing=0.641 vision=0.887 pheromone=1.278 pain=0.775 reward=0.823 hunger_drive=1.176 sleep_need=1.003 climate=0.891
+=== reload
+06:08:30 [model] inherited tuning on real wiring, not real genetics. 4 flies, 0 eggs within 64 blocks
+06:08:30 fly 80a42933 male (young) gen 1 mother c2ca3164 father ec217314 mutations 6 [his small circuit does not use these genes; he only passes them on]: tau_m=1.026 v_th=1.029 tau_syn=0.979 drive_rate=0.979 drive_amp=1.069 dn_drive_rate=0.927 syn_mult=0.987 sens_mult=1.234 inh_mult=0.823 adapt_inc=1.073 adapt_tau=0.950 bus_rate=0.990 eta=0.808 forget=1.566 aggr_out=0.951 kc_mbon=0.915 compass_out=1.209 compass_loop=0.928 smell=1.081 taste=1.043 touch=1.064 hearing=0.924 vision=0.908 pheromone=1.278 pain=0.909 reward=0.823 hunger_drive=1.028 sleep_need=0.874 climate=0.891
+06:08:30 fly c2ca3164 female gen 0 mother none father none mutations 0: tau_m=0.973 v_th=1.029 tau_syn=0.979 drive_rate=0.979 drive_amp=0.946 dn_drive_rate=0.939 syn_mult=1.012 sens_mult=1.234 inh_mult=0.823 adapt_inc=1.046 adapt_tau=0.950 bus_rate=0.990 eta=0.808 forget=1.325 aggr_out=0.696 kc_mbon=1.144 compass_out=1.209 compass_loop=0.928 smell=1.081 taste=1.043 touch=1.174 hearing=0.924 vision=0.887 pheromone=1.078 pain=0.769 reward=1.225 hunger_drive=1.028 sleep_need=1.003 climate=1.316
+06:08:30 fly ec217314 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.026 v_th=0.980 tau_syn=1.025 drive_rate=1.090 drive_amp=1.069 dn_drive_rate=1.134 syn_mult=0.987 sens_mult=1.009 inh_mult=0.983 adapt_inc=0.978 adapt_tau=1.001 bus_rate=0.983 eta=0.701 forget=1.624 aggr_out=0.951 kc_mbon=1.099 compass_out=0.968 compass_loop=1.115 smell=0.923 taste=0.812 touch=1.064 hearing=0.641 vision=1.021 pheromone=1.278 pain=1.034 reward=0.823 hunger_drive=1.176 sleep_need=0.874 climate=0.891
+06:08:30 fly 0ed18750 male (young) gen 1 mother c2ca3164 father ec217314 mutations 2 [his small circuit does not use these genes; he only passes them on]: tau_m=0.973 v_th=0.980 tau_syn=1.025 drive_rate=0.979 drive_amp=0.946 dn_drive_rate=0.996 syn_mult=1.012 sens_mult=1.234 inh_mult=0.983 adapt_inc=1.046 adapt_tau=1.001 bus_rate=0.983 eta=0.808 forget=1.624 aggr_out=0.696 kc_mbon=1.144 compass_out=0.968 compass_loop=1.115 smell=1.081 taste=1.043 touch=1.064 hearing=0.641 vision=0.887 pheromone=1.278 pain=0.775 reward=0.823 hunger_drive=1.176 sleep_need=1.003 climate=0.891
+=== select
+06:11:40 [connectomefly genetics] death: 04cde0d5 male gen 0 cause removed adult minutes 0.4
+06:11:40 [connectomefly genetics] death: 871301c0 female gen 0 cause removed adult minutes 0.4
+06:11:40 [connectomefly genetics] death: 66af4966 female gen 0 cause removed adult minutes 0.4
+06:11:40 [Server] PHASE A old age
+06:11:54 [connectomefly genetics] death: 433bab22 male gen 0 cause old age adult minutes 0.2
+06:11:58 [connectomefly genetics] death: 6af2dd3c female gen 0 cause old age adult minutes 0.3
+06:12:09 alive in loaded chunks: 0
+06:12:09 born: gen 0: 16; gen 1: 4; eggs laid 5, eggs refused by cap 0, matings refused (hungry) 0, hatchlings whose sex was set by the balance rule 0
+06:12:09 deaths: old age 5 (mean adult age 0.7 min); starvation 0; predator 0; other 0; removed 15 (mean adult age 0.4 min);
+06:12:10 [Server] PHASE B starvation
+06:12:26 [connectomefly genetics] death: ea2ae5cd female gen 0 cause starvation adult minutes 0.3
+06:12:35 alive in loaded chunks: 1; gen 1: 0 female 1 male
+06:12:35 born: gen 0: 17; gen 1: 5; eggs laid 5, eggs refused by cap 0, matings refused (hungry) 0, hatchlings whose sex was set by the balance rule 0
+06:12:35 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 15 (mean adult age 0.4 min);
+06:12:36 [connectomefly genetics] death: 3ae805be male gen 1 cause removed adult minutes 0.0
+06:12:36 [Server] PHASE C hungry female
+06:12:42 [connectomefly genetics] mating refused: f44b688b hunger 5.0 below 12.0
+06:12:53 [connectomefly genetics] mating refused: f44b688b hunger 4.9 below 12.0
+06:13:03 [connectomefly genetics] mating refused: f44b688b hunger 5.0 below 12.0
+06:13:20 alive in loaded chunks: 2; gen 0: 1 female 1 male
+06:13:20 born: gen 0: 19; gen 1: 5; eggs laid 5, eggs refused by cap 0, matings refused (hungry) 3, hatchlings whose sex was set by the balance rule 0
+06:13:20 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 16 (mean adult age 0.4 min);
+06:13:20 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:13:20 fly f44b688b female gen 0 mother none father none mutations 0: tau_syn x1.04, drive_amp x1.15, drive_rate x0.82, v_th x0.94, hunger_drive x0.79
+06:13:20 fly b59c7e56 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_syn x1.04, eta x1.64, forget x0.63, drive_amp x0.90, tau_m x0.91
+06:13:56 [connectomefly genetics] mating refused: f44b688b hunger 2.1 below 12.0
+06:14:06 [connectomefly genetics] death: f44b688b female gen 0 cause removed adult minutes 1.5
+06:14:06 [connectomefly genetics] death: b59c7e56 male gen 0 cause removed adult minutes 1.5
+06:14:06 [Server] PHASE E breeding allowed
+06:15:02 alive in loaded chunks: 3; gen 0: 1 female 1 male; gen 1: 1 female 0 male
+06:15:02 born: gen 0: 21; gen 1: 6; eggs laid 6, eggs refused by cap 0, matings refused (hungry) 4, hatchlings whose sex was set by the balance rule 0
+06:15:02 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 18 (mean adult age 0.5 min);
+06:15:02 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+06:15:02 fly c6c96ea7 female gen 0 mother none father none mutations 0: tau_m=0.978 v_th=1.045 tau_syn=0.984 drive_rate=0.772 drive_amp=1.025 dn_drive_rate=1.115 syn_mult=1.033 sens_mult=0.872 inh_mult=1.045 adapt_inc=1.043 adapt_tau=0.961 bus_rate=0.912 eta=1.192 forget=0.756 aggr_out=1.213 kc_mbon=1.277 compass_out=1.367 compass_loop=0.965 smell=0.966 taste=0.951 touch=0.799 hearing=1.043 vision=1.355 pheromone=1.268 pain=1.287 reward=1.036 hunger_drive=1.286 sleep_need=1.245 climate=1.159
+06:15:02 fly 564a1cc8 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=0.961 v_th=1.077 tau_syn=0.978 drive_rate=1.001 drive_amp=0.970 dn_drive_rate=1.018 syn_mult=0.992 sens_mult=1.146 inh_mult=0.961 adapt_inc=0.950 adapt_tau=0.953 bus_rate=1.141 eta=1.058 forget=0.704 aggr_out=0.982 kc_mbon=1.485 compass_out=1.092 compass_loop=0.879 smell=1.006 taste=0.968 touch=0.826 hearing=0.946 vision=0.743 pheromone=1.002 pain=1.184 reward=0.834 hunger_drive=0.989 sleep_need=1.001 climate=0.909
+06:15:02 fly 9d21c3c7 female (young) gen 1 mother c6c96ea7 father 564a1cc8 mutations 6: tau_m=0.978 v_th=1.045 tau_syn=0.984 drive_rate=0.772 drive_amp=1.025 dn_drive_rate=1.115 syn_mult=1.033 sens_mult=0.872 inh_mult=0.961 adapt_inc=0.950 adapt_tau=0.993 bus_rate=0.912 eta=0.974 forget=0.756 aggr_out=0.982 kc_mbon=1.485 compass_out=1.367 compass_loop=0.879 smell=1.006 taste=0.968 touch=0.799 hearing=0.946 vision=0.771 pheromone=1.268 pain=1.184 reward=0.834 hunger_drive=1.204 sleep_need=1.245 climate=0.686
+06:15:03 [connectomefly genetics] death: c6c96ea7 female gen 0 cause removed adult minutes 1.0
+06:15:03 [connectomefly genetics] death: 564a1cc8 male gen 0 cause removed adult minutes 1.0
+06:15:03 [connectomefly genetics] death: 9d21c3c7 female gen 1 cause removed adult minutes 0.0
+06:15:03 [Server] PHASE F1 frog and a fly that cannot move
+06:15:03 [Server] fly is tagged frog_food
+06:15:32 alive in loaded chunks: 1; gen 0: 0 female 1 male
+06:15:32 born: gen 0: 22; gen 1: 6; eggs laid 6, eggs refused by cap 0, matings refused (hungry) 4, hatchlings whose sex was set by the balance rule 0
+06:15:32 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 21 (mean adult age 0.5 min);
+06:15:33 [connectomefly genetics] death: fa5a7fe6 male gen 0 cause removed adult minutes 0.5
+06:15:33 [Server] PHASE F2 frogs and free flies
+06:16:52 alive in loaded chunks: 3; gen 0: 1 female 1 male; gen 1: 1 female 0 male
+06:16:52 born: gen 0: 24; gen 1: 7; eggs laid 8, eggs refused by cap 0, matings refused (hungry) 4, hatchlings whose sex was set by the balance rule 0
+06:16:52 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 0; other 0; removed 22 (mean adult age 0.5 min);
+06:16:52 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:16:52 fly 3388da5c female (young) gen 1 mother e09a0dbe father 59095670 mutations 4: kc_mbon x1.52, smell x1.31, compass_out x0.69, taste x0.78, tau_syn x1.03
+06:16:52 fly e09a0dbe female gen 0 mother none father none mutations 0: smell x1.31, v_th x1.07, sens_mult x0.83, hearing x0.78, taste x0.78
+06:16:52 fly 59095670 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: reward x0.65, kc_mbon x1.52, eta x1.46, compass_out x0.69, tau_syn x0.97
+06:16:52 egg f98c2f63 gen 1 mother e09a0dbe father 59095670 mutations 3: reward x0.65, vision x1.34, kc_mbon x1.52, smell x1.31, v_th x1.07
+=== frog
+06:17:41 [connectomefly genetics] death: 3388da5c female gen 1 cause removed adult minutes 0.0
+06:17:41 [connectomefly genetics] death: 59095670 male gen 0 cause removed adult minutes 1.4
+06:17:41 [connectomefly genetics] death: e09a0dbe female gen 0 cause removed adult minutes 1.4
+06:17:41 [Server] PHASE F1 frog and a fly that cannot move
+06:17:42 [Connectome Fly] fly is tagged frog_food
+06:17:45 [connectomefly genetics] death: 23d078da male gen 0 cause predator (frog) adult minutes 0.1
+06:18:23 alive in loaded chunks: 0
+06:18:23 born: gen 0: 25; gen 1: 7; eggs laid 8, eggs refused by cap 0, matings refused (hungry) 4, hatchlings whose sex was set by the balance rule 0
+06:18:23 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 1 (mean adult age 0.1 min); other 0; removed 25 (mean adult age 0.6 min);
+=== cap
+06:18:46 [Server] PHASE D cap
+06:19:04 [connectomefly genetics] egg refused by cap: 2 of 2
+06:19:45 [connectomefly genetics] egg refused by cap: 2 of 2
+06:19:49 alive in loaded chunks: 2; gen 0: 1 female 1 male
+06:19:49 born: gen 0: 27; gen 1: 7; eggs laid 8, eggs refused by cap 2, matings refused (hungry) 4, hatchlings whose sex was set by the balance rule 0
+06:19:49 deaths: old age 5 (mean adult age 0.7 min); starvation 1 (mean adult age 0.3 min); predator 1 (mean adult age 0.1 min); other 0; removed 25 (mean adult age 0.6 min);
+06:19:49 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:19:49 fly 00001253 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: sleep_need x1.30, eta x1.35, reward x1.23, drive_amp x0.92, bus_rate x1.14
+06:19:49 fly 2752f05f female gen 0 mother none father none mutations 0: taste x1.51, pain x0.72, tau_syn x0.97, compass_loop x0.78, drive_rate x0.85

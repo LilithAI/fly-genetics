@@ -57,6 +57,11 @@ Extra test modes: `-Pautotest=select`, `-Pautotest=cap`.
 ## Population runs (done)
 See `docs/poprun/README.md`. With frogs in a closed pen the males were eaten in 32 seconds. Without frogs the population ran five generations unattended (37 flies) and then died out by chance at a cap of 12. Selection was weak (35 of 37 deaths were old age) and the gene shifts seen cannot be told from drift.
 
+## Step 4 status (done on the `port-26.3` branch)
+See `docs/step4/README.md`. The mod builds and runs on Minecraft 26.3: server and client, the fly model is visible, and the breeding, save/reload and selection tests pass. The fly renderer had to be rewritten for 26.3's render pipeline. Not yet tried on a real graphics card or in the owner's instance.
+
+Tests on 26.3: `JAVA_HOME=<jdk 25> xvfb-run -a ./gradlew runAutoTest -Pautotest=look|breed|reload|select|cap|frog|arena`.
+
 ## Findings that change the brief
 - `fullbrain.bin.gz` format is plain from the loader: little-endian `int n`, `int nEdges`, `int[n+1] indptr`, `int[nEdges] indices`, `float[nEdges] weight` (CSR, row = source neuron), `byte[n] sensory`, padding to 4 bytes, `byte[n] dnclass`.
 - `brain_circuit_gains.json` has only **7** groups, not one per behaviour: `compass_loop` x2, `compass_out` x1, `kc_mbon` x20, `mbon_out` x1, `lc_out` x1, `aggr_out` x25, `pc1_recurrent` x1. Each is a `src` and `dst` neuron list; every synapse from src to dst is multiplied by the gain, **once, into the shared weights at load**. Per-fly circuit genes therefore need a per-fly multiplier applied in `step`, and behaviour genes such as escape, feeding or sleep need new groups built from the output and channel lists in `brain_outputs.json` and `brain_channels.json`.

@@ -23,7 +23,7 @@ public class AutoTest implements ClientModInitializer {
    private void tick(Minecraft c) {
       if (c.level == null || c.player == null || c.getSingleplayerServer() == null) return;
       c.options.pauseOnLostFocus = false;
-      if (c.gui.screen() != null) c.gui.setScreen(null);
+      if (c.gui.screen() != null && !(c.gui.screen() instanceof io.flyproject.connectomefly.client.CreditsScreen)) c.gui.setScreen(null);
       ticks++;
       String mode = System.getProperty("flygenetics.autotest");
       if (mode.equals("breed")) {
@@ -57,6 +57,27 @@ public class AutoTest implements ClientModInitializer {
          if (ticks == 240) run(c, "flylab body model", "tp @a 0.5 -60 0.5 0 25");
          if (ticks == 400) shot(c, "look-3-free.png");
          if (ticks == 420) {
+            System.out.println("[flygenetics autotest] done");
+            c.stop();
+         }
+      } else if (mode.equals("arena")) {
+         // the experiment boxes: signs, books, display panels, the intro and credits screens
+         if (ticks == 40) run(c, CLEAR, "gamemode creative @a", "tp @a 0.5 -60 0.5 0 10", "execute as @a at @s run flylab arena all");
+         if (ticks == 120) run(c, "execute as @a at @s run flylab book", "execute as @a at @s run flylab spawn female", "execute as @a at @s run flylab loom", "execute as @a at @s run flylab drum left");
+         if (ticks == 200) shot(c, "arena.png");
+         if (ticks == 210) c.gui.setScreen(new io.flyproject.connectomefly.client.CreditsScreen());
+         if (ticks == 230) shot(c, "credits.png");
+         if (ticks == 240) {
+            System.out.println("[flygenetics autotest] done");
+            c.stop();
+         }
+      } else if (mode.equals("frog")) {
+         // is a fly frog food? A fly that cannot move, a frog beside it.
+         if (ticks == 40) run(c, "flygenes set adult_life_minutes 120", CLEAR, "kill @e[type=connectomefly:fly_egg]", "kill @e[type=frog]", "tp @a 0.5 -60 0.5 0 35");
+         if (ticks == 60) run(c, "say PHASE F1 frog and a fly that cannot move", "summon connectomefly:connectome_fly 6.5 -60 6.5 {NoAI:1b,Male:1b}", "summon frog 8.5 -60 6.5",
+            "execute as @e[type=connectomefly:connectome_fly] if entity @s[type=#minecraft:frog_food] run say fly is tagged frog_food");
+         if (ticks == 900) run(c, "flygenes stats", "kill @e[type=frog]");
+         if (ticks == 940) {
             System.out.println("[flygenetics autotest] done");
             c.stop();
          }
@@ -135,7 +156,7 @@ public class AutoTest implements ClientModInitializer {
       if (t == 4120) {
          // F1: is a fly frog food at all? A fly that cannot move (NoAI), a frog beside it.
          run(c, CLEAR, "kill @e[type=connectomefly:fly_egg]", "say PHASE F1 frog and a fly that cannot move", "summon connectomefly:connectome_fly 6.5 -60 6.5 {NoAI:1b,Male:1b}", "summon frog 8.5 -60 6.5",
-            "execute if entity @e[type=#minecraft:frog_food] run say fly is tagged frog_food");
+            "execute as @e[type=connectomefly:connectome_fly] if entity @s[type=#minecraft:frog_food] run say fly is tagged frog_food");
       }
       if (t == 4700) run(c, "flygenes stats");
       if (t == 4720) {
