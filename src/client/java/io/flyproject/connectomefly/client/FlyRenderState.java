@@ -15,6 +15,7 @@ public class FlyRenderState extends EntityRenderState {
    public float scale = 1.0F;
    public float deathTime;
    public boolean hurt;
+   public boolean asleep;
    public String speech = "";
    public boolean showBars;
    public boolean showSpeech;

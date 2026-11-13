@@ -1,0 +1,80 @@
+=== villager
+06:29:37 [connectomefly genetics] death: ee1d5a32 female gen 0 cause old age adult minutes 1.1
+06:29:37 [connectomefly genetics] death: 00fb5343 male gen 0 cause old age adult minutes 1.1
+06:29:37 [connectomefly genetics] death: d2be53fd female gen 0 cause old age adult minutes 0.9
+06:29:39 [connectomefly genetics] death: 7221b1bf male gen 1 cause removed adult minutes 0.0
+06:29:39 [connectomefly genetics] death: bb24cacf female gen 1 cause removed adult minutes 0.0
+06:29:39 [model] a fly-brained villager (female): a villager's body moved by the fly's whole brain. It is not a real villager: it cannot trade, farm, guard or follow orders, and @e[type=villager] does not select it.
+06:29:39 [model] a fly-brained villager (male): a villager's body moved by the fly's whole brain. It is not a real villager: it cannot trade, farm, guard or follow orders, and @e[type=villager] does not select it.
+06:29:39 Your game mode has been updated to Creative Mode
+06:29:41 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:29:41 fly 94915c07 female gen 0 mother none father none mutations 0: tau_m=1.044 v_th=0.985 tau_syn=1.028 drive_rate=0.998 drive_amp=0.978 dn_drive_rate=1.045 syn_mult=1.019 sens_mult=1.028 inh_mult=0.915 adapt_inc=1.010 adapt_tau=1.068 bus_rate=1.029 eta=0.816 forget=0.809 aggr_out=0.801 kc_mbon=0.887 compass_out=0.747 compass_loop=1.240 smell=1.001 taste=1.011 touch=1.214 hearing=0.952 vision=0.964 pheromone=0.924 pain=0.881 reward=1.149 hunger_drive=0.998 sleep_need=1.104 climate=0.709
+06:29:41 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.110 v_th=1.008 tau_syn=0.974 drive_rate=1.014 drive_amp=1.034 dn_drive_rate=0.773 syn_mult=0.987 sens_mult=1.063 inh_mult=1.063 adapt_inc=0.958 adapt_tau=0.950 bus_rate=1.205 eta=0.839 forget=0.750 aggr_out=0.729 kc_mbon=1.237 compass_out=1.200 compass_loop=1.017 smell=1.294 taste=1.050 touch=0.900 hearing=1.119 vision=0.923 pheromone=0.922 pain=0.955 reward=1.133 hunger_drive=1.124 sleep_need=1.191 climate=1.026
+06:29:41 [Server] COUNT vanilla selector matches a real villager
+06:29:41 [Server] CHECK how many entities Villager selects:
+06:29:41 [Villager] I am selected by type=villager
+06:29:41 [Connectome Fly] I am selected by type=connectomefly:connectome_fly
+06:29:41 [Connectome Fly] I am selected by type=connectomefly:connectome_fly
+06:29:57 [model] inherited tuning on real wiring, not real genetics. 2 flies, 0 eggs within 64 blocks
+06:29:57 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:29:57 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:07 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:30:07 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:30:07 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:07 egg 475c373b gen 1 mother 94915c07 father 89bf5cb1 mutations 5: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:30:17 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:30:17 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:30:17 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:17 egg 475c373b gen 1 mother 94915c07 father 89bf5cb1 mutations 5: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:30:27 [model] inherited tuning on real wiring, not real genetics. 2 flies, 1 eggs within 64 blocks
+06:30:27 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:27 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:30:27 egg 475c373b gen 1 mother 94915c07 father 89bf5cb1 mutations 5: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:30:37 [model] inherited tuning on real wiring, not real genetics. 3 flies, 0 eggs within 64 blocks
+06:30:37 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:30:37 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:37 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:30:47 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:30:47 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:30:47 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:47 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:30:47 egg a7f1c51c gen 1 mother 94915c07 father 89bf5cb1 mutations 6: smell x1.55, tau_m x1.11, bus_rate x1.20, tau_syn x0.97, aggr_out x0.73
+06:30:57 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:30:57 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:30:57 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:30:57 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:30:57 egg a7f1c51c gen 1 mother 94915c07 father 89bf5cb1 mutations 6: smell x1.55, tau_m x1.11, bus_rate x1.20, tau_syn x0.97, aggr_out x0.73
+06:31:07 [model] inherited tuning on real wiring, not real genetics. 3 flies, 1 eggs within 64 blocks
+06:31:07 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:31:07 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:31:07 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:31:07 egg a7f1c51c gen 1 mother 94915c07 father 89bf5cb1 mutations 6: smell x1.55, tau_m x1.11, bus_rate x1.20, tau_syn x0.97, aggr_out x0.73
+06:31:10 [connectomefly genetics] mating refused: 94915c07 hunger 9.5 below 12.0
+06:31:17 [model] inherited tuning on real wiring, not real genetics. 4 flies, 0 eggs within 64 blocks
+06:31:17 fly 32936cb9 female (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 6: smell x1.55, tau_m x1.11, bus_rate x1.20, tau_syn x0.97, aggr_out x0.73
+06:31:17 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:31:17 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:31:17 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:31:21 [connectomefly genetics] mating refused: 94915c07 hunger 8.9 below 12.0
+06:31:27 [model] inherited tuning on real wiring, not real genetics. 4 flies, 0 eggs within 64 blocks
+06:31:27 fly 32936cb9 female (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 6: smell x1.55, tau_m x1.11, bus_rate x1.20, tau_syn x0.97, aggr_out x0.73
+06:31:27 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, smell x1.29, aggr_out x0.73
+06:31:27 fly 94915c07 female gen 0 mother none father none mutations 0: climate x0.71, compass_loop x1.24, tau_syn x1.03, compass_out x0.75, touch x1.21
+06:31:27 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: dn_drive_rate x0.77, tau_m x1.11, bus_rate x1.20, adapt_tau x1.10, inh_mult x0.84
+06:31:32 [model] inherited tuning on real wiring, not real genetics. 4 flies, 0 eggs within 64 blocks
+06:31:32 fly 32936cb9 female (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 6: tau_m=1.110 v_th=1.003 tau_syn=0.968 drive_rate=1.014 drive_amp=1.034 dn_drive_rate=1.045 syn_mult=0.987 sens_mult=1.028 inh_mult=0.915 adapt_inc=1.010 adapt_tau=0.950 bus_rate=1.205 eta=0.816 forget=0.809 aggr_out=0.729 kc_mbon=1.237 compass_out=0.747 compass_loop=1.017 smell=1.547 taste=1.050 touch=0.900 hearing=0.918 vision=0.923 pheromone=0.852 pain=0.955 reward=1.149 hunger_drive=0.998 sleep_need=1.191 climate=0.844
+06:31:32 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.110 v_th=1.008 tau_syn=0.974 drive_rate=1.014 drive_amp=1.034 dn_drive_rate=0.773 syn_mult=0.987 sens_mult=1.063 inh_mult=1.063 adapt_inc=0.958 adapt_tau=0.950 bus_rate=1.205 eta=0.839 forget=0.750 aggr_out=0.729 kc_mbon=1.237 compass_out=1.200 compass_loop=1.017 smell=1.294 taste=1.050 touch=0.900 hearing=1.119 vision=0.923 pheromone=0.922 pain=0.955 reward=1.133 hunger_drive=1.124 sleep_need=1.191 climate=1.026
+06:31:32 fly 94915c07 female gen 0 mother none father none mutations 0: tau_m=1.044 v_th=0.985 tau_syn=1.028 drive_rate=0.998 drive_amp=0.978 dn_drive_rate=1.045 syn_mult=1.019 sens_mult=1.028 inh_mult=0.915 adapt_inc=1.010 adapt_tau=1.068 bus_rate=1.029 eta=0.816 forget=0.809 aggr_out=0.801 kc_mbon=0.887 compass_out=0.747 compass_loop=1.240 smell=1.001 taste=1.011 touch=1.214 hearing=0.952 vision=0.964 pheromone=0.924 pain=0.881 reward=1.149 hunger_drive=0.998 sleep_need=1.104 climate=0.709
+06:31:32 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: tau_m=1.110 v_th=0.990 tau_syn=0.974 drive_rate=0.998 drive_amp=0.978 dn_drive_rate=0.773 syn_mult=1.019 sens_mult=1.063 inh_mult=0.844 adapt_inc=0.958 adapt_tau=1.104 bus_rate=1.205 eta=0.816 forget=0.809 aggr_out=0.779 kc_mbon=1.237 compass_out=1.200 compass_loop=1.017 smell=1.001 taste=1.050 touch=1.214 hearing=0.952 vision=0.923 pheromone=0.922 pain=0.881 reward=1.133 hunger_drive=1.124 sleep_need=1.265 climate=1.026
+06:31:32 born: gen 0: 5; gen 1: 4; eggs laid 4, eggs refused by cap 0, matings refused (hungry) 2, hatchlings whose sex was set by the balance rule 0
+06:31:32 deaths: old age 3 (mean adult age 1.0 min); starvation 0; predator 0; other 0; removed 2 (mean adult age 0.0 min);
+06:31:32 Connectome Fly has the following entity data: 2b
+06:31:32 Connectome Fly has the following entity data: 2b
+06:31:32 Connectome Fly has the following entity data: 2b
+06:31:32 Connectome Fly has the following entity data: 2b
+=== reload
+06:31:59 [model] inherited tuning on real wiring, not real genetics. 4 flies, 0 eggs within 64 blocks
+06:31:59 fly 32936cb9 female (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 6: tau_m=1.110 v_th=1.003 tau_syn=0.968 drive_rate=1.014 drive_amp=1.034 dn_drive_rate=1.045 syn_mult=0.987 sens_mult=1.028 inh_mult=0.915 adapt_inc=1.010 adapt_tau=0.950 bus_rate=1.205 eta=0.816 forget=0.809 aggr_out=0.729 kc_mbon=1.237 compass_out=0.747 compass_loop=1.017 smell=1.547 taste=1.050 touch=0.900 hearing=0.918 vision=0.923 pheromone=0.852 pain=0.955 reward=1.149 hunger_drive=0.998 sleep_need=1.191 climate=0.844
+06:31:59 fly 94915c07 female gen 0 mother none father none mutations 0: tau_m=1.044 v_th=0.985 tau_syn=1.028 drive_rate=0.998 drive_amp=0.978 dn_drive_rate=1.045 syn_mult=1.019 sens_mult=1.028 inh_mult=0.915 adapt_inc=1.010 adapt_tau=1.068 bus_rate=1.029 eta=0.816 forget=0.809 aggr_out=0.801 kc_mbon=0.887 compass_out=0.747 compass_loop=1.240 smell=1.001 taste=1.011 touch=1.214 hearing=0.952 vision=0.964 pheromone=0.924 pain=0.881 reward=1.149 hunger_drive=0.998 sleep_need=1.104 climate=0.709
+06:31:59 fly 561e58d2 male (young) gen 1 mother 94915c07 father 89bf5cb1 mutations 5 [his small circuit does not use these genes; he only passes them on]: tau_m=1.110 v_th=0.990 tau_syn=0.974 drive_rate=0.998 drive_amp=0.978 dn_drive_rate=0.773 syn_mult=1.019 sens_mult=1.063 inh_mult=0.844 adapt_inc=0.958 adapt_tau=1.104 bus_rate=1.205 eta=0.816 forget=0.809 aggr_out=0.779 kc_mbon=1.237 compass_out=1.200 compass_loop=1.017 smell=1.001 taste=1.050 touch=1.214 hearing=0.952 vision=0.923 pheromone=0.922 pain=0.881 reward=1.133 hunger_drive=1.124 sleep_need=1.265 climate=1.026
+06:31:59 fly 89bf5cb1 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.110 v_th=1.008 tau_syn=0.974 drive_rate=1.014 drive_amp=1.034 dn_drive_rate=0.773 syn_mult=0.987 sens_mult=1.063 inh_mult=1.063 adapt_inc=0.958 adapt_tau=0.950 bus_rate=1.205 eta=0.839 forget=0.750 aggr_out=0.729 kc_mbon=1.237 compass_out=1.200 compass_loop=1.017 smell=1.294 taste=1.050 touch=0.900 hearing=1.119 vision=0.923 pheromone=0.922 pain=0.955 reward=1.133 hunger_drive=1.124 sleep_need=1.191 climate=1.026

@@ -25,6 +25,11 @@ public class FlyEggEntity extends Entity {
    // [model] genetics: the child's genome is decided when the egg is laid and travels in the egg
    private Genome genome;
    private float[] memory;
+   private byte body = -1;
+
+   public void setBody(byte b) {
+      this.body = b;
+   }
 
    public void setGenome(Genome g) {
       this.genome = g;
@@ -57,6 +62,7 @@ public class FlyEggEntity extends Entity {
    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput nbt) {
       this.entityData.set(AGE, nbt.getIntOr("EggAge", 0));
       this.fertile = nbt.getBooleanOr("Fertile", true);
+      this.body = nbt.getByteOr("Body", (byte)-1);
       nbt.read("Genome", CompoundTag.CODEC).ifPresent(t -> this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(t));
       nbt.getIntArray("Memory").ifPresent(bits -> {
          this.memory = new float[bits.length];
@@ -70,6 +76,7 @@ public class FlyEggEntity extends Entity {
    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput nbt) {
       nbt.putInt("EggAge", this.getEggAge());
       nbt.putBoolean("Fertile", this.fertile);
+      nbt.putByte("Body", this.body);
       if (this.genome != null) {
          nbt.store("Genome", CompoundTag.CODEC, io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome));
       }
@@ -156,7 +163,7 @@ public class FlyEggEntity extends Entity {
          }
 
          baby.setMale(male);
-         baby.setBodyMode(ConnectomeFlyEntity.defaultBody);
+         baby.setBodyMode(this.body >= 0 ? this.body : ConnectomeFlyEntity.defaultBody);
          baby.setGrowth(0);
          if (this.genome != null) {
             baby.setGenome(this.genome);

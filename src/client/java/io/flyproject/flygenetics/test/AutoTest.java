@@ -60,6 +60,8 @@ public class AutoTest implements ClientModInitializer {
             System.out.println("[flygenetics autotest] done");
             c.stop();
          }
+      } else if (mode.equals("villager")) {
+         villager(c);
       } else if (mode.equals("arena")) {
          // the experiment boxes: signs, books, display panels, the intro and credits screens
          if (ticks == 40) run(c, CLEAR, "gamemode creative @a", "tp @a 0.5 -60 0.5 0 10", "execute as @a at @s run flylab arena all");
@@ -115,6 +117,35 @@ public class AutoTest implements ClientModInitializer {
       if (ticks == 300 || ticks == 1000 || ticks == 1790) shot(c, "breed-t" + ticks + ".png");
       if (ticks == 1800) run(c, "flygenes full", "execute as @e[type=connectomefly:connectome_fly] run data get entity @s Genome");
       if (ticks == 1860) {
+         System.out.println("[flygenetics autotest] done");
+         c.stop();
+      }
+   }
+
+   /** Fly-brained villagers: look, breed, check the child is a villager with both parents' genes, check vanilla selectors ignore them. */
+   private void villager(Minecraft c) {
+      int t = ticks;
+      if (t == 30) io.flyproject.connectomefly.client.FlyHud.enabled = false;
+      if (t == 40) {
+         run(c, "flygenes set adult_life_minutes 120", "flygenes set cap 12", "time set noon", "weather clear", "gamemode creative @a", CLEAR, "kill @e[type=connectomefly:fly_egg]", "kill @e[type=frog]",
+            "kill @e[type=villager]", "tp @a 0.5 -60 0.5 0 15",
+            "execute positioned 0.5 -60 4.0 run flygenes spawn villager female", "execute positioned 2.0 -60 4.5 run flygenes spawn villager male",
+            "summon villager -2.5 -60 4.5 {NoAI:1b}");
+      }
+      if (t == 80) run(c, "flygenes full", "execute if entity @e[type=villager] run say COUNT vanilla selector matches a real villager",
+         "say CHECK how many entities @e[type=villager] selects:", "execute as @e[type=villager] run say I am selected by type=villager",
+         "execute as @e[type=connectomefly:connectome_fly] run say I am selected by type=connectomefly:connectome_fly");
+      if (t == 140) shot(c, "villager-1.png");
+      if (t == 150) io.flyproject.connectomefly.client.FlyHud.enabled = true;
+      if (t == 220) shot(c, "villager-2-hud.png");
+      if (t > 220 && t % 200 == 0) run(c, "flygenes", "flylab state");
+      if (t == 2300) {
+         run(c, "flygenes full", "flygenes stats", "execute as @e[type=connectomefly:connectome_fly] run data get entity @s Body");
+         run(c, "execute as @a at @s run tp @s @e[type=connectomefly:connectome_fly,limit=1,sort=nearest]", "execute as @a at @s run tp @s ~ ~ ~-3 0 10");
+         io.flyproject.connectomefly.client.FlyHud.enabled = false;
+      }
+      if (t == 2360) shot(c, "villager-3-after.png");
+      if (t == 2380) {
          System.out.println("[flygenetics autotest] done");
          c.stop();
       }

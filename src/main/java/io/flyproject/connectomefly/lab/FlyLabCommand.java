@@ -62,6 +62,7 @@ public final class FlyLabCommand {
                                                          Commands.literal("model").executes(ctx -> body((CommandSourceStack)ctx.getSource(), (byte)0))
                                                       ))
                                                    .then(Commands.literal("bee").executes(ctx -> body((CommandSourceStack)ctx.getSource(), (byte)1)))
+                                                   .then(Commands.literal("villager").executes(ctx -> body((CommandSourceStack)ctx.getSource(), (byte)2)))
                                              ))
                                           .then(Commands.literal("book").executes(ctx -> book((CommandSourceStack)ctx.getSource()))))
                                        .then(Commands.literal("hungry").executes(ctx -> need((CommandSourceStack)ctx.getSource(), true))))
@@ -326,7 +327,7 @@ public final class FlyLabCommand {
       int count = n;
       src.sendSuccess(
          () -> Component.literal(
-               (mode == 1 ? "body: plain bee" : "body: the real fly model") + " (" + count + (count == 1 ? " fly" : " flies") + " updated; new ones follow)"
+               (mode == 2 ? "body: villager [model] (a villager's body moved by the fly's brain; not a real villager)" : (mode == 1 ? "body: plain bee" : "body: the real fly model")) + " (" + count + (count == 1 ? " fly" : " flies") + " updated; new ones follow)"
             )
             .withStyle(ChatFormatting.AQUA),
          false

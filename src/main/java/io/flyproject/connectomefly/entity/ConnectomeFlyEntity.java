@@ -457,6 +457,16 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    private void surfaceTick() {
+      if (this.isVillagerBody()) {
+         // a villager body does not walk on walls or ceilings
+         if (this.surface() != null) {
+            this.entityData.set(SURFACE, (byte)-1);
+            this.setNoGravity(false);
+         }
+
+         return;
+      }
+
       if (this.perchCooldown > 0) {
          this.perchCooldown--;
       }
@@ -672,6 +682,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          if (egg != null) {
             double yawRad = Math.toRadians(this.getYRot());
             egg.setFertile(fertile);
+            egg.setBody(this.getBodyMode());
             if (fertile) {
                egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUUID(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.getRandom().nextLong())));
                if (Genome.inheritMemory && this.whole != null) {
@@ -901,6 +912,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          sb.append("thirst=").append(String.format(Locale.ROOT, "%.1f", this.getThirst())).append(';');
          Genome gn = this.genome();
          GeneticsState gs = this.gstate();
+         sb.append("bodykind=").append(this.isVillagerBody() ? "villager" : "fly").append(';');
          sb.append("gen=").append(gn.generation).append(';');
          sb.append("par=").append(gn.mother == null ? "founder (spawned)" : Genome.shortId(gn.mother) + " x " + Genome.shortId(gn.father)).append(';');
          sb.append("genes=").append(gn.top(3)).append(';');
@@ -935,6 +947,25 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
    public void setBodyMode(byte mode) {
       this.entityData.set(BODY, mode);
+      this.refreshDimensions();
+   }
+
+   /** Body 2: [model] a villager's body driven by the fly's brain. Still this mod's own entity, never a real villager. */
+   public static final byte BODY_VILLAGER = 2;
+
+   public boolean isVillagerBody() {
+      return this.getBodyMode() == BODY_VILLAGER;
+   }
+
+   protected net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose pose) {
+      return this.isVillagerBody() ? net.minecraft.world.entity.EntityDimensions.scalable(0.6F, 1.95F).withEyeHeight(1.62F) : super.getDefaultDimensions(pose);
+   }
+
+   public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?> key) {
+      super.onSyncedDataUpdated(key);
+      if (BODY.equals(key) || GROWTH.equals(key)) {
+         this.refreshDimensions();
+      }
    }
 
    public boolean isMale() {
@@ -1015,6 +1046,17 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    public void brainJump() {
+      if (this.isVillagerBody()) {
+         // the giant-fibre escape still fires; in a villager body it is a startled hop, not a take-off
+         if (this.onGround()) {
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.42, 0.0));
+            this.needsSync = true;
+            this.lastTtmnTick = this.level().getGameTime();
+         }
+
+         return;
+      }
+
       if (this.onGround() || this.flying) {
          this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.55, 0.0));
          this.needsSync = true;
@@ -1155,6 +1197,17 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    private void flightTick() {
+      if (this.isVillagerBody()) {
+         // no wings: whatever the brain's flight outputs ask for, the villager body stays on the ground
+         this.flying = false;
+         this.flightTicks = 0;
+         this.prepTicks = -1;
+         this.descending = false;
+         this.noGround = false;
+         this.setNoGravity(false);
+         return;
+      }
+
       this.noGround = this.groundBelow() == -1000000.0;
       if (this.noGround && !this.flying && this.prepTicks < 0 && !this.isMale()) {
          this.flying = true;
@@ -1435,7 +1488,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    public boolean hurtServer(ServerLevel hurtLevel, DamageSource source, float amount) {
-      if (source.is(DamageTypes.SWEET_BERRY_BUSH)) {
+      if (source.is(DamageTypes.SWEET_BERRY_BUSH) || this.isVillagerBody() && source.getEntity() instanceof net.minecraft.world.entity.animal.frog.Frog) {
          return false;
       } else {
          boolean spines = source.is(DamageTypes.CACTUS);

@@ -12,6 +12,8 @@ import net.minecraft.client.gui.Font.DisplayMode;
 import net.minecraft.client.model.animal.bee.AdultBeeModel;
 import net.minecraft.client.model.animal.bee.BeeModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.npc.VillagerModel;
+import net.minecraft.client.renderer.entity.state.VillagerRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
@@ -37,6 +39,9 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
    private static final double SKIN_INTERVAL = 0.022222222222222223;
    private final BeeModel beeModel;
    private final BeeRenderState beeState = new BeeRenderState();
+   private static final Identifier VILLAGER_TEXTURE = Identifier.withDefaultNamespace("textures/entity/villager/villager.png");
+   private final VillagerModel villagerModel;
+   private final VillagerRenderState villagerState = new VillagerRenderState();
    private final Map<Integer, FlyAnim> anims = new HashMap<>();
    private final Map<Integer, Double> lastSkin = new HashMap<>();
    private final Map<Integer, Long> lastSeen = new HashMap<>();
@@ -45,6 +50,7 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
       super(context);
       this.shadowRadius = 0.2F;
       this.beeModel = new AdultBeeModel(context.bakeLayer(ModelLayers.BEE));
+      this.villagerModel = new VillagerModel(context.bakeLayer(ModelLayers.VILLAGER));
    }
 
    @Override
@@ -75,7 +81,8 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
       s.headYaw = Mth.rotLerp(tickDelta, entity.yHeadRotO, entity.yHeadRot) - yaw;
       s.headPitch = entity.getXRot(tickDelta);
       FlyRig rig = FlyRig.get();
-      s.rigged = s.bodyMode != 1 && rig.ready();
+      s.rigged = s.bodyMode == 0 && rig.ready();
+      s.asleep = entity.isSleeping();
       s.anim = null;
       if (s.rigged) {
          double t = System.nanoTime() / 1.0E9;
@@ -124,7 +131,9 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
 
    @Override
    public void submit(FlyRenderState s, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
-      if (s.rigged && s.anim != null) {
+      if (s.bodyMode == ConnectomeFlyEntity.BODY_VILLAGER) {
+         this.submitVillager(s, matrices, collector);
+      } else if (s.rigged && s.anim != null) {
          this.submitRigged(s, matrices, collector);
       } else {
          this.submitBee(s, matrices, collector);
@@ -212,6 +221,34 @@ public class ConnectomeFlyRenderer extends EntityRenderer<ConnectomeFlyEntity, F
          });
       }
 
+      matrices.popPose();
+   }
+
+   /** [model] A villager's body moved by the fly's brain. The plain vanilla villager model and skin, no profession. */
+   private void submitVillager(FlyRenderState s, PoseStack matrices, SubmitNodeCollector collector) {
+      VillagerRenderState v = this.villagerState;
+      v.ageInTicks = s.ageInTicks;
+      v.walkAnimationPos = s.walkPos;
+      v.walkAnimationSpeed = s.walkSpeed;
+      v.yRot = s.headYaw;
+      v.xRot = s.asleep ? 35.0F : s.headPitch;
+      v.bodyRot = s.yaw;
+      v.isUnhappy = s.hurt;
+      v.lightCoords = s.lightCoords;
+      matrices.pushPose();
+      matrices.mulPose(new Matrix4f().rotation(Axis.YP.rotationDegrees(180.0F - s.yaw)));
+      if (s.deathTime > 0.0F) {
+         float f = Math.min(1.0F, (float)Math.sqrt(Math.max(0.0F, (s.deathTime - 1.0F) / 20.0F * 1.6F)));
+         matrices.mulPose(new Matrix4f().rotation(Axis.ZP.rotationDegrees(f * 90.0F)));
+      }
+
+      matrices.scale(-1.0F, -1.0F, 1.0F);
+      float sc = s.scale * 0.9375F;
+      matrices.scale(sc, sc, sc);
+      matrices.translate(0.0F, -1.501F, 0.0F);
+      collector.submitModel(
+         this.villagerModel, v, matrices, RenderTypes.entityCutout(VILLAGER_TEXTURE), s.lightCoords, OverlayTexture.pack(0.0F, s.hurt), s.outlineColor
+      );
       matrices.popPose();
    }
 

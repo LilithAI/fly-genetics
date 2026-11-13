@@ -47,6 +47,7 @@ public class CreditsScreen extends Screen {
       {"t", "- [model] A child takes each gene from its mother or father at random, with small random changes. In a real fly genes shape how the brain grows; nothing here simulates that. This is inheritance of tuning, not genetics."},
       {"t", "- [model] Old age, death by starvation, breeding only when fed, the population cap, the sex-balance rule and inherited memory are invented rules. /flygenes shows them and the population statistics."},
       {"t", "- [model] Males carry and pass on genes, but their own small courtship circuit does not use them."},
+      {"t", "- [model] The villager body (/flygenes spawn villager) is a villager's shape moved by the fly's brain. It is not a real villager and has no villager mind: it cannot trade, farm, guard or follow orders. It walks, turns, startles, grooms, feeds, sleeps, courts and lays eggs as the fly would, but cannot fly or climb walls."},
       {"h", "NEVER CLAIMED"},
       {"t", "- Full consciousness, real biological timing."},
       {"h", "THANKS"},

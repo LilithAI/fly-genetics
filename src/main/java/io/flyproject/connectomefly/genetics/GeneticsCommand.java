@@ -29,6 +29,21 @@ public final class GeneticsCommand {
             .then(Commands.literal("full").executes(ctx -> list(ctx.getSource(), true)))
             .then(Commands.literal("stats").executes(ctx -> stats(ctx.getSource())))
             .then(
+               Commands.literal("spawn")
+                  .then(
+                     Commands.literal("villager")
+                        .executes(ctx -> spawn(ctx.getSource(), ConnectomeFlyEntity.BODY_VILLAGER, false))
+                        .then(Commands.literal("male").executes(ctx -> spawn(ctx.getSource(), ConnectomeFlyEntity.BODY_VILLAGER, true)))
+                        .then(Commands.literal("female").executes(ctx -> spawn(ctx.getSource(), ConnectomeFlyEntity.BODY_VILLAGER, false)))
+                  )
+                  .then(
+                     Commands.literal("fly")
+                        .executes(ctx -> spawn(ctx.getSource(), (byte)0, false))
+                        .then(Commands.literal("male").executes(ctx -> spawn(ctx.getSource(), (byte)0, true)))
+                        .then(Commands.literal("female").executes(ctx -> spawn(ctx.getSource(), (byte)0, false)))
+                  )
+            )
+            .then(
                Commands.literal("set")
                   .executes(ctx -> set(ctx.getSource(), null, 0.0F))
                   .then(
@@ -69,6 +84,30 @@ public final class GeneticsCommand {
             )
             .withStyle(ChatFormatting.AQUA),
          false
+      );
+      return 1;
+   }
+
+   /** Adds one creature at the caller's position without touching the ones already there. */
+   private static int spawn(CommandSourceStack src, byte body, boolean male) {
+      ServerLevel world = src.getLevel();
+      ConnectomeFlyEntity f = ConnectomeFlyMod.CONNECTOME_FLY.create(world, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+      if (f == null) {
+         return 0;
+      }
+
+      f.setMale(male);
+      f.setBodyMode(body);
+      net.minecraft.world.phys.Vec3 at = src.getPosition();
+      f.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+      world.addFreshEntity(f);
+      boolean villager = body == ConnectomeFlyEntity.BODY_VILLAGER;
+      say(
+         src,
+         villager
+            ? "[model] a fly-brained villager (" + (male ? "male" : "female") + "): a villager's body moved by the fly's whole brain. It is not a real villager: it cannot trade, farm, guard or follow orders, and @e[type=villager] does not select it."
+            : "a " + (male ? "male" : "female") + " fly",
+         ChatFormatting.AQUA
       );
       return 1;
    }

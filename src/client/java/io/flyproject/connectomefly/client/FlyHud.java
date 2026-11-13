@@ -68,6 +68,7 @@ public final class FlyHud {
                List<FlyHud.Line> lines = new ArrayList<>();
                String[] fields = hud.split(";");
                String gGen = "";
+               String gBody = "";
                String gPar = "";
                String gGenes = "";
                String gLife = "";
@@ -137,6 +138,9 @@ public final class FlyHud {
                            break;
                         case "gen":
                            gGen = val;
+                           break;
+                        case "bodykind":
+                           gBody = val;
                            break;
                         case "par":
                            gPar = val;
@@ -233,12 +237,17 @@ public final class FlyHud {
                   lines.add(new FlyHud.Line("Flight", air.isEmpty() ? "-" : air, -4660993));
                }
 
+               boolean villager = gBody.equals("villager");
+               if (villager) {
+                  lines.add(3, new FlyHud.Line("Body [model]", "villager body, fly brain: no trading, farming or orders", -5570646));
+               }
+
                if (!gGen.isEmpty()) {
                   // [model] genetics readout: invented inheritance rules, labelled as such
-                  lines.add(3, new FlyHud.Line("Generation", gGen + " [model]" + (male ? " · genes unused in him" : ""), -5570646));
-                  lines.add(4, new FlyHud.Line("Parents", gPar, -5570646));
-                  lines.add(5, new FlyHud.Line("Genes [model]", gGenes, -5570646));
-                  lines.add(6, new FlyHud.Line("Age [model]", gLife, -5570646));
+                  lines.add(3 + (villager ? 1 : 0), new FlyHud.Line("Generation", gGen + " [model]" + (male ? " · genes unused in him" : ""), -5570646));
+                  lines.add(4 + (villager ? 1 : 0), new FlyHud.Line("Parents", gPar, -5570646));
+                  lines.add(5 + (villager ? 1 : 0), new FlyHud.Line("Genes [model]", gGenes, -5570646));
+                  lines.add(6 + (villager ? 1 : 0), new FlyHud.Line("Age [model]", gLife, -5570646));
                }
 
                Font tr = mc.font;
@@ -249,7 +258,7 @@ public final class FlyHud {
                int h = 22 + lines.size() * 10 + 12 + 4;
                ctx.fill(x - 2, y - 2, x + 236, y + h, -1609560044);
                ctx.fill(x - 2, y - 2, x + 236, y - 1, -11606332);
-               ctx.text(tr, "CONNECTOME FLY" + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
+               ctx.text(tr, (villager ? "FLY-BRAINED VILLAGER [model]" : "CONNECTOME FLY") + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
                String live = "LIVE";
                ctx.text(tr, live, x + 236 - 6 - tr.width(live), y + 2, -11606332);
                ctx.text(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
