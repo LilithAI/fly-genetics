@@ -1,0 +1,665 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42087 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+
+> Configure project :
+Fabric Loom: 1.17.20
+
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :generateLog4jConfig UP-TO-DATE
+> Task :generateRemapClasspath UP-TO-DATE
+> Task :generateDLIConfig UP-TO-DATE
+> Task :configureLaunch UP-TO-DATE
+
+> Task :runServer
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42087 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+[04:33:00] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 1.20.1 with Fabric Loader 0.20.1
+[04:33:00] [main/INFO] (FabricLoader) Loading 47 mods:
+	- connectomefly 1.0.0+genetics.0
+	- fabric-api 0.92.12+1.20.1
+	- fabric-api-base 0.4.32+1802ada577
+	- fabric-api-lookup-api-v1 1.6.37+1802ada577
+	- fabric-biome-api-v1 13.0.15+93aa238b77
+	- fabric-block-api-v1 1.0.12+1802ada577
+	- fabric-block-view-api-v2 1.0.3+924f046a77
+	- fabric-command-api-v1 1.2.35+f71b366f77
+	- fabric-command-api-v2 2.2.14+1802ada577
+	- fabric-commands-v0 0.2.52+df3654b377
+	- fabric-containers-v0 0.1.68+df3654b377
+	- fabric-content-registries-v0 4.0.13+1802ada577
+	- fabric-convention-tags-v1 1.5.6+1802ada577
+	- fabric-crash-report-info-v1 0.2.20+1802ada577
+	- fabric-data-attachment-api-v1 1.0.2+de0fd6d177
+	- fabric-data-generation-api-v1 12.4.0+238242b777
+	- fabric-dimensions-v1 2.1.55+1802ada577
+	- fabric-entity-events-v1 1.6.1+1c78457f77
+	- fabric-events-interaction-v0 0.6.6+13a40c6677
+	- fabric-events-lifecycle-v0 0.2.64+df3654b377
+	- fabric-game-rule-api-v1 1.0.41+1802ada577
+	- fabric-gametest-api-v1 1.2.15+1802ada577
+	- fabric-item-api-v1 2.1.29+1802ada577
+	- fabric-item-group-api-v1 4.0.14+1802ada577
+	- fabric-lifecycle-events-v1 2.2.23+1802ada577
+	- fabric-loot-api-v2 1.2.3+1802ada577
+	- fabric-loot-tables-v1 1.1.47+9e7660c677
+	- fabric-message-api-v1 5.1.10+1802ada577
+	- fabric-mining-level-api-v1 2.1.52+1802ada577
+	- fabric-networking-api-v1 1.3.15+0caff8d077
+	- fabric-networking-v0 0.3.55+df3654b377
+	- fabric-object-builder-api-v1 11.1.5+e35120df77
+	- fabric-particles-v1 1.1.3+1802ada577
+	- fabric-recipe-api-v1 1.0.25+1802ada577
+	- fabric-registry-sync-v0 2.4.1+4c0a70e677
+	- fabric-rendering-data-attachment-v1 0.3.39+92a0d36777
+	- fabric-rendering-fluids-v1 3.0.29+1802ada577
+	- fabric-resource-conditions-api-v1 2.3.9+1802ada577
+	- fabric-resource-loader-v0 0.11.12+fb82e9d777
+	- fabric-screen-handler-api-v1 1.3.34+1802ada577
+	- fabric-tag-api-v1 1.3.0+238242b777
+	- fabric-transfer-api-v1 3.3.6+8dd72ea377
+	- fabric-transitive-access-wideners-v1 4.3.2+1802ada577
+	- fabricloader 0.20.1
+	- java 21
+	- minecraft 1.20.1
+	- mixinextras 0.5.5
+[04:33:00] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/root/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.5+mixin.0.8.7/cef8519a91129d0c21fa03bb9378f0e8ca810e5/sponge-mixin-0.17.5+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
+[04:33:00] [main/INFO] (FabricLoader/Mixin) Loaded Fabric development mappings for mixin remapper!
+[04:33:00] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[04:33:05] [main/INFO] (Minecraft) Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[04:33:05] [Yggdrasil Key Fetcher/ERROR] (Minecraft) Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.AuthenticationUnavailableException: Cannot contact authentication server
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:119) ~[authlib-4.0.43.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:91) ~[authlib-4.0.43.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:94) ~[authlib-4.0.43.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.lambda$get$1(YggdrasilServicesKeyInfo.java:81) ~[authlib-4.0.43.jar:?]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572) ~[?:?]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:358) ~[?:?]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305) ~[?:?]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+	at java.lang.Thread.run(Thread.java:1583) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:567) ~[?:?]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[?:?]
+	at java.net.Socket.connect(Socket.java:751) ~[?:?]
+	at sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:178) ~[?:?]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:539) ~[?:?]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:644) ~[?:?]
+	at sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:265) ~[?:?]
+	at sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:378) ~[?:?]
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1305) ~[?:?]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1146) ~[?:?]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:1075) ~[?:?]
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1707) ~[?:?]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1632) ~[?:?]
+	at sun.net.www.protocol.https.HttpsURLConnectionImpl.getInputStream(HttpsURLConnectionImpl.java:223) ~[?:?]
+	at com.mojang.authlib.HttpAuthenticationService.performGetRequest(HttpAuthenticationService.java:140) ~[authlib-4.0.43.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:96) ~[authlib-4.0.43.jar:?]
+	... 9 more
+[04:33:06] [main/ERROR] (Minecraft) No key layers in MapLike[{}]
+[04:33:06] [main/INFO] (Minecraft) Loaded 7 recipes
+[04:33:06] [main/INFO] (Minecraft) Loaded 1271 advancements
+[04:33:07] [main/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 64 new biomes in 1.412 ms
+[04:33:07] [Server thread/INFO] (Minecraft) Starting minecraft server version 1.20.1
+[04:33:07] [Server thread/INFO] (Minecraft) Loading properties
+[04:33:07] [Server thread/INFO] (Minecraft) Default game type: SURVIVAL
+[04:33:07] [Server thread/INFO] (Minecraft) Generating keypair
+[04:33:07] [Server thread/INFO] (Minecraft) Starting Minecraft server on *:25565
+[04:33:07] [Server thread/INFO] (Minecraft) Using epoll channel type
+[04:33:07] [Server thread/WARN] (Minecraft) **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[04:33:07] [Server thread/WARN] (Minecraft) The server will make no attempt to authenticate usernames. Beware.
+[04:33:07] [Server thread/WARN] (Minecraft) While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[04:33:07] [Server thread/WARN] (Minecraft) To change this, set "online-mode" to "true" in the server.properties file.
+[04:33:07] [Server thread/INFO] (Minecraft) Preparing level "poprun"
+[04:33:08] [Server thread/INFO] (Minecraft) Preparing start region for dimension minecraft:overworld
+[04:33:08] [Worker-Main-3/INFO] (Minecraft) Preparing spawn area: 0%
+[04:33:08] [Worker-Main-1/INFO] (Minecraft) Preparing spawn area: 0%
+[04:33:09] [Worker-Main-1/INFO] (Minecraft) Preparing spawn area: 5%
+[04:33:09] [Worker-Main-1/INFO] (Minecraft) Preparing spawn area: 31%
+[04:33:10] [Worker-Main-2/INFO] (Minecraft) Preparing spawn area: 65%
+[04:33:10] [Server thread/INFO] (Minecraft) Time elapsed: 2362 ms
+[04:33:10] [Server thread/INFO] (Minecraft) Done (2.895s)! For help, type "help"
+[04:34:38] [Server thread/INFO] (Minecraft) Marked [-1, -1] chunks in minecraft:overworld from [-1, -1] to [1, 1] to be force loaded
+[04:34:38] [Server thread/INFO] (Minecraft) Gamerule doDaylightCycle is now set to: false
+[04:34:38] [Server thread/INFO] (Minecraft) Gamerule doWeatherCycle is now set to: false
+[04:34:38] [Server thread/INFO] (Minecraft) Gamerule doMobSpawning is now set to: false
+[04:34:38] [Server thread/INFO] (Minecraft) Gamerule randomTickSpeed is now set to: 20
+[04:34:38] [Server thread/INFO] (Minecraft) Set the time to 6000
+[04:34:38] [Server thread/INFO] (Minecraft) Successfully filled 1586 block(s)
+[04:34:38] [Server thread/INFO] (Minecraft) Successfully filled 441 block(s)
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 0, -60, 0
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at -6, -60, -6
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 6, -60, -6
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at -6, -60, 6
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 6, -60, 6
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 0, -60, -7
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 0, -60, 7
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at -7, -60, 0
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 7, -60, 0
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at -3, -60, 3
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 3, -60, -3
+[04:34:38] [Server thread/INFO] (Minecraft) whole brains: 0 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[04:34:38] [Server thread/INFO] (Minecraft) [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=120.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=60.0 inherit_memory=false
+[04:34:38] [Server thread/INFO] (Minecraft) [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=8.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=60.0 inherit_memory=false
+[04:34:38] [Server thread/INFO] (Minecraft) [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=8.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=60.0 inherit_memory=false
+[04:34:38] [Server thread/INFO] (Minecraft) Summoned new Connectome Fly
+[04:34:38] [Server thread/INFO] (Minecraft) Summoned new Connectome Fly
+[04:34:38] [Server thread/INFO] (Minecraft) Summoned new Connectome Fly
+[04:34:38] [Server thread/INFO] (Minecraft) Summoned new Connectome Fly
+[04:34:38] [Server thread/INFO] (Minecraft) Summoned new Connectome Fly
+[04:34:38] [Server thread/INFO] (Minecraft) Summoned new Connectome Fly
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at -4, -60, -8
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 4, -60, 8
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at 8, -60, -4
+[04:34:38] [Server thread/INFO] (Minecraft) Changed the block at -8, -60, 4
+[04:34:38] [Server thread/INFO] (Minecraft) [model] settings (saved with the world; 1 = on, 0 = off): selection=true adult_life_minutes=8.0 breed_hunger=12.0 egg_cost=3.0 cap=12 cap_radius=48 growth_speed=60.0 inherit_memory=false
+[04:34:38] [connectome-fly brain 8f28bfb5/INFO] (Minecraft) [STDOUT]: [connectomefly] circuit gains: compass_loop x2.0 (4569 synapses); kc_mbon x20.0 (4085 synapses); aggr_out x25.0 (41 synapses); 
+[04:34:38] [connectome-fly brain 8f28bfb5/INFO] (Minecraft) [STDOUT]: [connectomefly] compass: 45 EPGs; mushroom body: 4085 plastic KC->MBON synapses
+[04:34:38] [connectome-fly brain 8f28bfb5/INFO] (Minecraft) [STDOUT]: [connectomefly] whole brain loaded: 158262 neurons, 3126254 synapses, 39 sensory channels, 251 ms
+[04:34:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. 6 flies, 0 eggs within 64 blocks
+[04:34:48] [Server thread/INFO] (Minecraft) fly d2dab4d4 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=0.996 v_th=1.005 tau_syn=1.004 drive_rate=1.152 drive_amp=1.127 dn_drive_rate=1.229 syn_mult=1.021 sens_mult=1.025 inh_mult=0.991 adapt_inc=1.015 adapt_tau=0.950 bus_rate=1.159 eta=1.153 forget=1.139 aggr_out=0.779 kc_mbon=1.268 compass_out=0.977 compass_loop=0.704 smell=1.168 taste=0.981 touch=0.974 hearing=0.904 vision=0.920 pheromone=1.019 pain=0.986 reward=1.105 hunger_drive=0.953 sleep_need=1.099 climate=1.153
+[04:34:48] [Server thread/INFO] (Minecraft) fly 8300e988 female gen 0 mother none father none mutations 0: tau_m=0.896 v_th=1.031 tau_syn=0.990 drive_rate=0.786 drive_amp=0.953 dn_drive_rate=0.822 syn_mult=1.033 sens_mult=0.933 inh_mult=0.860 adapt_inc=1.092 adapt_tau=1.065 bus_rate=1.076 eta=1.271 forget=0.867 aggr_out=0.765 kc_mbon=1.699 compass_out=0.980 compass_loop=1.001 smell=0.715 taste=1.060 touch=0.966 hearing=1.042 vision=1.390 pheromone=0.907 pain=1.032 reward=1.320 hunger_drive=1.046 sleep_need=0.730 climate=1.284
+[04:34:48] [Server thread/INFO] (Minecraft) fly 438c678a male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=1.067 v_th=1.032 tau_syn=1.009 drive_rate=1.184 drive_amp=0.960 dn_drive_rate=1.074 syn_mult=0.968 sens_mult=1.023 inh_mult=1.028 adapt_inc=1.011 adapt_tau=1.013 bus_rate=0.991 eta=0.977 forget=1.050 aggr_out=1.771 kc_mbon=1.372 compass_out=1.085 compass_loop=1.250 smell=1.344 taste=1.186 touch=0.960 hearing=0.931 vision=1.283 pheromone=1.103 pain=1.201 reward=1.255 hunger_drive=0.835 sleep_need=0.634 climate=0.687
+[04:34:48] [Server thread/INFO] (Minecraft) fly 0ab143b1 female gen 0 mother none father none mutations 0: tau_m=0.929 v_th=0.985 tau_syn=1.012 drive_rate=0.854 drive_amp=0.959 dn_drive_rate=0.990 syn_mult=1.003 sens_mult=0.950 inh_mult=0.896 adapt_inc=0.990 adapt_tau=0.982 bus_rate=1.015 eta=0.932 forget=1.883 aggr_out=1.196 kc_mbon=0.783 compass_out=0.819 compass_loop=1.120 smell=1.014 taste=0.787 touch=1.132 hearing=0.909 vision=1.109 pheromone=1.068 pain=1.159 reward=1.083 hunger_drive=0.907 sleep_need=0.826 climate=0.920
+[04:34:48] [Server thread/INFO] (Minecraft) fly 8f28bfb5 female gen 0 mother none father none mutations 0: tau_m=1.133 v_th=1.005 tau_syn=0.980 drive_rate=0.829 drive_amp=1.044 dn_drive_rate=0.959 syn_mult=0.977 sens_mult=0.999 inh_mult=1.037 adapt_inc=0.989 adapt_tau=1.015 bus_rate=0.911 eta=1.068 forget=0.947 aggr_out=0.734 kc_mbon=0.845 compass_out=0.861 compass_loop=0.965 smell=0.878 taste=1.002 touch=0.966 hearing=0.976 vision=0.819 pheromone=1.067 pain=1.240 reward=0.991 hunger_drive=0.864 sleep_need=0.988 climate=0.973
+[04:34:48] [Server thread/INFO] (Minecraft) fly a129a697 male gen 0 mother none father none mutations 0 [his small circuit does not use these genes; he only passes them on]: tau_m=0.959 v_th=1.030 tau_syn=0.999 drive_rate=0.853 drive_amp=1.032 dn_drive_rate=1.241 syn_mult=0.960 sens_mult=1.017 inh_mult=1.027 adapt_inc=0.958 adapt_tau=0.981 bus_rate=0.970 eta=1.129 forget=1.311 aggr_out=1.242 kc_mbon=1.165 compass_out=0.925 compass_loop=1.086 smell=0.946 taste=1.146 touch=0.964 hearing=1.024 vision=0.908 pheromone=1.105 pain=0.984 reward=0.957 hunger_drive=1.076 sleep_need=1.201 climate=1.045
+[04:35:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 1
+[04:35:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 12.837842f
+[04:35:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 10.641826f
+[04:35:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.81278f
+[04:35:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.958153f
+[04:36:06] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 9.6 below 12.0
+[04:36:18] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 9.0 below 12.0
+[04:36:29] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 8.4 below 12.0
+[04:36:41] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 7.8 below 12.0
+[04:36:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 2
+[04:36:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 10.27859f
+[04:36:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 7.3917036f
+[04:36:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.312618f
+[04:36:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.35366f
+[04:36:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.314995f
+[04:36:52] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 7.2 below 12.0
+[04:37:04] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 6.5 below 12.0
+[04:37:11] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8f28bfb5 hunger 9.2 below 12.0
+[04:37:15] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 5.9 below 12.0
+[04:37:23] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8f28bfb5 hunger 8.7 below 12.0
+[04:37:27] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 5.3 below 12.0
+[04:37:36] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8f28bfb5 hunger 8.1 below 12.0
+[04:37:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 3
+[04:37:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 7.54057f
+[04:37:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 4.1480536f
+[04:37:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 11.812084f
+[04:37:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.038548f
+[04:37:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.512177f
+[04:37:48] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8f28bfb5 hunger 7.5 below 12.0
+[04:37:49] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 4.1 below 12.0
+[04:38:00] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 3.5 below 12.0
+[04:38:12] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 2.9 below 12.0
+[04:38:23] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 2.3 below 12.0
+[04:38:34] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 1.7 below 12.0
+[04:38:46] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 1.1 below 12.0
+[04:38:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 4
+[04:38:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.225974f
+[04:38:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 1.0111225f
+[04:38:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 9.31155f
+[04:38:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.899117f
+[04:38:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.500755f
+[04:38:57] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 0.5 below 12.0
+[04:39:09] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 0.0 below 12.0
+[04:39:20] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 0.0 below 12.0
+[04:39:32] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 8300e988 hunger 0.0 below 12.0
+[04:39:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 5
+[04:39:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.192171f
+[04:39:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 0.0f
+[04:39:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 6.746308f
+[04:39:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.05441f
+[04:39:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.99124f
+[04:39:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[04:39:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 11; gen 0: 3 female 3 male; gen 1: 2 female 3 male
+[04:39:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 5; eggs laid 6, eggs refused by cap 0, matings refused (hungry) 22
+[04:39:48] [Server thread/INFO] (Minecraft) deaths: old age 0; starvation 0; predator 0; other 0; removed 0;
+[04:39:48] [Server thread/INFO] (Minecraft) gene means, generation 1 (5 born) against generation 0 (6 born), largest shifts:
+[04:39:48] [Server thread/INFO] (Minecraft)   forget 1.199 -> 1.043, climate 1.010 -> 0.887, smell 1.011 -> 1.106, compass_loop 1.021 -> 1.103, bus_rate 1.020 -> 0.951, inh_mult 0.973 -> 1.037
+[04:39:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[04:39:48] [Server thread/INFO] (Minecraft)   forget 1.199 -> 1.128, climate 1.010 -> 0.954, smell 1.011 -> 1.054, compass_loop 1.021 -> 1.058, bus_rate 1.020 -> 0.989, inh_mult 0.973 -> 1.002
+[04:39:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[04:39:48] [Server thread/INFO] (Minecraft) whole brains: 3 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[04:39:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[04:40:16] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:40:26] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 8300e988 female gen 0 cause starvation adult minutes 5.8
+[04:40:38] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 0ab143b1 hunger 4.6 below 12.0
+[04:40:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 6
+[04:40:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.981403f
+[04:40:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 4.1888337f
+[04:40:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.981793f
+[04:40:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.431803f
+[04:40:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.870567f
+[04:40:50] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 0ab143b1 hunger 4.1 below 12.0
+[04:41:02] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 0ab143b1 hunger 3.6 below 12.0
+[04:41:10] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: d2dab4d4 male gen 0 cause old age adult minutes 6.5
+[04:41:29] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 0ab143b1 hunger 2.4 below 12.0
+[04:41:34] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:41:43] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 0ab143b1 hunger 1.9 below 12.0
+[04:41:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 7
+[04:41:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 11.932985f
+[04:41:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 1.6326145f
+[04:41:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.319998f
+[04:41:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.809793f
+[04:41:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.996324f
+[04:41:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.934166f
+[04:41:50] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 8f28bfb5 female gen 0 cause old age adult minutes 7.2
+[04:41:54] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 0ab143b1 hunger 1.4 below 12.0
+[04:41:57] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 438c678a male gen 0 cause old age adult minutes 7.3
+[04:42:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 8
+[04:42:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 0.0f
+[04:42:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.894835f
+[04:42:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.03008f
+[04:42:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.276685f
+[04:42:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.078804f
+[04:42:54] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:43:00] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:43:30] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 0ab143b1 female gen 0 cause old age adult minutes 8.9
+[04:43:33] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: a129a697 male gen 0 cause old age adult minutes 8.9
+[04:43:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 9
+[04:43:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.834034f
+[04:43:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 13.334637f
+[04:43:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.322023f
+[04:43:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 13.40503f
+[04:43:56] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 28a0b41c female gen 1 cause old age adult minutes 7.0
+[04:44:16] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 8b78c056 male gen 1 cause old age adult minutes 7.3
+[04:44:32] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:44:38] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 9a32f8bf female gen 1 cause old age adult minutes 7.0
+[04:44:41] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 1d8330dc male gen 1 cause old age adult minutes 7.0
+[04:44:43] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 8.0 below 12.0
+[04:44:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 10
+[04:44:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.527971f
+[04:44:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 7.771495f
+[04:44:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.919922f
+[04:44:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.44413f
+[04:44:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.795448f
+[04:44:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[04:44:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 9; gen 1: 1 female 1 male; gen 2: 3 female 3 male; gen 3: 1 female 0 male
+[04:44:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 6; gen 3: 1; eggs laid 14, eggs refused by cap 5, matings refused (hungry) 29
+[04:44:48] [Server thread/INFO] (Minecraft) deaths: old age 9 (mean adult age 7.5 min); starvation 1 (mean adult age 5.8 min); predator 0; other 0; removed 0;
+[04:44:48] [Server thread/INFO] (Minecraft) gene means, generation 3 (1 born) against generation 0 (6 born), largest shifts:
+[04:44:48] [Server thread/INFO] (Minecraft)   sleep_need 0.913 -> 0.634, vision 1.071 -> 0.819, smell 1.011 -> 0.834, hunger_drive 0.947 -> 0.792, drive_rate 0.943 -> 0.789, pain 1.100 -> 1.292
+[04:44:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[04:44:48] [Server thread/INFO] (Minecraft)   forget 1.199 -> 1.037, reward 1.118 -> 0.990, taste 1.027 -> 1.127, smell 1.011 -> 0.922, dn_drive_rate 1.052 -> 1.149, inh_mult 0.973 -> 1.050
+[04:44:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[04:44:48] [Server thread/INFO] (Minecraft) whole brains: 3 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[04:44:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[04:44:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. 9 flies, 1 eggs within 64 blocks
+[04:44:48] [Server thread/INFO] (Minecraft) fly e48257f7 male gen 1 mother 8f28bfb5 father a129a697 mutations 10 [his small circuit does not use these genes; he only passes them on]: tau_m=0.956 v_th=1.030 tau_syn=0.999 drive_rate=0.902 drive_amp=1.044 dn_drive_rate=1.241 syn_mult=0.960 sens_mult=1.017 inh_mult=1.075 adapt_inc=0.956 adapt_tau=0.981 bus_rate=0.839 eta=1.068 forget=0.947 aggr_out=0.734 kc_mbon=1.213 compass_out=0.861 compass_loop=1.086 smell=0.841 taste=1.002 touch=0.964 hearing=0.963 vision=0.819 pheromone=1.105 pain=0.984 reward=0.908 hunger_drive=1.076 sleep_need=1.130 climate=0.973
+[04:44:48] [Server thread/INFO] (Minecraft) fly e860bc22 male gen 2 mother 8f28bfb5 father e48257f7 mutations 6 [his small circuit does not use these genes; he only passes them on]: tau_m=0.910 v_th=1.030 tau_syn=0.999 drive_rate=0.829 drive_amp=1.044 dn_drive_rate=1.241 syn_mult=0.977 sens_mult=1.017 inh_mult=1.075 adapt_inc=0.989 adapt_tau=1.015 bus_rate=0.911 eta=1.068 forget=0.947 aggr_out=0.734 kc_mbon=1.213 compass_out=0.711 compass_loop=1.075 smell=0.878 taste=1.002 touch=0.964 hearing=0.963 vision=0.819 pheromone=0.989 pain=1.153 reward=0.906 hunger_drive=0.864 sleep_need=0.988 climate=0.973
+[04:44:48] [Server thread/INFO] (Minecraft) fly cdcf6491 female (young) gen 2 mother 9a32f8bf father a129a697 mutations 10: tau_m=0.959 v_th=1.032 tau_syn=0.999 drive_rate=0.960 drive_amp=0.893 dn_drive_rate=1.144 syn_mult=0.967 sens_mult=1.023 inh_mult=1.027 adapt_inc=0.958 adapt_tau=1.065 bus_rate=0.970 eta=1.200 forget=1.050 aggr_out=1.242 kc_mbon=1.260 compass_out=0.925 compass_loop=1.117 smell=0.882 taste=1.060 touch=1.017 hearing=1.024 vision=1.390 pheromone=0.877 pain=0.984 reward=0.957 hunger_drive=0.715 sleep_need=1.201 climate=0.616
+[04:44:48] [Server thread/INFO] (Minecraft) fly 45e334a5 female gen 1 mother 8f28bfb5 father a129a697 mutations 10: tau_m=0.959 v_th=1.030 tau_syn=1.002 drive_rate=0.789 drive_amp=0.997 dn_drive_rate=1.241 syn_mult=0.969 sens_mult=1.017 inh_mult=1.001 adapt_inc=0.989 adapt_tau=0.981 bus_rate=0.970 eta=0.981 forget=0.913 aggr_out=0.734 kc_mbon=1.165 compass_out=0.861 compass_loop=0.965 smell=0.885 taste=1.146 touch=0.966 hearing=0.976 vision=0.908 pheromone=1.067 pain=0.962 reward=0.991 hunger_drive=0.989 sleep_need=0.988 climate=1.045
+[04:44:48] [Server thread/INFO] (Minecraft) fly 9f309a9f male gen 2 mother 9a32f8bf father a129a697 mutations 10 [his small circuit does not use these genes; he only passes them on]: tau_m=1.114 v_th=1.063 tau_syn=1.018 drive_rate=1.184 drive_amp=1.067 dn_drive_rate=1.241 syn_mult=0.960 sens_mult=1.017 inh_mult=1.028 adapt_inc=0.958 adapt_tau=0.950 bus_rate=0.970 eta=1.162 forget=1.311 aggr_out=0.765 kc_mbon=1.372 compass_out=0.925 compass_loop=1.086 smell=1.344 taste=1.501 touch=0.966 hearing=1.024 vision=1.390 pheromone=0.877 pain=0.952 reward=0.957 hunger_drive=1.172 sleep_need=1.201 climate=1.058
+[04:44:48] [Server thread/INFO] (Minecraft) fly fc884c33 female gen 2 mother 28a0b41c father 8b78c056 mutations 6: tau_m=0.959 v_th=1.031 tau_syn=1.009 drive_rate=0.863 drive_amp=1.134 dn_drive_rate=1.103 syn_mult=0.992 sens_mult=0.965 inh_mult=1.028 adapt_inc=1.011 adapt_tau=0.950 bus_rate=1.017 eta=1.134 forget=1.040 aggr_out=1.242 kc_mbon=1.165 compass_out=0.980 compass_loop=0.965 smell=0.878 taste=0.996 touch=1.012 hearing=0.931 vision=1.003 pheromone=0.914 pain=0.984 reward=1.255 hunger_drive=0.835 sleep_need=0.634 climate=1.045
+[04:44:48] [Server thread/INFO] (Minecraft) fly 7e96baf8 male gen 2 mother 28a0b41c father 1d8330dc mutations 2 [his small circuit does not use these genes; he only passes them on]: tau_m=0.959 v_th=1.005 tau_syn=0.999 drive_rate=0.853 drive_amp=1.134 dn_drive_rate=1.103 syn_mult=0.977 sens_mult=0.999 inh_mult=1.027 adapt_inc=1.128 adapt_tau=0.950 bus_rate=0.911 eta=1.068 forget=1.040 aggr_out=1.242 kc_mbon=0.845 compass_out=1.191 compass_loop=0.965 smell=0.878 taste=1.146 touch=0.966 hearing=0.976 vision=1.127 pheromone=1.067 pain=0.984 reward=0.991 hunger_drive=1.076 sleep_need=1.201 climate=1.045
+[04:44:48] [Server thread/INFO] (Minecraft) fly 80e2f502 female (young) gen 2 mother 28a0b41c father 8b78c056 mutations 6: tau_m=1.095 v_th=1.030 tau_syn=0.980 drive_rate=0.853 drive_amp=1.094 dn_drive_rate=1.074 syn_mult=0.977 sens_mult=0.999 inh_mult=1.159 adapt_inc=1.011 adapt_tau=0.950 bus_rate=1.017 eta=1.068 forget=0.867 aggr_out=1.771 kc_mbon=1.087 compass_out=0.863 compass_loop=1.250 smell=0.878 taste=1.146 touch=0.966 hearing=0.976 vision=1.003 pheromone=1.067 pain=0.984 reward=0.957 hunger_drive=0.835 sleep_need=0.600 climate=1.175
+[04:44:48] [Server thread/INFO] (Minecraft) fly 971ccdad female (young) gen 3 mother fc884c33 father 1d8330dc mutations 9: tau_m=1.133 v_th=1.031 tau_syn=1.012 drive_rate=0.789 drive_amp=1.134 dn_drive_rate=0.959 syn_mult=0.988 sens_mult=0.965 inh_mult=1.028 adapt_inc=1.011 adapt_tau=0.981 bus_rate=1.017 eta=1.134 forget=1.215 aggr_out=1.242 kc_mbon=1.165 compass_out=0.925 compass_loop=0.878 smell=0.834 taste=1.146 touch=1.012 hearing=0.875 vision=0.819 pheromone=0.914 pain=1.292 reward=0.991 hunger_drive=0.792 sleep_need=0.634 climate=1.045
+[04:44:48] [Server thread/INFO] (Minecraft) egg 3ea7b8ac gen 2 mother 9a32f8bf father 8b78c056 mutations 4: tau_m=1.067 v_th=1.031 tau_syn=1.009 drive_rate=1.184 drive_amp=0.953 dn_drive_rate=1.074 syn_mult=0.968 sens_mult=1.023 inh_mult=1.028 adapt_inc=0.959 adapt_tau=1.055 bus_rate=1.076 eta=0.977 forget=1.048 aggr_out=0.765 kc_mbon=1.372 compass_out=0.980 compass_loop=1.250 smell=1.600 taste=1.060 touch=0.960 hearing=1.042 vision=1.390 pheromone=0.914 pain=1.032 reward=1.255 hunger_drive=0.835 sleep_need=0.634 climate=0.687
+[04:44:53] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 7.5 below 12.0
+[04:45:04] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 7.1 below 12.0
+[04:45:15] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 6.6 below 12.0
+[04:45:26] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 6.2 below 12.0
+[04:45:38] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 5.7 below 12.0
+[04:45:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 11
+[04:45:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.670921f
+[04:45:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 5.2050724f
+[04:45:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.147678f
+[04:45:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.675728f
+[04:45:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.998268f
+[04:45:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.706451f
+[04:45:49] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 5.2 below 12.0
+[04:46:00] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: fc884c33 hunger 4.7 below 12.0
+[04:46:22] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:46:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 12
+[04:46:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.374247f
+[04:46:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.751781f
+[04:46:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.839357f
+[04:46:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.584774f
+[04:46:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.6297455f
+[04:46:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.00624f
+[04:47:02] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:47:12] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:47:15] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:47:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 13
+[04:47:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.167112f
+[04:47:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.676205f
+[04:47:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.043968f
+[04:47:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.819035f
+[04:47:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.884346f
+[04:47:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.349395f
+[04:47:52] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:48:05] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:48:31] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:48:36] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:48:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 14
+[04:48:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.897392f
+[04:48:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.400806f
+[04:48:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.858732f
+[04:48:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.280604f
+[04:48:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.849991f
+[04:48:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.875195f
+[04:49:00] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:49:13] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:49:17] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:49:46] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:49:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 15
+[04:49:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.917566f
+[04:49:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.136656f
+[04:49:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.640804f
+[04:49:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 12.78007f
+[04:49:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.861519f
+[04:49:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.348278f
+[04:49:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[04:49:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 12; gen 1: 1 female 1 male; gen 2: 4 female 5 male; gen 3: 1 female 0 male
+[04:49:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 9; gen 3: 1; eggs laid 16, eggs refused by cap 17, matings refused (hungry) 36
+[04:49:48] [Server thread/INFO] (Minecraft) deaths: old age 9 (mean adult age 7.5 min); starvation 1 (mean adult age 5.8 min); predator 0; other 0; removed 0;
+[04:49:48] [Server thread/INFO] (Minecraft) gene means, generation 3 (1 born) against generation 0 (6 born), largest shifts:
+[04:49:48] [Server thread/INFO] (Minecraft)   sleep_need 0.913 -> 0.634, vision 1.071 -> 0.819, smell 1.011 -> 0.834, hunger_drive 0.947 -> 0.792, drive_rate 0.943 -> 0.789, pain 1.100 -> 1.292
+[04:49:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[04:49:48] [Server thread/INFO] (Minecraft)   forget 1.199 -> 1.020, reward 1.118 -> 1.005, dn_drive_rate 1.052 -> 1.158, aggr_out 1.081 -> 0.999, pain 1.100 -> 1.021, pheromone 1.045 -> 0.971
+[04:49:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[04:49:48] [Server thread/INFO] (Minecraft) whole brains: 3 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[04:49:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[04:49:53] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: fc884c33 female gen 2 cause old age adult minutes 7.0
+[04:49:54] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: e48257f7 male gen 1 cause old age adult minutes 9.0
+[04:50:28] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:50:38] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:50:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 16
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.53402f
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.905205f
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 10.279536f
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.328972f
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 13.701734f
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.956917f
+[04:50:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.06285f
+[04:51:03] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 45e334a5 female gen 1 cause old age adult minutes 9.5
+[04:51:20] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 9f309a9f male gen 2 cause old age adult minutes 7.1
+[04:51:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 17
+[04:51:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.944378f
+[04:51:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 7.779053f
+[04:51:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.8134f
+[04:51:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 11.171216f
+[04:51:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.4031f
+[04:51:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.56221f
+[04:51:52] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:51:59] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: e860bc22 male gen 2 cause old age adult minutes 8.8
+[04:52:13] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 80e2f502 female gen 2 cause old age adult minutes 6.5
+[04:52:43] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 971ccdad female gen 3 cause old age adult minutes 6.5
+[04:52:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 18
+[04:52:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.167952f
+[04:52:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 8.580107f
+[04:52:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.720123f
+[04:52:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.374512f
+[04:52:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.344086f
+[04:53:21] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 0206bcbe male gen 2 cause old age adult minutes 7.0
+[04:53:46] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: cdcf6491 female gen 2 cause old age adult minutes 8.2
+[04:53:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 19
+[04:53:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 6.0800123f
+[04:53:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 12.92193f
+[04:53:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.56494f
+[04:53:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.844696f
+[04:53:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.159615f
+[04:53:49] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 7e96baf8 male gen 2 cause old age adult minutes 9.5
+[04:54:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 20
+[04:54:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.718311f
+[04:54:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 7.20793f
+[04:54:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.047795f
+[04:54:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.381607f
+[04:54:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.489199f
+[04:54:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[04:54:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 10; gen 2: 2 female 1 male; gen 3: 2 female 2 male; gen 4: 1 female 2 male
+[04:54:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 10; gen 3: 5; gen 4: 3; eggs laid 25, eggs refused by cap 20, matings refused (hungry) 36
+[04:54:48] [Server thread/INFO] (Minecraft) deaths: old age 19 (mean adult age 7.7 min); starvation 1 (mean adult age 5.8 min); predator 0; other 0; removed 0;
+[04:54:48] [Server thread/INFO] (Minecraft) gene means, generation 4 (3 born) against generation 0 (6 born), largest shifts:
+[04:54:48] [Server thread/INFO] (Minecraft)   smell 1.011 -> 0.863, forget 1.199 -> 1.029, aggr_out 1.081 -> 1.242, kc_mbon 1.189 -> 1.042, hearing 0.964 -> 0.865, sleep_need 0.913 -> 0.823
+[04:54:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[04:54:48] [Server thread/INFO] (Minecraft)   forget 1.199 -> 0.993, smell 1.011 -> 0.876, dn_drive_rate 1.052 -> 1.168, reward 1.118 -> 1.014, pheromone 1.045 -> 0.962, compass_loop 1.021 -> 1.100
+[04:54:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[04:54:48] [Server thread/INFO] (Minecraft) whole brains: 3 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[04:54:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[04:54:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. 10 flies, 1 eggs within 64 blocks
+[04:54:48] [Server thread/INFO] (Minecraft) fly 82180a7e female gen 3 mother cdcf6491 father 7e96baf8 mutations 4: tau_m=0.959 v_th=1.005 tau_syn=0.990 drive_rate=0.853 drive_amp=1.134 dn_drive_rate=1.144 syn_mult=0.967 sens_mult=0.999 inh_mult=1.027 adapt_inc=1.183 adapt_tau=0.950 bus_rate=0.970 eta=1.068 forget=1.050 aggr_out=1.236 kc_mbon=0.845 compass_out=1.191 compass_loop=1.117 smell=0.878 taste=1.060 touch=1.017 hearing=1.024 vision=1.390 pheromone=1.067 pain=0.984 reward=0.957 hunger_drive=0.715 sleep_need=1.210 climate=1.045
+[04:54:48] [Server thread/INFO] (Minecraft) fly 72118690 female gen 2 mother 45e334a5 father e48257f7 mutations 5: tau_m=0.956 v_th=1.030 tau_syn=0.999 drive_rate=0.789 drive_amp=0.999 dn_drive_rate=1.122 syn_mult=0.969 sens_mult=0.978 inh_mult=1.001 adapt_inc=0.956 adapt_tau=0.981 bus_rate=0.839 eta=1.068 forget=0.796 aggr_out=0.734 kc_mbon=1.165 compass_out=0.861 compass_loop=1.086 smell=0.885 taste=1.002 touch=0.966 hearing=0.976 vision=0.908 pheromone=1.105 pain=1.013 reward=0.991 hunger_drive=0.989 sleep_need=1.130 climate=1.045
+[04:54:48] [Server thread/INFO] (Minecraft) fly ed1be620 male gen 4 mother 971ccdad father 9f309a9f mutations 6 [his small circuit does not use these genes; he only passes them on]: tau_m=1.114 v_th=1.031 tau_syn=1.018 drive_rate=1.184 drive_amp=1.134 dn_drive_rate=1.053 syn_mult=0.988 sens_mult=1.017 inh_mult=1.028 adapt_inc=1.011 adapt_tau=0.967 bus_rate=1.017 eta=1.162 forget=1.215 aggr_out=1.242 kc_mbon=1.067 compass_out=0.925 compass_loop=1.086 smell=0.834 taste=1.055 touch=1.014 hearing=0.745 vision=1.390 pheromone=0.914 pain=1.292 reward=0.991 hunger_drive=1.172 sleep_need=1.201 climate=1.058
+[04:54:48] [Server thread/INFO] (Minecraft) fly 831d6f34 female gen 3 mother fc884c33 father e860bc22 mutations 5: tau_m=0.910 v_th=1.031 tau_syn=1.009 drive_rate=0.863 drive_amp=1.134 dn_drive_rate=1.241 syn_mult=0.992 sens_mult=1.017 inh_mult=1.028 adapt_inc=0.989 adapt_tau=0.976 bus_rate=0.842 eta=1.111 forget=1.040 aggr_out=1.242 kc_mbon=1.165 compass_out=0.980 compass_loop=0.965 smell=0.878 taste=1.002 touch=0.879 hearing=0.931 vision=0.819 pheromone=0.865 pain=1.153 reward=0.906 hunger_drive=0.864 sleep_need=0.634 climate=0.973
+[04:54:48] [Server thread/INFO] (Minecraft) fly 555de8d0 male (young) gen 4 mother 831d6f34 father 7e96baf8 mutations 9 [his small circuit does not use these genes; he only passes them on]: tau_m=0.885 v_th=1.031 tau_syn=1.009 drive_rate=0.831 drive_amp=1.134 dn_drive_rate=1.400 syn_mult=0.984 sens_mult=1.058 inh_mult=1.028 adapt_inc=1.128 adapt_tau=0.950 bus_rate=0.911 eta=1.068 forget=0.926 aggr_out=1.242 kc_mbon=0.845 compass_out=0.980 compass_loop=1.129 smell=0.878 taste=1.002 touch=0.867 hearing=0.976 vision=0.819 pheromone=1.067 pain=0.984 reward=1.060 hunger_drive=0.864 sleep_need=0.634 climate=1.045
+[04:54:48] [Server thread/INFO] (Minecraft) fly b40ae967 male gen 3 mother cdcf6491 father 0206bcbe mutations 3 [his small circuit does not use these genes; he only passes them on]: tau_m=1.067 v_th=1.031 tau_syn=1.009 drive_rate=0.960 drive_amp=0.893 dn_drive_rate=1.144 syn_mult=0.968 sens_mult=1.023 inh_mult=1.027 adapt_inc=0.959 adapt_tau=1.055 bus_rate=1.076 eta=0.928 forget=1.050 aggr_out=0.927 kc_mbon=1.260 compass_out=0.925 compass_loop=1.117 smell=0.882 taste=1.060 touch=0.960 hearing=1.024 vision=1.390 pheromone=0.877 pain=1.032 reward=1.255 hunger_drive=0.715 sleep_need=0.630 climate=0.687
+[04:54:48] [Server thread/INFO] (Minecraft) fly f9893b74 female gen 4 mother 971ccdad father e860bc22 mutations 7: tau_m=1.198 v_th=1.031 tau_syn=0.997 drive_rate=0.829 drive_amp=1.044 dn_drive_rate=0.959 syn_mult=0.994 sens_mult=0.995 inh_mult=1.075 adapt_inc=1.011 adapt_tau=1.030 bus_rate=1.017 eta=1.068 forget=0.947 aggr_out=1.242 kc_mbon=1.213 compass_out=0.925 compass_loop=1.075 smell=0.878 taste=1.146 touch=1.012 hearing=0.875 vision=0.819 pheromone=0.989 pain=1.075 reward=0.991 hunger_drive=0.792 sleep_need=0.634 climate=0.909
+[04:54:48] [Server thread/INFO] (Minecraft) fly 98f11e7c female gen 2 mother 45e334a5 father e48257f7 mutations 5: tau_m=0.959 v_th=1.038 tau_syn=0.999 drive_rate=0.902 drive_amp=0.992 dn_drive_rate=1.241 syn_mult=0.969 sens_mult=1.017 inh_mult=1.001 adapt_inc=0.989 adapt_tau=1.023 bus_rate=0.839 eta=0.981 forget=0.947 aggr_out=0.737 kc_mbon=1.165 compass_out=0.861 compass_loop=1.086 smell=0.885 taste=1.002 touch=0.964 hearing=0.976 vision=0.908 pheromone=0.791 pain=0.962 reward=0.991 hunger_drive=0.989 sleep_need=1.130 climate=0.973
+[04:54:48] [Server thread/INFO] (Minecraft) fly 0af7d358 male gen 2 mother 45e334a5 father e48257f7 mutations 6 [his small circuit does not use these genes; he only passes them on]: tau_m=0.956 v_th=1.030 tau_syn=0.999 drive_rate=1.048 drive_amp=1.044 dn_drive_rate=1.241 syn_mult=0.960 sens_mult=1.017 inh_mult=1.075 adapt_inc=0.950 adapt_tau=0.981 bus_rate=0.969 eta=1.068 forget=0.913 aggr_out=0.782 kc_mbon=1.213 compass_out=0.861 compass_loop=1.086 smell=0.885 taste=1.002 touch=0.914 hearing=0.963 vision=0.819 pheromone=1.067 pain=0.984 reward=0.908 hunger_drive=1.418 sleep_need=1.130 climate=1.045
+[04:54:48] [Server thread/INFO] (Minecraft) fly 4249477f male (young) gen 3 mother cdcf6491 father 0206bcbe mutations 5 [his small circuit does not use these genes; he only passes them on]: tau_m=1.067 v_th=1.032 tau_syn=0.999 drive_rate=0.960 drive_amp=0.893 dn_drive_rate=1.139 syn_mult=0.967 sens_mult=1.023 inh_mult=0.862 adapt_inc=0.959 adapt_tau=1.055 bus_rate=1.076 eta=1.200 forget=1.050 aggr_out=0.765 kc_mbon=1.260 compass_out=0.980 compass_loop=1.250 smell=0.882 taste=1.060 touch=1.012 hearing=1.024 vision=1.390 pheromone=0.877 pain=0.984 reward=1.088 hunger_drive=0.835 sleep_need=1.418 climate=0.687
+[04:54:48] [Server thread/INFO] (Minecraft) egg 005d49cb gen 4 mother 831d6f34 father 0af7d358 mutations 7: tau_m=0.910 v_th=1.062 tau_syn=0.999 drive_rate=1.048 drive_amp=1.044 dn_drive_rate=1.196 syn_mult=0.992 sens_mult=1.017 inh_mult=1.028 adapt_inc=0.950 adapt_tau=0.981 bus_rate=0.969 eta=1.068 forget=1.040 aggr_out=1.242 kc_mbon=1.028 compass_out=0.861 compass_loop=0.965 smell=1.228 taste=1.002 touch=0.914 hearing=0.914 vision=0.819 pheromone=1.067 pain=0.984 reward=0.908 hunger_drive=1.533 sleep_need=1.285 climate=1.045
+[04:54:49] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 7.2 below 12.0
+[04:55:00] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 6.7 below 12.0
+[04:55:12] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 6.2 below 12.0
+[04:55:23] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 5.7 below 12.0
+[04:55:35] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 5.2 below 12.0
+[04:55:47] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 4.8 below 12.0
+[04:55:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 21
+[04:55:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.806051f
+[04:55:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 4.697758f
+[04:55:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.723274f
+[04:55:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.620678f
+[04:55:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 12.956597f
+[04:55:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.485771f
+[04:55:59] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 4.2 below 12.0
+[04:56:10] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 3.8 below 12.0
+[04:56:22] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 3.3 below 12.0
+[04:56:24] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 98f11e7c female gen 2 cause old age adult minutes 9.2
+[04:56:34] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 2.8 below 12.0
+[04:56:46] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 2.3 below 12.0
+[04:56:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 22
+[04:56:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 2.1790423f
+[04:56:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 11.711338f
+[04:56:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.085743f
+[04:56:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 10.431517f
+[04:56:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.199417f
+[04:56:58] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 1.8 below 12.0
+[04:57:05] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 0af7d358 male gen 2 cause old age adult minutes 9.2
+[04:57:10] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 1.3 below 12.0
+[04:57:21] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.8 below 12.0
+[04:57:33] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.3 below 12.0
+[04:57:45] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:57:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 23
+[04:57:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 0.0f
+[04:57:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.367146f
+[04:57:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.430172f
+[04:57:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 7.930999f
+[04:57:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.075186f
+[04:57:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.641998f
+[04:57:57] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:58:08] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:58:20] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:58:30] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:58:32] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:58:44] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:58:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 24
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 0.0f
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.679215f
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.912086f
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 5.356646f
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.24439f
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.142609f
+[04:58:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.713196f
+[04:58:55] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.0 below 12.0
+[04:59:05] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 72118690 female gen 2 cause old age adult minutes 7.1
+[04:59:07] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 831d6f34 hunger 0.6 below 12.0
+[04:59:11] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 4.4 below 12.0
+[04:59:22] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 3.9 below 12.0
+[04:59:30] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[04:59:30] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 831d6f34 female gen 3 cause old age adult minutes 7.6
+[04:59:34] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 3.5 below 12.0
+[04:59:44] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 3.0 below 12.0
+[04:59:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 25
+[04:59:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.477873f
+[04:59:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 2.8566842f
+[04:59:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.465979f
+[04:59:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.474169f
+[04:59:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.213806f
+[04:59:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.891693f
+[04:59:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[04:59:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 11; gen 3: 2 female 2 male; gen 4: 2 female 2 male; gen 5: 2 female 1 male
+[04:59:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 10; gen 3: 6; gen 4: 4; gen 5: 3; eggs laid 29, eggs refused by cap 22, matings refused (hungry) 63
+[04:59:48] [Server thread/INFO] (Minecraft) deaths: old age 23 (mean adult age 7.8 min); starvation 1 (mean adult age 5.8 min); predator 0; other 0; removed 0;
+[04:59:48] [Server thread/INFO] (Minecraft) gene means, generation 5 (3 born) against generation 0 (6 born), largest shifts:
+[04:59:48] [Server thread/INFO] (Minecraft)   tau_m 0.997 -> 1.198, smell 1.011 -> 0.881, climate 1.010 -> 0.887, aggr_out 1.081 -> 1.183, pain 1.100 -> 1.014, drive_rate 0.943 -> 0.874
+[04:59:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[04:59:48] [Server thread/INFO] (Minecraft)   forget 1.199 -> 1.051, smell 1.011 -> 0.914, climate 1.010 -> 0.926, reward 1.118 -> 1.027, sleep_need 0.913 -> 0.992, compass_loop 1.021 -> 1.098
+[04:59:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[04:59:48] [Server thread/INFO] (Minecraft) whole brains: 3 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[04:59:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[04:59:55] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 2.5 below 12.0
+[05:00:04] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: b40ae967 male gen 3 cause old age adult minutes 6.9
+[05:00:06] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 2.1 below 12.0
+[05:00:18] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 1.6 below 12.0
+[05:00:29] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 1.1 below 12.0
+[05:00:40] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.7 below 12.0
+[05:00:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 26
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.510992f
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 0.3460819f
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.087112f
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.924695f
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.496716f
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.249039f
+[05:00:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.139793f
+[05:00:51] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.2 below 12.0
+[05:01:02] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:01:13] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:01:24] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:01:35] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:01:37] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] egg refused by cap: 12 of 12
+[05:01:47] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:01:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 27
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.678778f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 0.0f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.251196f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.512264f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.997324f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 14.598042f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.509026f
+[05:01:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.153275f
+[05:01:54] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: ed1be620 male gen 4 cause old age adult minutes 8.5
+[05:01:58] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:02:02] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: f9893b74 female gen 4 cause old age adult minutes 8.0
+[05:02:09] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] mating refused: 82180a7e hunger 0.0 below 12.0
+[05:02:16] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 82180a7e female gen 3 cause starvation adult minutes 7.7
+[05:02:16] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 4249477f male gen 3 cause old age adult minutes 7.0
+[05:02:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 28
+[05:02:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 13.642639f
+[05:02:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.795788f
+[05:02:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.264313f
+[05:02:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.444666f
+[05:02:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.81495f
+[05:02:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.525417f
+[05:03:29] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 555de8d0 male gen 4 cause old age adult minutes 7.9
+[05:03:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 29
+[05:03:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.65158f
+[05:03:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.001663f
+[05:03:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.764815f
+[05:03:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.469119f
+[05:03:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.30868f
+[05:03:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.828749f
+[05:04:26] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 3a005679 female gen 4 cause old age adult minutes 8.1
+[05:04:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 30
+[05:04:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.439087f
+[05:04:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.955036f
+[05:04:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.202427f
+[05:04:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.49451f
+[05:04:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.291497f
+[05:04:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[05:04:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 6; gen 3: 1 female 0 male; gen 5: 4 female 1 male
+[05:04:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 10; gen 3: 6; gen 4: 4; gen 5: 5; eggs laid 31, eggs refused by cap 23, matings refused (hungry) 76
+[05:04:48] [Server thread/INFO] (Minecraft) deaths: old age 29 (mean adult age 7.8 min); starvation 2 (mean adult age 6.8 min); predator 0; other 0; removed 0;
+[05:04:48] [Server thread/INFO] (Minecraft) gene means, generation 5 (5 born) against generation 0 (6 born), largest shifts:
+[05:04:48] [Server thread/INFO] (Minecraft)   smell 1.011 -> 0.867, vision 1.071 -> 0.925, tau_m 0.997 -> 1.136, drive_rate 0.943 -> 0.856, climate 1.010 -> 0.923, forget 1.199 -> 1.096
+[05:04:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[05:04:48] [Server thread/INFO] (Minecraft)   vision 1.071 -> 0.908, smell 1.011 -> 0.881, forget 1.199 -> 1.065, tau_m 0.997 -> 1.106, reward 1.118 -> 1.016, pain 1.100 -> 1.014
+[05:04:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[05:04:48] [Server thread/INFO] (Minecraft) whole brains: 3 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[05:04:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[05:04:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. 6 flies, 0 eggs within 64 blocks
+[05:04:48] [Server thread/INFO] (Minecraft) fly aa6dd769 female gen 5 mother f9893b74 father 4249477f mutations 9: tau_m=1.198 v_th=1.031 tau_syn=0.997 drive_rate=0.960 drive_amp=1.044 dn_drive_rate=0.959 syn_mult=0.988 sens_mult=0.905 inh_mult=0.988 adapt_inc=1.011 adapt_tau=1.030 bus_rate=1.076 eta=0.975 forget=1.254 aggr_out=1.242 kc_mbon=1.260 compass_out=0.980 compass_loop=1.098 smell=0.882 taste=1.146 touch=1.134 hearing=0.875 vision=1.390 pheromone=0.989 pain=0.984 reward=1.174 hunger_drive=1.045 sleep_need=0.634 climate=0.909
+[05:04:48] [Server thread/INFO] (Minecraft) fly 26b3cc9e female gen 5 mother f9893b74 father 555de8d0 mutations 4: tau_m=0.885 v_th=0.987 tau_syn=1.009 drive_rate=0.831 drive_amp=1.134 dn_drive_rate=0.959 syn_mult=0.994 sens_mult=1.058 inh_mult=1.075 adapt_inc=1.011 adapt_tau=0.950 bus_rate=1.017 eta=1.068 forget=0.926 aggr_out=1.242 kc_mbon=0.845 compass_out=0.925 compass_loop=1.053 smell=0.816 taste=1.002 touch=1.012 hearing=0.875 vision=0.819 pheromone=0.989 pain=1.075 reward=1.060 hunger_drive=0.792 sleep_need=0.773 climate=1.045
+[05:04:48] [Server thread/INFO] (Minecraft) fly 9b5a6356 male gen 5 mother f9893b74 father 4249477f mutations 6 [his small circuit does not use these genes; he only passes them on]: tau_m=1.198 v_th=1.047 tau_syn=0.992 drive_rate=0.829 drive_amp=0.893 dn_drive_rate=1.139 syn_mult=0.956 sens_mult=1.023 inh_mult=0.789 adapt_inc=0.984 adapt_tau=1.030 bus_rate=1.017 eta=1.068 forget=1.168 aggr_out=1.242 kc_mbon=1.260 compass_out=0.980 compass_loop=1.075 smell=0.882 taste=1.060 touch=1.012 hearing=1.024 vision=0.819 pheromone=0.989 pain=1.075 reward=1.088 hunger_drive=0.792 sleep_need=1.418 climate=0.909
+[05:04:48] [Server thread/INFO] (Minecraft) fly fa5cf2e7 female gen 5 mother f9893b74 father 555de8d0 mutations 8: tau_m=1.198 v_th=1.031 tau_syn=0.997 drive_rate=0.831 drive_amp=1.208 dn_drive_rate=0.959 syn_mult=0.984 sens_mult=0.995 inh_mult=1.075 adapt_inc=1.128 adapt_tau=0.950 bus_rate=0.911 eta=1.068 forget=0.947 aggr_out=1.064 kc_mbon=1.308 compass_out=0.980 compass_loop=1.075 smell=0.878 taste=1.002 touch=1.012 hearing=0.961 vision=0.819 pheromone=0.935 pain=0.984 reward=0.874 hunger_drive=0.864 sleep_need=0.720 climate=0.842
+[05:04:48] [Server thread/INFO] (Minecraft) fly 9045c723 female gen 5 mother f9893b74 father 555de8d0 mutations 6: tau_m=1.198 v_th=0.988 tau_syn=0.997 drive_rate=0.829 drive_amp=1.134 dn_drive_rate=0.959 syn_mult=0.966 sens_mult=1.058 inh_mult=1.028 adapt_inc=1.128 adapt_tau=0.950 bus_rate=1.017 eta=1.068 forget=1.184 aggr_out=1.001 kc_mbon=1.213 compass_out=0.980 compass_loop=1.075 smell=0.878 taste=1.146 touch=0.867 hearing=0.875 vision=0.780 pheromone=0.989 pain=0.984 reward=0.991 hunger_drive=0.864 sleep_need=0.655 climate=0.909
+[05:04:48] [Server thread/INFO] (Minecraft) fly f46630a2 female gen 3 mother 72118690 father 0af7d358 mutations 3: tau_m=0.956 v_th=1.030 tau_syn=0.999 drive_rate=1.048 drive_amp=1.044 dn_drive_rate=1.315 syn_mult=0.960 sens_mult=0.978 inh_mult=1.001 adapt_inc=0.950 adapt_tau=0.981 bus_rate=0.839 eta=1.068 forget=0.913 aggr_out=0.782 kc_mbon=1.213 compass_out=0.861 compass_loop=1.086 smell=0.949 taste=1.002 touch=0.914 hearing=0.963 vision=0.819 pheromone=1.048 pain=0.984 reward=0.908 hunger_drive=0.989 sleep_need=1.130 climate=1.045
+[05:05:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 31
+[05:05:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.430399f
+[05:05:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.455397f
+[05:05:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.21965f
+[05:05:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.873069f
+[05:05:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 12.511811f
+[05:06:22] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 9b5a6356 male gen 5 cause old age adult minutes 7.3
+[05:06:40] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: f46630a2 female gen 3 cause old age adult minutes 7.9
+[05:06:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 32
+[05:06:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.208149f
+[05:06:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.515278f
+[05:06:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.605545f
+[05:06:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.854172f
+[05:07:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 33
+[05:07:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.697986f
+[05:07:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 15.015437f
+[05:07:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.076126f
+[05:07:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.254684f
+[05:08:32] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 26b3cc9e female gen 5 cause old age adult minutes 6.6
+[05:08:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 34
+[05:08:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.961048f
+[05:08:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 12.514903f
+[05:08:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 18.244934f
+[05:09:17] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: aa6dd769 female gen 5 cause old age adult minutes 9.5
+[05:09:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 35
+[05:09:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 10.014369f
+[05:09:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 17.064371f
+[05:09:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[05:09:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 2; gen 5: 2 female 0 male
+[05:09:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 10; gen 3: 6; gen 4: 4; gen 5: 5; eggs laid 31, eggs refused by cap 23, matings refused (hungry) 76
+[05:09:48] [Server thread/INFO] (Minecraft) deaths: old age 33 (mean adult age 7.8 min); starvation 2 (mean adult age 6.8 min); predator 0; other 0; removed 0;
+[05:09:48] [Server thread/INFO] (Minecraft) gene means, generation 5 (5 born) against generation 0 (6 born), largest shifts:
+[05:09:48] [Server thread/INFO] (Minecraft)   smell 1.011 -> 0.867, vision 1.071 -> 0.925, tau_m 0.997 -> 1.136, drive_rate 0.943 -> 0.856, climate 1.010 -> 0.923, forget 1.199 -> 1.096
+[05:09:48] [Server thread/INFO] (Minecraft) gene means, flies alive now against generation 0, largest shifts:
+[05:09:48] [Server thread/INFO] (Minecraft)   vision 1.071 -> 0.799, sleep_need 0.913 -> 0.687, tau_m 0.997 -> 1.198, reward 1.118 -> 0.933, drive_amp 1.013 -> 1.171, climate 1.010 -> 0.876
+[05:09:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[05:09:48] [Server thread/INFO] (Minecraft) whole brains: 2 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[05:09:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] some flies are inside the pen
+[05:10:08] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: fa5cf2e7 female gen 5 cause old age adult minutes 8.9
+[05:10:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 36
+[05:10:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 19.278849f
+[05:11:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 37
+[05:11:48] [Server thread/INFO] (Minecraft) Connectome Fly has the following entity data: 16.623095f
+[05:12:03] [Server thread/INFO] (Minecraft) [STDOUT]: [connectomefly genetics] death: 9045c723 female gen 5 cause old age adult minutes 9.4
+[05:12:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 38
+[05:13:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 39
+[05:14:48] [Server thread/INFO] (Minecraft) [Not Secure] [Server] MINUTE 40
+[05:14:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. Population statistics for this world.
+[05:14:48] [Server thread/INFO] (Minecraft) alive in loaded chunks: 0
+[05:14:48] [Server thread/INFO] (Minecraft) born: gen 0: 6; gen 1: 6; gen 2: 10; gen 3: 6; gen 4: 4; gen 5: 5; eggs laid 31, eggs refused by cap 23, matings refused (hungry) 76
+[05:14:48] [Server thread/INFO] (Minecraft) deaths: old age 35 (mean adult age 7.9 min); starvation 2 (mean adult age 6.8 min); predator 0; other 0; removed 0;
+[05:14:48] [Server thread/INFO] (Minecraft) gene means, generation 5 (5 born) against generation 0 (6 born), largest shifts:
+[05:14:48] [Server thread/INFO] (Minecraft)   smell 1.011 -> 0.867, vision 1.071 -> 0.925, tau_m 0.997 -> 1.136, drive_rate 0.943 -> 0.856, climate 1.010 -> 0.923, forget 1.199 -> 1.096
+[05:14:48] [Server thread/INFO] (Minecraft) With few flies these shifts are mostly chance (drift), not selection.
+[05:14:48] [Server thread/INFO] (Minecraft) whole brains: 0 running, up to 3 at once (this machine has 4 cores and each brain keeps about one busy; leave a few for the game)
+[05:14:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. 0 flies, 0 eggs within 64 blocks
+[05:14:48] [Server thread/INFO] (Minecraft) [model] inherited tuning on real wiring, not real genetics. 0 flies, 0 eggs within 64 blocks
+[05:14:51] [Server thread/INFO] (Minecraft) Stopping the server
+[05:14:51] [Server thread/INFO] (Minecraft) Stopping server
+[05:14:51] [Server thread/INFO] (Minecraft) Saving players
+[05:14:51] [Server thread/INFO] (Minecraft) Saving worlds
+[05:14:51] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[poprun]'/minecraft:overworld
+[05:14:52] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[poprun]'/minecraft:the_end
+[05:14:52] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[poprun]'/minecraft:the_nether
+[05:14:52] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (poprun): All chunks are saved
+[05:14:52] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[05:14:52] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[05:14:52] [Server thread/INFO] (Minecraft) ThreadedAnvilChunkStorage: All dimensions are saved
+
+BUILD SUCCESSFUL in 41m 54s
+6 actionable tasks: 1 executed, 5 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
