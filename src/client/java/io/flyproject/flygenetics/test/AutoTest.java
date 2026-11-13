@@ -60,6 +60,21 @@ public class AutoTest implements ClientModInitializer {
             System.out.println("[flygenetics autotest] done");
             c.stop();
          }
+      } else if (mode.equals("keys")) {
+         // press G and H the way the game does when the keys are hit, and report what happened
+         int t = ticks;
+         com.mojang.blaze3d.platform.InputConstants.Key g = com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD.getOrCreate(com.mojang.blaze3d.platform.InputConstants.KEY_G);
+         com.mojang.blaze3d.platform.InputConstants.Key h = com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD.getOrCreate(com.mojang.blaze3d.platform.InputConstants.KEY_H);
+         if (t == 40) { io.flyproject.connectomefly.client.FlyHud.setEnabled(true); io.flyproject.connectomefly.client.FlyHud.setDetail(false); }
+         if (t == 50) net.minecraft.client.KeyMapping.click(g);
+         if (t == 54) System.out.println("[flygenetics autotest] after G the screen is " + (c.gui.screen() == null ? "none" : c.gui.screen().getClass().getSimpleName()));
+         if (t == 56) c.gui.setScreen(null);
+         if (t == 60 || t == 64 || t == 68) net.minecraft.client.KeyMapping.click(h);
+         if (t == 62 || t == 66 || t == 70) System.out.println("[flygenetics autotest] after H the readout is " + io.flyproject.connectomefly.client.FlyHud.modeName());
+         if (t == 80) {
+            System.out.println("[flygenetics autotest] done");
+            c.stop();
+         }
       } else if (mode.equals("menu")) {
          // the new readout (compact and full) and the menu screen; one menu button is pressed for real
          int t = ticks;
@@ -72,7 +87,9 @@ public class AutoTest implements ClientModInitializer {
             MinecraftServer srv = c.getSingleplayerServer();
             srv.execute(() -> srv.getPlayerList().getPlayers().forEach(pl -> srv.getPlayerList().op(pl.nameAndId())));
          }
+         if (t == 120) run(c, "tp @a 0.5 -60 1.5 0 30");
          if (t == 200) shot(c, "hud-compact.png");
+         if (t == 204) shot(c, "hud-compact-b.png");
          if (t == 210) io.flyproject.connectomefly.client.FlyHud.setDetail(true);
          if (t == 260) shot(c, "hud-full.png");
          if (t == 270) { io.flyproject.connectomefly.client.FlyHud.setDetail(false); c.gui.setScreen(new io.flyproject.connectomefly.client.FlyMenuScreen()); }
