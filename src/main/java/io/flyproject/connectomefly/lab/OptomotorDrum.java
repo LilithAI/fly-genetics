@@ -3,27 +3,27 @@ package io.flyproject.connectomefly.lab;
 import io.flyproject.connectomefly.entity.FlyMind;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity.BlockDisplayEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtFloat;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display.BlockDisplay;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Blocks;
 
 public final class OptomotorDrum {
    private static final int PANELS = 16;
    private static final double RADIUS = 4.6;
-   private static ServerWorld world;
-   private static final List<BlockDisplayEntity> panels = new ArrayList<>();
+   private static ServerLevel world;
+   private static final List<BlockDisplay> panels = new ArrayList<>();
    private static double cx;
    private static double cz;
    private static double cy;
    private static double angle;
    private static double omega;
 
-   public static void build(ServerWorld w, BlockPos centre) {
+   public static void build(ServerLevel w, BlockPos centre) {
       clear();
       world = w;
       cx = centre.getX() + 0.5;
@@ -31,20 +31,20 @@ public final class OptomotorDrum {
       cy = centre.getY();
 
       for (int i = 0; i < 16; i++) {
-         BlockDisplayEntity d = (BlockDisplayEntity)EntityType.BLOCK_DISPLAY.create(w);
+         BlockDisplay d = (BlockDisplay)EntityType.BLOCK_DISPLAY.create(w);
          if (d != null) {
-            d.setPosition(cx, cy, cz);
-            NbtCompound nbt = new NbtCompound();
-            d.writeNbt(nbt);
+            d.setPos(cx, cy, cz);
+            CompoundTag nbt = new CompoundTag();
+            d.saveWithoutId(nbt);
             nbt.putString("id", "minecraft:block_display");
-            NbtCompound bs = new NbtCompound();
-            bs.putString("Name", (i % 2 == 0 ? Blocks.BLACK_CONCRETE : Blocks.WHITE_CONCRETE).getTranslationKey().replace("block.minecraft.", "minecraft:"));
+            CompoundTag bs = new CompoundTag();
+            bs.putString("Name", (i % 2 == 0 ? Blocks.BLACK_CONCRETE : Blocks.WHITE_CONCRETE).getDescriptionId().replace("block.minecraft.", "minecraft:"));
             nbt.put("block_state", bs);
             nbt.putInt("interpolation_duration", 2);
             nbt.putInt("start_interpolation", 0);
             nbt.put("transformation", transform(i));
-            d.readNbt(nbt);
-            w.spawnEntity(d);
+            d.load(nbt);
+            w.addFreshEntity(d);
             panels.add(d);
          }
       }
@@ -53,7 +53,7 @@ public final class OptomotorDrum {
       FlyMind.drum = new double[]{cx, cz, 0.0, 4.6};
    }
 
-   private static NbtList transform(int i) {
+   private static ListTag transform(int i) {
       double a = Math.toRadians(angle + i * 360.0 / 16.0);
       double px = Math.cos(a) * 4.6;
       double pz = Math.sin(a) * 4.6;
@@ -105,21 +105,21 @@ public final class OptomotorDrum {
          angle = angle + omega * 0.05;
 
          for (int i = 0; i < panels.size(); i++) {
-            BlockDisplayEntity d = panels.get(i);
+            BlockDisplay d = panels.get(i);
             if (!d.isRemoved()) {
-               NbtCompound nbt = new NbtCompound();
-               d.writeNbt(nbt);
+               CompoundTag nbt = new CompoundTag();
+               d.saveWithoutId(nbt);
                nbt.put("transformation", transform(i));
                nbt.putInt("start_interpolation", 0);
                nbt.putInt("interpolation_duration", 2);
-               d.readNbt(nbt);
+               d.load(nbt);
             }
          }
       }
    }
 
    public static void clear() {
-      for (BlockDisplayEntity d : panels) {
+      for (BlockDisplay d : panels) {
          d.discard();
       }
 
@@ -130,12 +130,12 @@ public final class OptomotorDrum {
    }
 
    private record NtbHolder(double[] m) {
-      NbtList list() {
-         NbtList l = new NbtList();
+      ListTag list() {
+         ListTag l = new ListTag();
 
          for (int r = 0; r < 4; r++) {
             for (int c = 0; c < 4; c++) {
-               l.add(NbtFloat.of((float)this.m[c * 4 + r]));
+               l.add(FloatTag.valueOf((float)this.m[c * 4 + r]));
             }
          }
 

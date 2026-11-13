@@ -2,12 +2,12 @@ package io.flyproject.connectomefly.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 public class CreditsScreen extends Screen {
    private static final String[][] CONTENT = new String[][]{
@@ -55,7 +55,7 @@ public class CreditsScreen extends Screen {
    private int contentHeight;
 
    public CreditsScreen() {
-      super(Text.literal("connectome-fly credits"));
+      super(Component.literal("connectome-fly credits"));
    }
 
    protected void init() {
@@ -64,25 +64,25 @@ public class CreditsScreen extends Screen {
 
       for (String[] row : CONTENT) {
          String kind = row[0];
-         Text styled;
+         Component styled;
          int color;
          switch (kind) {
             case "title":
-               styled = Text.literal(row[1]).formatted(Formatting.BOLD);
+               styled = Component.literal(row[1]).withStyle(ChatFormatting.BOLD);
                color = 16777215;
                break;
             case "h":
-               styled = Text.literal(row[1]).formatted(new Formatting[]{Formatting.GOLD, Formatting.BOLD});
+               styled = Component.literal(row[1]).withStyle(new ChatFormatting[]{ChatFormatting.GOLD, ChatFormatting.BOLD});
                color = 16765056;
                break;
             default:
-               styled = Text.literal(row[1]);
+               styled = Component.literal(row[1]);
                color = 14737632;
          }
 
          boolean first = true;
 
-         for (OrderedText ordered : this.textRenderer.wrapLines(styled, width)) {
+         for (FormattedCharSequence ordered : this.font.split(styled, width)) {
             this.lines.add(new CreditsScreen.OrderedLine(ordered, color, first && !row[0].equals("t")));
             first = false;
          }
@@ -94,10 +94,10 @@ public class CreditsScreen extends Screen {
          this.contentHeight = this.contentHeight + (line.gap() ? 16 : 10);
       }
 
-      this.addDrawableChild(ButtonWidget.builder(Text.literal("Done"), b -> this.close()).dimensions(this.width / 2 - 50, this.height - 28, 100, 20).build());
+      this.addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.onClose()).bounds(this.width / 2 - 50, this.height - 28, 100, 20).build());
    }
 
-   public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+   public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
       this.renderBackground(context);
       int y = 20 - (int)this.scroll;
       int x = (this.width - Math.min(this.width - 60, 340)) / 2;
@@ -108,7 +108,7 @@ public class CreditsScreen extends Screen {
          }
 
          if (y > 8 && y < this.height - 34) {
-            context.drawTextWithShadow(this.textRenderer, line.text(), x, y, line.color());
+            context.drawString(this.font, line.text(), x, y, line.color());
          }
 
          y += 10;
@@ -123,10 +123,10 @@ public class CreditsScreen extends Screen {
       return true;
    }
 
-   public boolean shouldPause() {
+   public boolean isPauseScreen() {
       return false;
    }
 
-   private record OrderedLine(OrderedText text, int color, boolean gap) {
+   private record OrderedLine(FormattedCharSequence text, int color, boolean gap) {
    }
 }

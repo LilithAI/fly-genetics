@@ -2,8 +2,8 @@ package io.flyproject.flygenetics.test;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.ScreenshotRecorder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 import net.minecraft.server.MinecraftServer;
 
 /**
@@ -20,10 +20,10 @@ public class AutoTest implements ClientModInitializer {
       ClientTickEvents.END_CLIENT_TICK.register(this::tick);
    }
 
-   private void tick(MinecraftClient c) {
-      if (c.world == null || c.player == null || c.getServer() == null) return;
+   private void tick(Minecraft c) {
+      if (c.level == null || c.player == null || c.getSingleplayerServer() == null) return;
       c.options.pauseOnLostFocus = false;
-      if (c.currentScreen != null) c.setScreen(null);
+      if (c.screen != null) c.setScreen(null);
       ticks++;
       String mode = System.getProperty("flygenetics.autotest");
       if (mode.equals("breed")) {
@@ -35,7 +35,7 @@ public class AutoTest implements ClientModInitializer {
          if (ticks == 1300) run(c, "flygenes stats", "flygenes", "flygenes set cap 12");
          if (ticks == 1340) {
             System.out.println("[flygenetics autotest] done");
-            c.scheduleStop();
+            c.stop();
          }
       } else if (mode.equals("select")) {
          select(c);
@@ -43,7 +43,7 @@ public class AutoTest implements ClientModInitializer {
          if (ticks == 100) run(c, "flygenes full");
          if (ticks == 160) {
             System.out.println("[flygenetics autotest] done");
-            c.scheduleStop();
+            c.stop();
          }
       } else {
          baseline(c);
@@ -51,7 +51,7 @@ public class AutoTest implements ClientModInitializer {
    }
 
    /** One female and one male: forced courtship, mating, egg, hatch. Genomes are printed to the log at each stage. */
-   private void breed(MinecraftClient c) {
+   private void breed(Minecraft c) {
       if (ticks == 40) {
          run(c, "time set noon", "weather clear", "gamemode creative @a", "kill @e[type=connectomefly:connectome_fly]", "kill @e[type=connectomefly:fly_egg]",
             "tp @a 0.5 -60 0.5 0 35", "summon connectomefly:connectome_fly 0.5 -60 2.5",
@@ -63,7 +63,7 @@ public class AutoTest implements ClientModInitializer {
       if (ticks == 1800) run(c, "flygenes full", "execute as @e[type=connectomefly:connectome_fly] run data get entity @s Genome");
       if (ticks == 1860) {
          System.out.println("[flygenetics autotest] done");
-         c.scheduleStop();
+         c.stop();
       }
    }
 
@@ -71,7 +71,7 @@ public class AutoTest implements ClientModInitializer {
    private static final String CLEAR = "kill @e[type=connectomefly:connectome_fly]";
 
    /** Selection rules, one phase each: old age, starvation, fed-only breeding, population cap, breeding, predator. */
-   private void select(MinecraftClient c) {
+   private void select(Minecraft c) {
       int t = ticks;
       if (t == 40) {
          run(c, "time set noon", "weather clear", "gamemode creative @a", CLEAR, "kill @e[type=connectomefly:fly_egg]", "kill @e[type=frog]",
@@ -115,11 +115,11 @@ public class AutoTest implements ClientModInitializer {
       if (t == 6300) run(c, "flygenes stats", "flygenes", "flygenes set");
       if (t == 6360) {
          System.out.println("[flygenetics autotest] done");
-         c.scheduleStop();
+         c.stop();
       }
    }
 
-   private void baseline(MinecraftClient c) {
+   private void baseline(Minecraft c) {
       if (ticks == 40) {
          run(c, "time set noon", "weather clear", "gamemode creative @a", "kill @e[type=connectomefly:connectome_fly]",
             "tp @a 0.5 -60 0.5 0 35",
@@ -135,22 +135,22 @@ public class AutoTest implements ClientModInitializer {
       if (ticks == 400) shot(c, "autotest-t400-close.png");
       if (ticks == 720) {
          System.out.println("[flygenetics autotest] done");
-         c.scheduleStop();
+         c.stop();
       }
    }
 
-   private static void run(MinecraftClient c, String... cmds) {
-      MinecraftServer s = c.getServer();
+   private static void run(Minecraft c, String... cmds) {
+      MinecraftServer s = c.getSingleplayerServer();
       s.execute(() -> {
          for (String cmd : cmds) {
-            int r = s.getCommandManager().executeWithPrefix(s.getCommandSource(), cmd);
+            int r = s.getCommands().performPrefixedCommand(s.createCommandSourceStack(), cmd);
             System.out.println("[flygenetics autotest] /" + cmd + " -> " + r);
          }
       });
    }
 
-   private static void shot(MinecraftClient c, String name) {
-      ScreenshotRecorder.saveScreenshot(c.runDirectory, name, c.getFramebuffer(),
+   private static void shot(Minecraft c, String name) {
+      Screenshot.grab(c.gameDirectory, name, c.getMainRenderTarget(),
          t -> System.out.println("[flygenetics autotest] screenshot " + name + ": " + t.getString()));
    }
 }

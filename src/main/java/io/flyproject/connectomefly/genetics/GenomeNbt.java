@@ -1,15 +1,15 @@
 package io.flyproject.connectomefly.genetics;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 /** Save data for a Genome. Kept apart so Genome itself runs outside Minecraft (headless checks). */
 public final class GenomeNbt {
    private GenomeNbt() {
    }
 
-   public static NbtCompound write(Genome g) {
-      NbtCompound n = new NbtCompound();
-      NbtCompound genes = new NbtCompound();
+   public static CompoundTag write(Genome g) {
+      CompoundTag n = new CompoundTag();
+      CompoundTag genes = new CompoundTag();
 
       for (int i = 0; i < Genome.N; i++) {
          genes.putFloat(Genome.GENES[i].name(), g.g[i]);
@@ -19,20 +19,20 @@ public final class GenomeNbt {
       n.putInt("Generation", g.generation);
       n.putInt("Mutations", g.mutations);
       if (g.mother != null) {
-         n.putUuid("Mother", g.mother);
+         n.putUUID("Mother", g.mother);
       }
 
       if (g.father != null) {
-         n.putUuid("Father", g.father);
+         n.putUUID("Father", g.father);
       }
 
       return n;
    }
 
    /** Genes are stored by name, so genes added or removed in a later version do not corrupt old flies. */
-   public static Genome read(NbtCompound n) {
+   public static Genome read(CompoundTag n) {
       Genome x = Genome.baseline();
-      NbtCompound genes = n.getCompound("Genes");
+      CompoundTag genes = n.getCompound("Genes");
 
       for (int i = 0; i < Genome.N; i++) {
          if (genes.contains(Genome.GENES[i].name())) {
@@ -42,12 +42,12 @@ public final class GenomeNbt {
 
       x.generation = n.getInt("Generation");
       x.mutations = n.getInt("Mutations");
-      if (n.containsUuid("Mother")) {
-         x.mother = n.getUuid("Mother");
+      if (n.hasUUID("Mother")) {
+         x.mother = n.getUUID("Mother");
       }
 
-      if (n.containsUuid("Father")) {
-         x.father = n.getUuid("Father");
+      if (n.hasUUID("Father")) {
+         x.father = n.getUUID("Father");
       }
 
       return x;

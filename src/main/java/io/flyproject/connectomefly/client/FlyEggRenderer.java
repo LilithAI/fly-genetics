@@ -1,19 +1,19 @@
 package io.flyproject.connectomefly.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import io.flyproject.connectomefly.entity.FlyEggEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.TurtleEggBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory.Context;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TurtleEggBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FlyEggRenderer extends EntityRenderer<FlyEggEntity> {
    private static final float TINT_R = 1.0F;
@@ -25,22 +25,22 @@ public class FlyEggRenderer extends EntityRenderer<FlyEggEntity> {
       this.shadowRadius = 0.1F;
    }
 
-   public Identifier getTexture(FlyEggEntity entity) {
-      return SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE;
+   public ResourceLocation getTextureLocation(FlyEggEntity entity) {
+      return TextureAtlas.LOCATION_BLOCKS;
    }
 
-   public void render(FlyEggEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+   public void render(FlyEggEntity entity, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
       int stage = Math.min(2, entity.getEggAge() * 3 / 600);
-      BlockState state = (BlockState)((BlockState)Blocks.TURTLE_EGG.getDefaultState().with(TurtleEggBlock.EGGS, 1)).with(TurtleEggBlock.HATCH, stage);
-      matrices.push();
-      float wobble = entity.getEggAge() > 540 ? (float)Math.sin((entity.age + tickDelta) * 1.4) * 6.0F : 0.0F;
-      matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(entity.getId() * 37.0F % 360.0F));
-      matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(wobble));
+      BlockState state = (BlockState)((BlockState)Blocks.TURTLE_EGG.defaultBlockState().setValue(TurtleEggBlock.EGGS, 1)).setValue(TurtleEggBlock.HATCH, stage);
+      matrices.pushPose();
+      float wobble = entity.getEggAge() > 540 ? (float)Math.sin((entity.tickCount + tickDelta) * 1.4) * 6.0F : 0.0F;
+      matrices.mulPose(Axis.YP.rotationDegrees(entity.getId() * 37.0F % 360.0F));
+      matrices.mulPose(Axis.ZP.rotationDegrees(wobble));
       matrices.scale(0.7F, 0.7F, 0.7F);
       matrices.translate(-0.5, 0.0, -0.5);
-      VertexConsumerProvider tinted = layer -> new FlyEggRenderer.Tinted(vertexConsumers.getBuffer(layer));
-      MinecraftClient.getInstance().getBlockRenderManager().renderBlockAsEntity(state, matrices, tinted, light, OverlayTexture.DEFAULT_UV);
-      matrices.pop();
+      MultiBufferSource tinted = layer -> new FlyEggRenderer.Tinted(vertexConsumers.getBuffer(layer));
+      Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state, matrices, tinted, light, OverlayTexture.NO_OVERLAY);
+      matrices.popPose();
       super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
    }
 
@@ -55,18 +55,18 @@ public class FlyEggRenderer extends EntityRenderer<FlyEggEntity> {
          return this;
       }
 
-      public VertexConsumer texture(float u, float v) {
-         this.in.texture(u, v);
+      public VertexConsumer uv(float u, float v) {
+         this.in.uv(u, v);
          return this;
       }
 
-      public VertexConsumer overlay(int u, int v) {
-         this.in.overlay(u, v);
+      public VertexConsumer overlayCoords(int u, int v) {
+         this.in.overlayCoords(u, v);
          return this;
       }
 
-      public VertexConsumer light(int u, int v) {
-         this.in.light(u, v);
+      public VertexConsumer uv2(int u, int v) {
+         this.in.uv2(u, v);
          return this;
       }
 
@@ -75,16 +75,16 @@ public class FlyEggRenderer extends EntityRenderer<FlyEggEntity> {
          return this;
       }
 
-      public void next() {
-         this.in.next();
+      public void endVertex() {
+         this.in.endVertex();
       }
 
-      public void fixedColor(int red, int green, int blue, int alpha) {
-         this.in.fixedColor((int)(red * 1.0F), (int)(green * 0.94F), (int)(blue * 0.72F), alpha);
+      public void defaultColor(int red, int green, int blue, int alpha) {
+         this.in.defaultColor((int)(red * 1.0F), (int)(green * 0.94F), (int)(blue * 0.72F), alpha);
       }
 
-      public void unfixColor() {
-         this.in.unfixColor();
+      public void unsetDefaultColor() {
+         this.in.unsetDefaultColor();
       }
    }
 }

@@ -15,67 +15,66 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Entity.RemovalReason;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.attribute.DefaultAttributeContainer.Builder;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsage;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.potion.PotionUtil;
-import net.minecraft.potion.Potions;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.BlockPos.Mutable;
-import net.minecraft.util.math.Direction.Axis;
-import net.minecraft.util.math.Direction.Type;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
-import net.minecraft.world.RaycastContext.FluidHandling;
-import net.minecraft.world.RaycastContext.ShapeType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.Plane;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.ClipContext.Block;
+import net.minecraft.world.level.ClipContext.Fluid;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
-public class ConnectomeFlyEntity extends PathAwareEntity {
-   private static final TrackedData<String> SPEECH = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.STRING);
-   private static final TrackedData<Byte> BODY = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.BYTE);
-   private static final TrackedData<Byte> SEX = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.BYTE);
-   private static final TrackedData<Byte> ANIM = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.BYTE);
-   private static final TrackedData<String> HUD = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.STRING);
-   private static final TrackedData<Byte> SURFACE = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.BYTE);
-   private static final TrackedData<Float> THIRST = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.FLOAT);
-   private static final TrackedData<Integer> NEURO_LEGS = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.INTEGER);
-   private static final TrackedData<Integer> NEURO_FLIGHT = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.INTEGER);
-   private static final TrackedData<Float> HUNGER = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.FLOAT);
+public class ConnectomeFlyEntity extends PathfinderMob {
+   private static final EntityDataAccessor<String> SPEECH = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
+   private static final EntityDataAccessor<Byte> BODY = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<Byte> SEX = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<Byte> ANIM = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<String> HUD = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
+   private static final EntityDataAccessor<Byte> SURFACE = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<Float> THIRST = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.FLOAT);
+   private static final EntityDataAccessor<Integer> NEURO_LEGS = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.INT);
+   private static final EntityDataAccessor<Integer> NEURO_FLIGHT = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.INT);
+   private static final EntityDataAccessor<Float> HUNGER = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.FLOAT);
    public static final float MAX_HUNGER = 20.0F;
-   private static final TrackedData<Integer> GROWTH = DataTracker.registerData(ConnectomeFlyEntity.class, TrackedDataHandlerRegistry.INTEGER);
+   private static final EntityDataAccessor<Integer> GROWTH = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.INT);
    public static final int GROW_TICKS = 108000;
    public static volatile int maxBrains = Integer.getInteger(
       "connectomefly.maxBrains", Math.max(2, Math.min(16, Runtime.getRuntime().availableProcessors() / 2))
@@ -148,13 +147,13 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    private boolean deathRecorded;
 
    private GeneticsState gstate() {
-      return GeneticsState.get(((ServerWorld)this.getWorld()).getServer());
+      return GeneticsState.get(((ServerLevel)this.level()).getServer());
    }
 
    /** [model] this fly's own share of the adult lifespan, 0.8 to 1.2, fixed at birth, not inherited */
    private float lifeFactor() {
       if (this.lifeFactor < 0.0F) {
-         this.lifeFactor = 0.8F + 0.4F * new java.util.Random(this.getUuid().getMostSignificantBits() * 31L + this.getUuid().getLeastSignificantBits()).nextFloat();
+         this.lifeFactor = 0.8F + 0.4F * new java.util.Random(this.getUUID().getMostSignificantBits() * 31L + this.getUUID().getLeastSignificantBits()).nextFloat();
       }
 
       return this.lifeFactor;
@@ -176,32 +175,32 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          if (this.adultTicks > st.adultLifeMinutes * 1200.0F * this.lifeFactor()) {
             this.diedOfAge = true;
             this.sayNow("[model] dies of old age");
-            this.damage(this.getWorld().getDamageSources().generic(), 1000.0F);
+            this.hurt(this.level().damageSources().generic(), 1000.0F);
          }
       }
    }
 
-   public void onDeath(DamageSource source) {
-      super.onDeath(source);
-      if (!this.getWorld().isClient && !this.deathRecorded) {
+   public void die(DamageSource source) {
+      super.die(source);
+      if (!this.level().isClientSide && !this.deathRecorded) {
          this.deathRecorded = true;
          String cause = this.diedOfAge
             ? "old age"
             : (
-               source.isOf(DamageTypes.STARVE)
+               source.is(DamageTypes.STARVE)
                   ? "starvation"
-                  : (source.getAttacker() != null && !(source.getAttacker() instanceof PlayerEntity) ? "predator" : (source.isOf(DamageTypes.GENERIC_KILL) ? "removed" : "other"))
+                  : (source.getEntity() != null && !(source.getEntity() instanceof Player) ? "predator" : (source.is(DamageTypes.GENERIC_KILL) ? "removed" : "other"))
             );
          this.gstate().recordDeath(cause, this.adultMinutes());
          System.out.println(
             "[connectomefly genetics] death: "
-               + Genome.shortId(this.getUuid())
+               + Genome.shortId(this.getUUID())
                + (this.isMale() ? " male" : " female")
                + " gen "
                + this.genome().generation
                + " cause "
                + cause
-               + (source.getAttacker() != null ? " (" + source.getAttacker().getType().getUntranslatedName() + ")" : "")
+               + (source.getEntity() != null ? " (" + source.getEntity().getType().toShortString() + ")" : "")
                + String.format(Locale.ROOT, " adult minutes %.1f", this.adultMinutes())
          );
       }
@@ -210,7 +209,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    /** This fly's inherited tuning. Flies that were spawned rather than hatched become founders (generation 0). */
    public Genome genome() {
       if (this.genome == null) {
-         this.genome = Genome.founder(new java.util.Random(this.getUuid().getLeastSignificantBits() ^ this.getUuid().getMostSignificantBits()));
+         this.genome = Genome.founder(new java.util.Random(this.getUUID().getLeastSignificantBits() ^ this.getUUID().getMostSignificantBits()));
       }
 
       return this.genome;
@@ -247,41 +246,41 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       if (this.perchCooldown > 0) {
          return out;
       } else {
-         Mutable m = new Mutable();
+         MutableBlockPos m = new MutableBlockPos();
 
          for (int up = 1; up <= 1; up++) {
-            m.set((int)Math.floor(this.getX()), (int)Math.floor(this.getY() + this.getHeight()) + up, (int)Math.floor(this.getZ()));
-            BlockState st = this.getWorld().getBlockState(m);
-            if (!st.isAir() && !st.getCollisionShape(this.getWorld(), m).isEmpty() && st.getFluidState().isEmpty()) {
-               double d = m.getY() - (this.getY() + this.getHeight());
+            m.set((int)Math.floor(this.getX()), (int)Math.floor(this.getY() + this.getBbHeight()) + up, (int)Math.floor(this.getZ()));
+            BlockState st = this.level().getBlockState(m);
+            if (!st.isAir() && !st.getCollisionShape(this.level(), m).isEmpty() && st.getFluidState().isEmpty()) {
+               double d = m.getY() - (this.getY() + this.getBbHeight());
                if (d < best) {
                   best = d;
-                  out = new double[]{this.getX(), m.getY() - this.getHeight() - 0.02, this.getZ(), Direction.UP.getId()};
+                  out = new double[]{this.getX(), m.getY() - this.getBbHeight() - 0.02, this.getZ(), Direction.UP.get3DDataValue()};
                }
                break;
             }
          }
 
-         for (Direction d : Type.HORIZONTAL) {
+         for (Direction d : Plane.HORIZONTAL) {
             for (int k = 1; k <= 1; k++) {
                m.set(
-                  (int)Math.floor(this.getX() + d.getOffsetX() * k),
-                  (int)Math.floor(this.getY() + this.getHeight() / 2.0F),
-                  (int)Math.floor(this.getZ() + d.getOffsetZ() * k)
+                  (int)Math.floor(this.getX() + d.getStepX() * k),
+                  (int)Math.floor(this.getY() + this.getBbHeight() / 2.0F),
+                  (int)Math.floor(this.getZ() + d.getStepZ() * k)
                );
-               BlockState st = this.getWorld().getBlockState(m);
-               if (!st.isAir() && !st.getCollisionShape(this.getWorld(), m).isEmpty() && st.getFluidState().isEmpty()) {
-                  if (st.isSideSolidFullSquare(this.getWorld(), m, d.getOpposite())) {
+               BlockState st = this.level().getBlockState(m);
+               if (!st.isAir() && !st.getCollisionShape(this.level(), m).isEmpty() && st.getFluidState().isEmpty()) {
+                  if (st.isFaceSturdy(this.level(), m, d.getOpposite())) {
                      double fx = d == Direction.EAST
-                        ? m.getX() - this.getWidth() / 2.0F - 0.02
-                        : (d == Direction.WEST ? m.getX() + 1 + this.getWidth() / 2.0F + 0.02 : this.getX());
+                        ? m.getX() - this.getBbWidth() / 2.0F - 0.02
+                        : (d == Direction.WEST ? m.getX() + 1 + this.getBbWidth() / 2.0F + 0.02 : this.getX());
                      double fz = d == Direction.SOUTH
-                        ? m.getZ() - this.getWidth() / 2.0F - 0.02
-                        : (d == Direction.NORTH ? m.getZ() + 1 + this.getWidth() / 2.0F + 0.02 : this.getZ());
+                        ? m.getZ() - this.getBbWidth() / 2.0F - 0.02
+                        : (d == Direction.NORTH ? m.getZ() + 1 + this.getBbWidth() / 2.0F + 0.02 : this.getZ());
                      double dist = Math.hypot(fx - this.getX(), fz - this.getZ());
                      if (dist < best) {
                         best = dist;
-                        out = new double[]{fx, this.getY(), fz, d.getId()};
+                        out = new double[]{fx, this.getY(), fz, d.get3DDataValue()};
                      }
                   }
                   break;
@@ -293,69 +292,69 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       }
    }
 
-   public ConnectomeFlyEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
+   public ConnectomeFlyEntity(EntityType<? extends PathfinderMob> entityType, Level world) {
       super(entityType, world);
-      this.setStepHeight(0.5F);
+      this.setMaxUpStep(0.5F);
    }
 
    public static Builder createFlyAttributes() {
-      return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 10.0).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.3);
    }
 
-   protected void initDataTracker() {
-      super.initDataTracker();
-      this.dataTracker.startTracking(SPEECH, "");
-      this.dataTracker.startTracking(BODY, defaultBody);
-      this.dataTracker.startTracking(SEX, (byte)0);
-      this.dataTracker.startTracking(ANIM, (byte)0);
-      this.dataTracker.startTracking(HUD, "");
-      this.dataTracker.startTracking(HUNGER, 20.0F);
-      this.dataTracker.startTracking(GROWTH, 108000);
-      this.dataTracker.startTracking(NEURO_LEGS, 0);
-      this.dataTracker.startTracking(NEURO_FLIGHT, 0);
-      this.dataTracker.startTracking(SURFACE, (byte)-1);
-      this.dataTracker.startTracking(THIRST, 0.0F);
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      this.entityData.define(SPEECH, "");
+      this.entityData.define(BODY, defaultBody);
+      this.entityData.define(SEX, (byte)0);
+      this.entityData.define(ANIM, (byte)0);
+      this.entityData.define(HUD, "");
+      this.entityData.define(HUNGER, 20.0F);
+      this.entityData.define(GROWTH, 108000);
+      this.entityData.define(NEURO_LEGS, 0);
+      this.entityData.define(NEURO_FLIGHT, 0);
+      this.entityData.define(SURFACE, (byte)-1);
+      this.entityData.define(THIRST, 0.0F);
    }
 
    public Direction surface() {
-      byte s = (Byte)this.dataTracker.get(SURFACE);
-      return s < 0 ? null : Direction.byId(s);
+      byte s = (Byte)this.entityData.get(SURFACE);
+      return s < 0 ? null : Direction.from3DDataValue(s);
    }
 
    public boolean isPerched() {
-      return (Byte)this.dataTracker.get(SURFACE) >= 0;
+      return (Byte)this.entityData.get(SURFACE) >= 0;
    }
 
    public boolean isStanding() {
-      return this.isOnGround() || this.isPerched();
+      return this.onGround() || this.isPerched();
    }
 
    public float getThirst() {
-      return (Float)this.dataTracker.get(THIRST);
+      return (Float)this.entityData.get(THIRST);
    }
 
    public void setThirst(float t) {
-      this.dataTracker.set(THIRST, MathHelper.clamp(t, 0.0F, 20.0F));
+      this.entityData.set(THIRST, Mth.clamp(t, 0.0F, 20.0F));
    }
 
    private void setSurface(Direction d) {
-      this.dataTracker.set(SURFACE, (byte)(d == null ? -1 : d.getId()));
+      this.entityData.set(SURFACE, (byte)(d == null ? -1 : d.get3DDataValue()));
    }
 
    private Direction faceWithin(double reach, Direction only) {
       Direction[] dirs = only != null ? new Direction[]{only} : new Direction[]{Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
-      double cy = this.getY() + this.getHeight() / 2.0F;
+      double cy = this.getY() + this.getBbHeight() / 2.0F;
 
       for (Direction d : dirs) {
-         double px = this.getX() + d.getOffsetX() * (this.getWidth() / 2.0F + reach);
-         double py = cy + d.getOffsetY() * (this.getHeight() / 2.0F + reach);
-         double pz = this.getZ() + d.getOffsetZ() * (this.getWidth() / 2.0F + reach);
-         BlockPos bp = BlockPos.ofFloored(px, py, pz);
-         BlockState st = this.getWorld().getBlockState(bp);
+         double px = this.getX() + d.getStepX() * (this.getBbWidth() / 2.0F + reach);
+         double py = cy + d.getStepY() * (this.getBbHeight() / 2.0F + reach);
+         double pz = this.getZ() + d.getStepZ() * (this.getBbWidth() / 2.0F + reach);
+         BlockPos bp = BlockPos.containing(px, py, pz);
+         BlockState st = this.level().getBlockState(bp);
          if (!st.isAir()
-            && !st.getCollisionShape(this.getWorld(), bp).isEmpty()
+            && !st.getCollisionShape(this.level(), bp).isEmpty()
             && st.getFluidState().isEmpty()
-            && st.isSideSolidFullSquare(this.getWorld(), bp, d.getOpposite())) {
+            && st.isFaceSturdy(this.level(), bp, d.getOpposite())) {
             return d;
          }
       }
@@ -372,28 +371,28 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       this.descending = false;
       this.climb = 0.0;
       this.setNoGravity(true);
-      this.setVelocity(0.0, 0.0, 0.0);
-      this.velocityModified = true;
+      this.setDeltaMovement(0.0, 0.0, 0.0);
+      this.hurtMarked = true;
       this.setSurface(d);
       this.pressToSurface();
       this.landTicks = 5;
-      this.playSound(SoundEvents.ENTITY_BEE_POLLINATE, 0.15F, 1.9F);
+      this.playSound(SoundEvents.BEE_POLLINATE, 0.15F, 1.9F);
    }
 
    private void pressToSurface() {
       Direction d = this.surface();
       if (d != null) {
-         double cy = this.getY() + this.getHeight() / 2.0F;
+         double cy = this.getY() + this.getBbHeight() / 2.0F;
          BlockPos bp = null;
 
          for (double reach = 0.05; reach <= 0.75; reach += 0.1) {
-            BlockPos cand = BlockPos.ofFloored(
-               this.getX() + d.getOffsetX() * (this.getWidth() / 2.0F + reach),
-               cy + d.getOffsetY() * (this.getHeight() / 2.0F + reach),
-               this.getZ() + d.getOffsetZ() * (this.getWidth() / 2.0F + reach)
+            BlockPos cand = BlockPos.containing(
+               this.getX() + d.getStepX() * (this.getBbWidth() / 2.0F + reach),
+               cy + d.getStepY() * (this.getBbHeight() / 2.0F + reach),
+               this.getZ() + d.getStepZ() * (this.getBbWidth() / 2.0F + reach)
             );
-            BlockState st = this.getWorld().getBlockState(cand);
-            if (!st.isAir() && !st.getCollisionShape(this.getWorld(), cand).isEmpty() && st.getFluidState().isEmpty()) {
+            BlockState st = this.level().getBlockState(cand);
+            if (!st.isAir() && !st.getCollisionShape(this.level(), cand).isEmpty() && st.getFluidState().isEmpty()) {
                bp = cand;
                break;
             }
@@ -403,19 +402,19 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             double eps = 0.02;
             switch (d) {
                case UP:
-                  this.setPosition(this.getX(), bp.getY() - this.getHeight() - eps, this.getZ());
+                  this.setPos(this.getX(), bp.getY() - this.getBbHeight() - eps, this.getZ());
                   break;
                case NORTH:
-                  this.setPosition(this.getX(), this.getY(), bp.getZ() + 1 + this.getWidth() / 2.0F + eps);
+                  this.setPos(this.getX(), this.getY(), bp.getZ() + 1 + this.getBbWidth() / 2.0F + eps);
                   break;
                case SOUTH:
-                  this.setPosition(this.getX(), this.getY(), bp.getZ() - this.getWidth() / 2.0F - eps);
+                  this.setPos(this.getX(), this.getY(), bp.getZ() - this.getBbWidth() / 2.0F - eps);
                   break;
                case WEST:
-                  this.setPosition(bp.getX() + 1 + this.getWidth() / 2.0F + eps, this.getY(), this.getZ());
+                  this.setPos(bp.getX() + 1 + this.getBbWidth() / 2.0F + eps, this.getY(), this.getZ());
                   break;
                case EAST:
-                  this.setPosition(bp.getX() - this.getWidth() / 2.0F - eps, this.getY(), this.getZ());
+                  this.setPos(bp.getX() - this.getBbWidth() / 2.0F - eps, this.getY(), this.getZ());
             }
          }
       }
@@ -434,27 +433,27 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.descending = false;
          this.flapTicks = 10;
          if (d != null) {
-            this.setVelocity(-d.getOffsetX() * 0.12, d == Direction.UP ? -0.05 : 0.1, -d.getOffsetZ() * 0.12);
-            this.velocityModified = true;
+            this.setDeltaMovement(-d.getStepX() * 0.12, d == Direction.UP ? -0.05 : 0.1, -d.getStepZ() * 0.12);
+            this.hurtMarked = true;
          }
       } else {
          this.setNoGravity(false);
       }
    }
 
-   public Vec3d surfaceForward() {
-      return surfaceForward(this.surface(), this.getYaw());
+   public Vec3 surfaceForward() {
+      return surfaceForward(this.surface(), this.getYRot());
    }
 
-   public static Vec3d surfaceForward(Direction d, float yaw) {
+   public static Vec3 surfaceForward(Direction d, float yaw) {
       double yawRad = Math.toRadians(yaw);
       double fx = -Math.sin(yawRad);
       double fz = Math.cos(yawRad);
       if (d != null && d != Direction.UP) {
-         Vec3d along = new Vec3d(-d.getOffsetZ(), 0.0, d.getOffsetX());
-         return along.multiply(fx).add(0.0, fz, 0.0);
+         Vec3 along = new Vec3(-d.getStepZ(), 0.0, d.getStepX());
+         return along.scale(fx).add(0.0, fz, 0.0);
       } else {
-         return new Vec3d(fx, 0.0, fz);
+         return new Vec3(fx, 0.0, fz);
       }
    }
 
@@ -485,20 +484,20 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    }
 
    public int getNeuroLegs() {
-      return (Integer)this.dataTracker.get(NEURO_LEGS);
+      return (Integer)this.entityData.get(NEURO_LEGS);
    }
 
    public int getNeuroFlight() {
-      return (Integer)this.dataTracker.get(NEURO_FLIGHT);
+      return (Integer)this.entityData.get(NEURO_FLIGHT);
    }
 
    void setNeuro(int legs, int flight) {
-      if ((Integer)this.dataTracker.get(NEURO_LEGS) != legs) {
-         this.dataTracker.set(NEURO_LEGS, legs);
+      if ((Integer)this.entityData.get(NEURO_LEGS) != legs) {
+         this.entityData.set(NEURO_LEGS, legs);
       }
 
-      if ((Integer)this.dataTracker.get(NEURO_FLIGHT) != flight) {
-         this.dataTracker.set(NEURO_FLIGHT, flight);
+      if ((Integer)this.entityData.get(NEURO_FLIGHT) != flight) {
+         this.entityData.set(NEURO_FLIGHT, flight);
       }
    }
 
@@ -507,15 +506,15 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    }
 
    public int getGrowth() {
-      return (Integer)this.dataTracker.get(GROWTH);
+      return (Integer)this.entityData.get(GROWTH);
    }
 
    public void setGrowth(int g) {
-      this.dataTracker.set(GROWTH, MathHelper.clamp(g, 0, 108000));
-      this.calculateDimensions();
+      this.entityData.set(GROWTH, Mth.clamp(g, 0, 108000));
+      this.refreshDimensions();
    }
 
-   public float getScaleFactor() {
+   public float getScale() {
       return 0.5F + 0.5F * (this.getGrowth() / 108000.0F);
    }
 
@@ -523,8 +522,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       return this.getGrowth() < 108000;
    }
 
-   public EntityDimensions getDimensions(EntityPose pose) {
-      return super.getDimensions(pose).scaled(this.getScaleFactor());
+   public EntityDimensions getDimensions(Pose pose) {
+      return super.getDimensions(pose).scale(this.getScale());
    }
 
    public boolean isMating() {
@@ -551,12 +550,12 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       if (!this.isMale() && !this.isBabyFly() && !male.isBabyFly() && !(this.matingT > 0.0) && !(this.courtCd > 0.0)) {
          this.courtedT += dt * 2.0;
          this.suitor = male;
-         this.suitorTick = this.age;
+         this.suitorTick = this.tickCount;
       }
    }
 
    public ConnectomeFlyEntity suitor() {
-      return this.suitor != null && this.suitor.isAlive() && this.age - this.suitorTick < 10 ? this.suitor : null;
+      return this.suitor != null && this.suitor.isAlive() && this.tickCount - this.suitorTick < 10 ? this.suitor : null;
    }
 
    public void acceptMate(ConnectomeFlyEntity male) {
@@ -567,9 +566,9 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             this.courtedT = 0.0;
             this.courtCd = 8.0;
             st.matingsRefusedHungry++;
-            st.markDirty();
+            st.setDirty();
             this.sayNow("[model] too hungry to breed: she turns him down");
-            System.out.println("[connectomefly genetics] mating refused: " + Genome.shortId(this.getUuid()) + String.format(Locale.ROOT, " hunger %.1f below %.1f", this.getHunger(), st.breedHunger));
+            System.out.println("[connectomefly genetics] mating refused: " + Genome.shortId(this.getUUID()) + String.format(Locale.ROOT, " hunger %.1f below %.1f", this.getHunger(), st.breedHunger));
             return;
          }
 
@@ -579,7 +578,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.mate = male;
          male.mate = this;
          this.sireGenome = male.genome();
-         this.sireId = male.getUuid();
+         this.sireId = male.getUUID();
          this.sayNow("[brain] her pC1 cells say yes: she accepts him");
          male.sayNow("mating");
       }
@@ -589,8 +588,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       this.songTick = (this.songTick + 1) % 12;
       if (this.songTick < 8 && this.songTick % 2 == 0) {
          float pitch = 1.7F + 0.1F * (this.songTick / 2);
-         this.getWorld()
-            .playSound(null, this.getX(), this.getY(), this.getZ(), (SoundEvent)SoundEvents.BLOCK_NOTE_BLOCK_HARP.value(), SoundCategory.NEUTRAL, 0.45F, pitch);
+         this.level()
+            .playSound(null, this.getX(), this.getY(), this.getZ(), (SoundEvent)SoundEvents.NOTE_BLOCK_HARP.value(), SoundSource.NEUTRAL, 0.45F, pitch);
       }
    }
 
@@ -607,19 +606,19 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.matingT -= 0.05;
          if (this.mate != null && this.mate.isAlive()) {
             if (this.isMale()) {
-               double yawRad = Math.toRadians(this.mate.getYaw());
+               double yawRad = Math.toRadians(this.mate.getYRot());
                double tx = this.mate.getX() + Math.sin(yawRad) * 0.35;
                double tz = this.mate.getZ() - Math.cos(yawRad) * 0.35;
-               this.setVelocity((tx - this.getX()) * 0.3, this.getVelocity().y, (tz - this.getZ()) * 0.3);
-               this.setYaw(this.mate.getYaw());
-               this.bodyYaw = this.mate.getYaw();
+               this.setDeltaMovement((tx - this.getX()) * 0.3, this.getDeltaMovement().y, (tz - this.getZ()) * 0.3);
+               this.setYRot(this.mate.getYRot());
+               this.yBodyRot = this.mate.getYRot();
             } else {
-               this.setVelocity(0.0, this.getVelocity().y, 0.0);
+               this.setDeltaMovement(0.0, this.getDeltaMovement().y, 0.0);
             }
 
-            this.velocityModified = true;
-            if (this.age % 20 == 0) {
-               ((ServerWorld)this.getWorld()).spawnParticles(ParticleTypes.HEART, this.getX(), this.getY() + 0.5, this.getZ(), 1, 0.15, 0.1, 0.15, 0.0);
+            this.hurtMarked = true;
+            if (this.tickCount % 20 == 0) {
+               ((ServerLevel)this.level()).sendParticles(ParticleTypes.HEART, this.getX(), this.getY() + 0.5, this.getZ(), 1, 0.15, 0.1, 0.15, 0.0);
             }
          }
 
@@ -650,16 +649,16 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    }
 
    public void layEgg(String why, boolean fertile) {
-      if (!this.getWorld().isClient && !this.isMale() && !this.isBabyFly()) {
-         ServerWorld world = (ServerWorld)this.getWorld();
+      if (!this.level().isClientSide && !this.isMale() && !this.isBabyFly()) {
+         ServerLevel world = (ServerLevel)this.level();
          GeneticsState st = this.gstate();
          if (st.selection && fertile) {
-            net.minecraft.util.math.Box capBox = this.getBoundingBox().expand(st.capRadius);
-            int here = world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, capBox, e -> e.isAlive()).size()
-               + world.getEntitiesByType(ConnectomeFlyMod.FLY_EGG, capBox, e -> e.isAlive()).size();
+            net.minecraft.world.phys.AABB capBox = this.getBoundingBox().inflate(st.capRadius);
+            int here = world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, capBox, e -> e.isAlive()).size()
+               + world.getEntities(ConnectomeFlyMod.FLY_EGG, capBox, e -> e.isAlive()).size();
             if (here >= st.cap) {
                st.eggsRefusedCap++;
-               st.markDirty();
+               st.setDirty();
                this.sayNow("[model] no room: " + here + " flies and eggs here, the cap is " + st.cap + ". No egg.");
                System.out.println("[connectomefly genetics] egg refused by cap: " + here + " of " + st.cap);
                return;
@@ -670,15 +669,15 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
 
          if (fertile) {
             st.eggsLaid++;
-            st.markDirty();
+            st.setDirty();
          }
 
          FlyEggEntity egg = (FlyEggEntity)ConnectomeFlyMod.FLY_EGG.create(world);
          if (egg != null) {
-            double yawRad = Math.toRadians(this.getYaw());
+            double yawRad = Math.toRadians(this.getYRot());
             egg.setFertile(fertile);
             if (fertile) {
-               egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUuid(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.random.nextLong())));
+               egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUUID(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.random.nextLong())));
                if (Genome.inheritMemory && this.whole != null) {
                   float[] m = this.whole.memorySnapshot();
                   if (m != null) {
@@ -693,10 +692,10 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                // that her brain decides to lay have the same father until she mates again
             }
 
-            egg.refreshPositionAndAngles(this.getX() + Math.sin(yawRad) * 0.25, this.getY(), this.getZ() - Math.cos(yawRad) * 0.25, 0.0F, 0.0F);
-            world.spawnEntity(egg);
-            world.spawnParticles(ParticleTypes.END_ROD, this.getX(), this.getY() + 0.1, this.getZ(), 4, 0.1, 0.05, 0.1, 0.005);
-            this.playSound(SoundEvents.ENTITY_TURTLE_LAY_EGG, 0.5F, 1.7F);
+            egg.moveTo(this.getX() + Math.sin(yawRad) * 0.25, this.getY(), this.getZ() - Math.cos(yawRad) * 0.25, 0.0F, 0.0F);
+            world.addFreshEntity(egg);
+            world.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY() + 0.1, this.getZ(), 4, 0.1, 0.05, 0.1, 0.005);
+            this.playSound(SoundEvents.TURTLE_LAY_EGG, 0.5F, 1.7F);
             this.sayNow(why);
          }
       }
@@ -705,18 +704,18 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    private void growthTick() {
       int g = this.getGrowth();
       if (g < 108000) {
-         if (this.age % 20 == 0) {
+         if (this.tickCount % 20 == 0) {
             this.setGrowth(g + Math.round(20.0F * this.gstate().growthSpeed));
          }
       }
    }
 
    public float getHunger() {
-      return (Float)this.dataTracker.get(HUNGER);
+      return (Float)this.entityData.get(HUNGER);
    }
 
    public void setHunger(float h) {
-      this.dataTracker.set(HUNGER, MathHelper.clamp(h, 0.0F, 20.0F));
+      this.entityData.set(HUNGER, Mth.clamp(h, 0.0F, 20.0F));
    }
 
    public void eat(float hunger, float heal) {
@@ -740,62 +739,62 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    private void hungerTick() {
       if (!this.isMale()) {
          float h = this.getHunger();
-         float drain = 0.0020833334F * (this.flying ? 2.0F : (this.getVelocity().horizontalLength() > 0.02 ? 1.3F : 1.0F));
+         float drain = 0.0020833334F * (this.flying ? 2.0F : (this.getDeltaMovement().horizontalDistance() > 0.02 ? 1.3F : 1.0F));
          h -= drain;
          this.setHunger(h);
-         if (h >= 19.0F && this.getHealth() < this.getMaxHealth() && this.age % 20 == 0) {
+         if (h >= 19.0F && this.getHealth() < this.getMaxHealth() && this.tickCount % 20 == 0) {
             this.heal(0.5F);
-         } else if (h >= 12.0F && this.getHealth() < this.getMaxHealth() && this.age % 60 == 0) {
+         } else if (h >= 12.0F && this.getHealth() < this.getMaxHealth() && this.tickCount % 60 == 0) {
             this.heal(0.25F);
          } else if (h <= 0.0F && ++this.starveTick >= 80 && (this.getHealth() > 1.0F || this.gstate().selection)) {
             this.starveTick = 0;
-            this.damage(this.getWorld().getDamageSources().starve(), 0.5F);
+            this.hurt(this.level().damageSources().starve(), 0.5F);
          }
       }
    }
 
-   protected ActionResult interactMob(PlayerEntity player, Hand hand) {
-      ItemStack stack = player.getStackInHand(hand);
+   protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+      ItemStack stack = player.getItemInHand(hand);
       if (!this.isMale() && FlyMind.isHandFood(stack)) {
-         if (!this.getWorld().isClient) {
+         if (!this.level().isClientSide) {
             this.eat(6.0F, 1.5F);
-            this.playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.6F, 1.7F);
+            this.playSound(SoundEvents.GENERIC_EAT, 0.6F, 1.7F);
             this.animFeed = true;
-            if (!player.getAbilities().creativeMode) {
-               stack.decrement(1);
+            if (!player.getAbilities().instabuild) {
+               stack.shrink(1);
             }
 
-            ((ServerWorld)this.getWorld()).spawnParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 0.4, this.getZ(), 6, 0.25, 0.2, 0.25, 0.02);
-            this.playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.5F, 1.8F);
+            ((ServerLevel)this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 0.4, this.getZ(), 6, 0.25, 0.2, 0.25, 0.02);
+            this.playSound(SoundEvents.GENERIC_EAT, 0.5F, 1.8F);
             this.sayNow("eats from your hand: proboscis extension (Gr5a)");
          }
 
-         return ActionResult.success(this.getWorld().isClient);
-      } else if (!this.isMale() && stack.isOf(Items.POTION) && PotionUtil.getPotion(stack) == Potions.WATER) {
-         if (!this.getWorld().isClient) {
+         return InteractionResult.sidedSuccess(this.level().isClientSide);
+      } else if (!this.isMale() && stack.is(Items.POTION) && PotionUtils.getPotion(stack) == Potions.WATER) {
+         if (!this.level().isClientSide) {
             this.drink(8.0F);
             this.animFeed = true;
-            this.playSound(SoundEvents.ENTITY_GENERIC_DRINK, 0.6F, 1.7F);
-            if (!player.getAbilities().creativeMode) {
-               player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
+            this.playSound(SoundEvents.GENERIC_DRINK, 0.6F, 1.7F);
+            if (!player.getAbilities().instabuild) {
+               player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
             }
 
-            ((ServerWorld)this.getWorld()).spawnParticles(ParticleTypes.SPLASH, this.getX(), this.getY() + 0.3, this.getZ(), 6, 0.2, 0.1, 0.2, 0.02);
+            ((ServerLevel)this.level()).sendParticles(ParticleTypes.SPLASH, this.getX(), this.getY() + 0.3, this.getZ(), 6, 0.2, 0.1, 0.2, 0.02);
             this.sayNow("drinks from your bottle: ppk28 water taste neurons, proboscis out");
          }
 
-         return ActionResult.success(this.getWorld().isClient);
+         return InteractionResult.sidedSuccess(this.level().isClientSide);
       } else {
-         return super.interactMob(player, hand);
+         return super.mobInteract(player, hand);
       }
    }
 
    public String getHud() {
-      return (String)this.dataTracker.get(HUD);
+      return (String)this.entityData.get(HUD);
    }
 
    private void hudTick() {
-      if (this.age % 4 == 0) {
+      if (this.tickCount % 4 == 0) {
          StringBuilder sb = new StringBuilder(320);
          String body = this.dragged
             ? "on a lead (being walked)"
@@ -805,7 +804,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                   : (
                      this.isPerched()
                         ? (this.surface() == Direction.UP ? "hanging from the ceiling" : "on the wall")
-                           + (this.getVelocity().length() > 0.02 ? ", walking" : "")
+                           + (this.getDeltaMovement().length() > 0.02 ? ", walking" : "")
                         : (
                            this.prepTicks >= 0
                               ? "take-off crouch"
@@ -827,7 +826,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                                                             : (
                                                                this.animFeed
                                                                   ? "feeding"
-                                                                  : (this.getVelocity().horizontalLength() > 0.02 ? "walking" : "standing")
+                                                                  : (this.getDeltaMovement().horizontalDistance() > 0.02 ? "walking" : "standing")
                                                             )
                                                       )
                                                 )
@@ -840,7 +839,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          sb.append("body=").append(body).append(';');
          String label = this.mind.brainLabelT > 0.0 ? this.mind.brainLabel : this.mind.label;
          sb.append("doing=").append(label == null ? "" : label.replace(';', ',')).append(';');
-         ArenaBuilder.Arena box = ArenaBuilder.arenaAt((ServerWorld)this.getWorld(), this.getBlockPos());
+         ArenaBuilder.Arena box = ArenaBuilder.arenaAt((ServerLevel)this.level(), this.blockPosition());
          if (box != null) {
             String[] spec = ArenaBuilder.SENSES.get(box.id());
             Set<FlyMind.Kind> iso = ArenaBuilder.ISOLATION.get(box.id());
@@ -895,7 +894,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             sb.append("chans=").append((CharSequence)cs).append(';');
          }
 
-         boolean fired = this.lastTtmnTick != Long.MIN_VALUE && this.getWorld().getTime() - this.lastTtmnTick < 40L;
+         boolean fired = this.lastTtmnTick != Long.MIN_VALUE && this.level().getGameTime() - this.lastTtmnTick < 40L;
          sb.append("esc=")
             .append(String.format(Locale.ROOT, "LC4/LPLC %d · DN %d · TTMn %s", this.lastSensorySpikes, this.lastDnSpikes, fired ? "FIRED" : "silent"))
             .append(';');
@@ -921,40 +920,40 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             )
             .append(';');
          String s = sb.toString();
-         if (!s.equals(this.dataTracker.get(HUD))) {
-            this.dataTracker.set(HUD, s);
+         if (!s.equals(this.entityData.get(HUD))) {
+            this.entityData.set(HUD, s);
          }
       }
    }
 
-   protected void initGoals() {
+   protected void registerGoals() {
    }
 
    public String getSpeech() {
-      return (String)this.dataTracker.get(SPEECH);
+      return (String)this.entityData.get(SPEECH);
    }
 
    public byte getBodyMode() {
-      return (Byte)this.dataTracker.get(BODY);
+      return (Byte)this.entityData.get(BODY);
    }
 
    public void setBodyMode(byte mode) {
-      this.dataTracker.set(BODY, mode);
+      this.entityData.set(BODY, mode);
    }
 
    public boolean isMale() {
-      return (Byte)this.dataTracker.get(SEX) != 0;
+      return (Byte)this.entityData.get(SEX) != 0;
    }
 
    public void setMale(boolean male) {
-      this.dataTracker.set(SEX, (byte)(male ? 1 : 0));
+      this.entityData.set(SEX, (byte)(male ? 1 : 0));
    }
 
    public int animFlags() {
-      return (Byte)this.dataTracker.get(ANIM);
+      return (Byte)this.entityData.get(ANIM);
    }
 
-   public boolean isFlapping() {
+   public boolean isWingFlapping() {
       return (this.animFlags() & 1) != 0;
    }
 
@@ -991,9 +990,9 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.perchTarget = null;
          if (this.isPerched()) {
             this.unperch(true);
-         } else if (!this.flying && this.isOnGround() && this.prepTicks < 0) {
+         } else if (!this.flying && this.onGround() && this.prepTicks < 0) {
             this.prepTicks = 2;
-         } else if (!this.flying && !this.isOnGround()) {
+         } else if (!this.flying && !this.onGround()) {
             this.flying = true;
          }
       } else if (this.flightTicks <= 0 && this.flying) {
@@ -1020,13 +1019,13 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    }
 
    public void brainJump() {
-      if (this.isOnGround() || this.flying) {
-         this.setVelocity(this.getVelocity().add(0.0, 0.55, 0.0));
-         this.velocityModified = true;
+      if (this.onGround() || this.flying) {
+         this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.55, 0.0));
+         this.hurtMarked = true;
          this.flapTicks = 12;
          this.flying = true;
          this.flightTicks = 50;
-         this.lastTtmnTick = this.getWorld().getTime();
+         this.lastTtmnTick = this.level().getGameTime();
       }
    }
 
@@ -1055,10 +1054,10 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             this.flying,
             this.prepTicks,
             this.flightTicks,
-            this.isOnGround(),
-            this.hasNoGravity(),
+            this.onGround(),
+            this.isNoGravity(),
             this.animFlags(),
-            this.getVelocity().horizontalLength(),
+            this.getDeltaMovement().horizontalDistance(),
             this.descending,
             this.surface(),
             this.perchTarget == null
@@ -1069,13 +1068,13 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          )
          + " | hud: "
          + this.getHud()
-         + String.format(Locale.ROOT, "pos=%.2f,%.2f,%.2f;yaw=%.0f;", this.getX(), this.getY(), this.getZ(), this.getYaw());
+         + String.format(Locale.ROOT, "pos=%.2f,%.2f,%.2f;yaw=%.0f;", this.getX(), this.getY(), this.getZ(), this.getYRot());
    }
 
    private void eatSoundTick() {
-      if (this.animFeed && this.age % 12 == 0) {
+      if (this.animFeed && this.tickCount % 12 == 0) {
          this.playSound(
-            this.mind.isDrinking() ? SoundEvents.ENTITY_GENERIC_DRINK : SoundEvents.ENTITY_GENERIC_EAT, 0.55F, 1.6F + this.getRandom().nextFloat() * 0.3F
+            this.mind.isDrinking() ? SoundEvents.GENERIC_DRINK : SoundEvents.GENERIC_EAT, 0.55F, 1.6F + this.getRandom().nextFloat() * 0.3F
          );
       }
    }
@@ -1084,14 +1083,14 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       return this.dragged;
    }
 
-   public boolean canBeLeashedBy(PlayerEntity player) {
+   public boolean canBeLeashed(Player player) {
       return !this.isLeashed();
    }
 
    private void leashTick() {
       this.dragged = false;
-      Entity holder = this.getHoldingEntity();
-      if (holder != null && !this.getWorld().isClient) {
+      Entity holder = this.getLeashHolder();
+      if (holder != null && !this.level().isClientSide) {
          double dx = holder.getX() - this.getX();
          double dy = holder.getY() - this.getY();
          double dz = holder.getZ() - this.getZ();
@@ -1103,30 +1102,30 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             }
 
             double k = Math.min(0.32, (d - 2.0) * 0.07) / d;
-            boolean lift = dy > 0.8 || !this.isOnGround() && !this.isTouchingWater();
+            boolean lift = dy > 0.8 || !this.onGround() && !this.isInWater();
             if (lift) {
                this.flying = true;
                this.descending = false;
                this.setNoGravity(true);
                this.flapTicks = 4;
-               this.setVelocity(dx * k, dy * k + 0.015, dz * k);
+               this.setDeltaMovement(dx * k, dy * k + 0.015, dz * k);
             } else {
-               this.setVelocity(dx * k, this.getVelocity().y, dz * k);
+               this.setDeltaMovement(dx * k, this.getDeltaMovement().y, dz * k);
             }
 
-            this.velocityModified = true;
+            this.hurtMarked = true;
             float yaw = (float)Math.toDegrees(Math.atan2(-dx, dz));
-            this.setYaw(yaw);
-            this.bodyYaw = yaw;
-            this.headYaw = yaw;
+            this.setYRot(yaw);
+            this.yBodyRot = yaw;
+            this.yHeadRot = yaw;
          }
       }
    }
 
    private void pushAnimFlags() {
-      boolean approach = this.descending || !this.flying && !this.isOnGround() && this.prepTicks < 0 && this.wasAirborne;
+      boolean approach = this.descending || !this.flying && !this.onGround() && this.prepTicks < 0 && this.wasAirborne;
       byte f = (byte)(
-         (!this.animFlap && this.flapTicks <= 0 && !this.flying && this.isOnGround() ? 0 : 1)
+         (!this.animFlap && this.flapTicks <= 0 && !this.flying && this.onGround() ? 0 : 1)
             | (this.animGroom ? 2 : 0)
             | (this.animSleep ? 4 : 0)
             | (this.animFeed ? 8 : 0)
@@ -1135,22 +1134,22 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             | (this.animSing ? 64 : 0)
             | (approach ? -128 : 0)
       );
-      if ((Byte)this.dataTracker.get(ANIM) != f) {
-         this.dataTracker.set(ANIM, f);
+      if ((Byte)this.entityData.get(ANIM) != f) {
+         this.entityData.set(ANIM, f);
       }
    }
 
    private double groundBelow() {
-      Mutable m = new Mutable((int)Math.floor(this.getX()), (int)Math.floor(this.getY()), (int)Math.floor(this.getZ()));
+      MutableBlockPos m = new MutableBlockPos((int)Math.floor(this.getX()), (int)Math.floor(this.getY()), (int)Math.floor(this.getZ()));
 
       for (int i = 0; i < 25; i++) {
-         BlockState st = this.getWorld().getBlockState(m);
+         BlockState st = this.level().getBlockState(m);
          if (!st.getFluidState().isEmpty()) {
             return -1000000.0;
          }
 
-         if (!st.getCollisionShape(this.getWorld(), m).isEmpty()) {
-            return m.getY() + st.getCollisionShape(this.getWorld(), m).getMax(Axis.Y);
+         if (!st.getCollisionShape(this.level(), m).isEmpty()) {
+            return m.getY() + st.getCollisionShape(this.level(), m).max(Axis.Y);
          }
 
          m.move(0, -1, 0);
@@ -1170,8 +1169,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       if (this.prepTicks >= 0) {
          if (this.prepTicks == 0) {
             this.flying = true;
-            this.setVelocity(this.getVelocity().add(0.0, 0.18, 0.0));
-            this.velocityModified = true;
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.18, 0.0));
+            this.hurtMarked = true;
             this.flapTicks = 10;
          }
 
@@ -1183,7 +1182,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.flying = true;
       }
 
-      if (!this.flying && !this.isOnGround() && this.prepTicks < 0 && this.fallDistance > 0.6F && !this.isTouchingWater()) {
+      if (!this.flying && !this.onGround() && this.prepTicks < 0 && this.fallDistance > 0.6F && !this.isInWater()) {
          this.flying = true;
          this.descending = true;
          this.flapTicks = 10;
@@ -1191,10 +1190,10 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
 
       this.setNoGravity(this.flying);
       this.fallDistance = 0.0F;
-      if (!this.flying || !this.isTouchingWater() && !this.isInLava()) {
+      if (!this.flying || !this.isInWater() && !this.isInLava()) {
          if (this.flying) {
             this.hoverPhase += 0.11;
-            Vec3d v = this.getVelocity();
+            Vec3 v = this.getDeltaMovement();
             if (this.descending && this.noGround) {
                this.descending = false;
             }
@@ -1202,16 +1201,16 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             double vy;
             if (this.descending) {
                vy = -0.07;
-               if (this.age % 3 == 0 && this.perchNearby()) {
+               if (this.tickCount % 3 == 0 && this.perchNearby()) {
                   return;
                }
 
-               if (this.age % 5 == 0) {
+               if (this.tickCount % 5 == 0) {
                   this.perchTarget = this.nearestFace();
                }
 
                if (this.perchTarget != null && this.perchTarget[3] >= 0.0) {
-                  Direction pd = Direction.byId((int)this.perchTarget[3]);
+                  Direction pd = Direction.from3DDataValue((int)this.perchTarget[3]);
                   if (this.faceWithin(0.5, pd) != null) {
                      this.perch(pd);
                      this.perchTarget = null;
@@ -1223,9 +1222,9 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                   double tz = this.perchTarget[2] - this.getZ();
                   double dist = Math.sqrt(tx * tx + ty * ty + tz * tz);
                   double k = Math.min(0.12, dist) / Math.max(dist, 1.0E-6);
-                  this.setVelocity(tx * k, ty * k, tz * k);
-                  this.velocityModified = true;
-                  if (PERCH_DEBUG && this.age % 4 == 0) {
+                  this.setDeltaMovement(tx * k, ty * k, tz * k);
+                  this.hurtMarked = true;
+                  if (PERCH_DEBUG && this.tickCount % 4 == 0) {
                      System.out
                         .printf(
                            Locale.ROOT,
@@ -1234,7 +1233,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                            this.getY(),
                            this.perchTarget[1],
                            ty * k,
-                           this.getVelocity(),
+                           this.getDeltaMovement(),
                            this.faceWithin(0.5, pd)
                         );
                   }
@@ -1242,7 +1241,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                   return;
                }
 
-               if (this.getY() - this.groundBelow() < 0.1 || this.isOnGround()) {
+               if (this.getY() - this.groundBelow() < 0.1 || this.onGround()) {
                   this.flying = false;
                   this.descending = false;
                   this.setNoGravity(false);
@@ -1265,34 +1264,34 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
                } else {
                   this.cruiseSmooth = this.cruiseSmooth + (this.mind.cruiseAlt() - this.cruiseSmooth) * 0.03;
                   double target = gb + 1.15 + this.climb + this.cruiseSmooth + 0.12 * Math.sin(this.hoverPhase);
-                  vy = MathHelper.clamp((target - this.getY()) * 0.18, -0.14, 0.2);
+                  vy = Mth.clamp((target - this.getY()) * 0.18, -0.14, 0.2);
                }
             }
 
-            this.setVelocity(v.x, vy, v.z);
-            this.velocityModified = true;
-            if (this.age % 24 == 0) {
-               this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_BEE_LOOP, SoundCategory.NEUTRAL, 0.25F, 1.7F);
+            this.setDeltaMovement(v.x, vy, v.z);
+            this.hurtMarked = true;
+            if (this.tickCount % 24 == 0) {
+               this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BEE_LOOP, SoundSource.NEUTRAL, 0.25F, 1.7F);
             }
          }
       } else {
          this.descending = false;
-         Mutable m = new Mutable((int)Math.floor(this.getX()), (int)Math.floor(this.getY()), (int)Math.floor(this.getZ()));
+         MutableBlockPos m = new MutableBlockPos((int)Math.floor(this.getX()), (int)Math.floor(this.getY()), (int)Math.floor(this.getZ()));
 
-         for (int up = 0; up < 12 && !this.getWorld().getFluidState(m).isEmpty(); up++) {
+         for (int up = 0; up < 12 && !this.level().getFluidState(m).isEmpty(); up++) {
             m.move(0, 1, 0);
          }
 
-         Vec3d vx = this.getVelocity();
-         this.setVelocity(vx.x * 0.9, 0.22, vx.z * 0.9);
-         this.velocityModified = true;
+         Vec3 vx = this.getDeltaMovement();
+         this.setDeltaMovement(vx.x * 0.9, 0.22, vx.z * 0.9);
+         this.hurtMarked = true;
          this.flapTicks = 6;
-         if (this.age % 10 == 0) {
-            this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.NEUTRAL, 0.3F, 1.8F);
+         if (this.tickCount % 10 == 0) {
+            this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.NEUTRAL, 0.3F, 1.8F);
          }
       }
 
-      boolean airborne = !this.isOnGround();
+      boolean airborne = !this.onGround();
       if (!airborne && this.wasAirborne && !this.flying) {
          this.landTicks = 5;
       }
@@ -1303,8 +1302,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       }
    }
 
-   public void writeCustomDataToNbt(NbtCompound nbt) {
-      super.writeCustomDataToNbt(nbt);
+   public void addAdditionalSaveData(CompoundTag nbt) {
+      super.addAdditionalSaveData(nbt);
       nbt.putByte("Body", this.getBodyMode());
       nbt.putBoolean("Male", this.isMale());
       nbt.putFloat("Hunger", this.getHunger());
@@ -1318,13 +1317,13 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       if (this.sireGenome != null) {
          nbt.put("SireGenome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.sireGenome));
          if (this.sireId != null) {
-            nbt.putUuid("SireId", this.sireId);
+            nbt.putUUID("SireId", this.sireId);
          }
       }
    }
 
-   public void readCustomDataFromNbt(NbtCompound nbt) {
-      super.readCustomDataFromNbt(nbt);
+   public void readAdditionalSaveData(CompoundTag nbt) {
+      super.readAdditionalSaveData(nbt);
       if (nbt.contains("Body")) {
          this.setBodyMode(nbt.getByte("Body"));
       }
@@ -1351,7 +1350,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
 
       if (nbt.contains("SireGenome")) {
          this.sireGenome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("SireGenome"));
-         this.sireId = nbt.containsUuid("SireId") ? nbt.getUuid("SireId") : null;
+         this.sireId = nbt.hasUUID("SireId") ? nbt.getUUID("SireId") : null;
       }
       if (nbt.contains("Thirst")) {
          this.setThirst(nbt.getFloat("Thirst"));
@@ -1360,8 +1359,8 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
 
    public void tick() {
       super.tick();
-      World world = this.getWorld();
-      if (!world.isClient) {
+      Level world = this.level();
+      if (!world.isClientSide) {
          if (this.flapTicks > 0) {
             this.flapTicks--;
          }
@@ -1372,7 +1371,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          }
 
          if (this.whole == null && !this.isMale() && WholeBrain.running() < maxBrains) {
-            this.whole = new WholeBrain(this.getUuidAsString().substring(0, 8), this.genome());
+            this.whole = new WholeBrain(this.getStringUUID().substring(0, 8), this.genome());
             if (this.bornMemory != null) {
                this.whole.setInitialMemory(this.bornMemory);
                this.bornMemory = null;
@@ -1386,48 +1385,48 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          }
 
          EscapeBrain.Sensed sensed = this.sense();
-         EscapeBrain.Intent intent = this.brain.tick(world.getTime(), sensed);
+         EscapeBrain.Intent intent = this.brain.tick(world.getGameTime(), sensed);
          if (intent.jump && this.isPerched()) {
             this.unperch(true);
          }
 
-         if (intent.jump && (this.isOnGround() || this.flying)) {
-            this.setVelocity(this.getVelocity().add(0.0, 0.55, 0.0));
-            this.velocityModified = true;
+         if (intent.jump && (this.onGround() || this.flying)) {
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.55, 0.0));
+            this.hurtMarked = true;
             this.flapTicks = 12;
             this.flying = true;
             this.flightTicks = 50;
          }
 
          if (intent.fleeing) {
-            float newYaw = this.getYaw() + (float)intent.yawDeltaDeg;
-            this.setYaw(newYaw);
-            this.bodyYaw = newYaw;
-            this.headYaw = newYaw;
+            float newYaw = this.getYRot() + (float)intent.yawDeltaDeg;
+            this.setYRot(newYaw);
+            this.yBodyRot = newYaw;
+            this.yHeadRot = newYaw;
             double yawRad = Math.toRadians(newYaw);
             double vx = -Math.sin(yawRad) * intent.stepBlocks;
             double vz = Math.cos(yawRad) * intent.stepBlocks;
-            Vec3d vel = this.getVelocity();
-            this.setVelocity(vx, vel.y, vz);
-            this.velocityModified = true;
+            Vec3 vel = this.getDeltaMovement();
+            this.setDeltaMovement(vx, vel.y, vz);
+            this.hurtMarked = true;
          }
 
          if (intent.speechCategory != null) {
-            this.say(intent.speechCategory, intent.speechThreatName, world.getTime());
+            this.say(intent.speechCategory, intent.speechThreatName, world.getGameTime());
          }
 
          this.lastSensorySpikes = intent.sensorySpikes;
          this.lastDnSpikes = intent.dnSpikes;
          this.lastSensed = sensed;
          if (intent.jump) {
-            this.lastTtmnTick = world.getTime();
+            this.lastTtmnTick = world.getGameTime();
          }
 
          if (this.knockbackTicks > 0) {
             this.knockbackTicks--;
          }
 
-         this.mind.tick(this, (ServerWorld)world, this.whole, intent.jump || intent.fleeing || this.knockbackTicks > 0);
+         this.mind.tick(this, (ServerLevel)world, this.whole, intent.jump || intent.fleeing || this.knockbackTicks > 0);
          this.flightTick();
          this.surfaceTick();
          this.hungerTick();
@@ -1440,7 +1439,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.leashTick();
          this.hudTick();
          if (this.speechTicksLeft > 0 && --this.speechTicksLeft == 0) {
-            this.dataTracker.set(SPEECH, "");
+            this.entityData.set(SPEECH, "");
          }
       }
    }
@@ -1452,21 +1451,21 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       }
    }
 
-   public boolean canHaveStatusEffect(StatusEffectInstance effect) {
-      return effect.getEffectType() != StatusEffects.WITHER && super.canHaveStatusEffect(effect);
+   public boolean canBeAffected(MobEffectInstance effect) {
+      return effect.getEffect() != MobEffects.WITHER && super.canBeAffected(effect);
    }
 
-   public boolean damage(DamageSource source, float amount) {
-      if (source.isOf(DamageTypes.SWEET_BERRY_BUSH)) {
+   public boolean hurt(DamageSource source, float amount) {
+      if (source.is(DamageTypes.SWEET_BERRY_BUSH)) {
          return false;
       } else {
-         boolean spines = source.isOf(DamageTypes.CACTUS);
+         boolean spines = source.is(DamageTypes.CACTUS);
          if (spines) {
             amount = Math.min(amount, 0.5F);
          }
 
-         boolean r = super.damage(source, amount);
-         if (r && source.getAttacker() != null) {
+         boolean r = super.hurt(source, amount);
+         if (r && source.getEntity() != null) {
             this.knockbackTicks = 8;
          }
 
@@ -1474,22 +1473,22 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
             this.mind.pricked();
          }
 
-         boolean bodily = source.getAttacker() != null
-            || !source.isOf(DamageTypes.STARVE)
-               && !source.isOf(DamageTypes.DROWN)
-               && !source.isOf(DamageTypes.FREEZE)
-               && !source.isOf(DamageTypes.ON_FIRE)
-               && !source.isOf(DamageTypes.IN_FIRE)
-               && !source.isOf(DamageTypes.LAVA)
-               && !source.isOf(DamageTypes.HOT_FLOOR)
-               && !source.isOf(DamageTypes.MAGIC)
-               && !source.isOf(DamageTypes.WITHER)
-               && !source.isOf(DamageTypes.GENERIC_KILL);
+         boolean bodily = source.getEntity() != null
+            || !source.is(DamageTypes.STARVE)
+               && !source.is(DamageTypes.DROWN)
+               && !source.is(DamageTypes.FREEZE)
+               && !source.is(DamageTypes.ON_FIRE)
+               && !source.is(DamageTypes.IN_FIRE)
+               && !source.is(DamageTypes.LAVA)
+               && !source.is(DamageTypes.HOT_FLOOR)
+               && !source.is(DamageTypes.MAGIC)
+               && !source.is(DamageTypes.WITHER)
+               && !source.is(DamageTypes.GENERIC_KILL);
          if (r && bodily) {
             this.mind.touched();
          }
 
-         if (r && !source.isOf(DamageTypes.STARVE)) {
+         if (r && !source.is(DamageTypes.STARVE)) {
             this.mind.punished();
          }
 
@@ -1504,12 +1503,12 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    private EscapeBrain.Sensed sense() {
       EscapeBrain.Sensed sensed = new EscapeBrain.Sensed();
       double tickDt = 0.05;
-      List<Entity> threats = this.getWorld().getOtherEntities(this, this.getBoundingBox().expand(24.0), ConnectomeFlyEntity::isThreat);
+      List<Entity> threats = this.level().getEntities(this, this.getBoundingBox().inflate(24.0), ConnectomeFlyEntity::isThreat);
       Entity nearest = null;
       double nearestSq = Double.POSITIVE_INFINITY;
 
       for (Entity e : threats) {
-         double sq = this.squaredDistanceTo(e);
+         double sq = this.distanceToSqr(e);
          if (sq < nearestSq) {
             nearestSq = sq;
             nearest = e;
@@ -1520,7 +1519,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       double discSq = Double.POSITIVE_INFINITY;
 
       for (LoomStimulus.Loom l : LoomStimulus.activeFor(this)) {
-         double sq = this.squaredDistanceTo(l.x, l.y, l.z);
+         double sq = this.distanceToSqr(l.x, l.y, l.z);
          if (sq < discSq) {
             discSq = sq;
             disc = l;
@@ -1536,7 +1535,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          this.prevThreatId = -1;
       } else {
          double dist = Math.sqrt(nearestSq);
-         double radius = nearest != null ? nearest.getWidth() / 2.0 : disc.radius;
+         double radius = nearest != null ? nearest.getBbWidth() / 2.0 : disc.radius;
          int id = nearest != null ? nearest.getId() : disc.id;
          double theta = LoomingMath.angularSize(dist, radius);
          double loom = 0.0;
@@ -1550,13 +1549,13 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          double dz = (nearest != null ? nearest.getZ() : disc.z) - this.getZ();
          double dy = (nearest != null ? nearest.getEyeY() : disc.y) - this.getEyeY();
          double bearingAbs = Math.toDegrees(Math.atan2(-dx, dz));
-         double headingDeg = this.getYaw();
+         double headingDeg = this.getYRot();
          Direction sf = this.surface();
          if (sf != null && sf != Direction.UP) {
-            headingDeg = Math.toDegrees(Math.atan2(sf.getOffsetX(), -sf.getOffsetZ()));
+            headingDeg = Math.toDegrees(Math.atan2(sf.getStepX(), -sf.getStepZ()));
          }
 
-         double bearing = MathHelper.wrapDegrees(bearingAbs - headingDeg);
+         double bearing = Mth.wrapDegrees(bearingAbs - headingDeg);
          double elev = LoomingMath.elevationDeg(dy, Math.sqrt(dx * dx + dz * dz));
          double gain = LoomingMath.visualFieldGain3d(bearing, elev);
          double proximityGain = Math.max(0.0, 1.0 - dist / 20.0);
@@ -1569,11 +1568,11 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
          sensed.threatName = nearest != null ? threatName(nearest) : "the looming shape";
       }
 
-      Vec3d eye = this.getEyePos();
-      double yawRad = Math.toRadians(this.getYaw());
-      Vec3d dir = this.isPerched() ? this.surfaceForward() : new Vec3d(-Math.sin(yawRad), 0.0, Math.cos(yawRad));
-      HitResult hit = this.getWorld().raycast(new RaycastContext(eye, eye.add(dir.multiply(4.0)), ShapeType.COLLIDER, FluidHandling.NONE, this));
-      double wallDist = hit.getType() == net.minecraft.util.hit.HitResult.Type.MISS ? 4.0 : eye.distanceTo(hit.getPos());
+      Vec3 eye = this.getEyePosition();
+      double yawRad = Math.toRadians(this.getYRot());
+      Vec3 dir = this.isPerched() ? this.surfaceForward() : new Vec3(-Math.sin(yawRad), 0.0, Math.cos(yawRad));
+      HitResult hit = this.level().clip(new ClipContext(eye, eye.add(dir.scale(4.0)), Block.COLLIDER, Fluid.NONE, this));
+      double wallDist = hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS ? 4.0 : eye.distanceTo(hit.getLocation());
       double wallTheta = LoomingMath.angularSize(wallDist, 0.5);
       if (!Double.isNaN(this.prevWallTheta)) {
          sensed.wallLoom = LoomingMath.translateLooming(this.prevWallTheta, wallTheta, tickDt);
@@ -1587,12 +1586,12 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       if (!e.isAlive()) {
          return false;
       } else {
-         return e instanceof PlayerEntity player ? !player.isSpectator() : e instanceof HostileEntity || e instanceof ProjectileEntity;
+         return e instanceof Player player ? !player.isSpectator() : e instanceof Monster || e instanceof Projectile;
       }
    }
 
    private static String threatName(Entity e) {
-      return e instanceof PlayerEntity player ? player.getGameProfile().getName() : e.getType().getName().getString();
+      return e instanceof Player player ? player.getGameProfile().getName() : e.getType().getDescription().getString();
    }
 
    private void say(String category, String threatName, long now) {
@@ -1614,34 +1613,34 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
    }
 
    void sayBehaviour(String text) {
-      long now = this.getWorld().getTime();
+      long now = this.level().getGameTime();
       if (!text.isEmpty() && now - this.lastSpeechTick >= 60L) {
          this.show(text, now);
       }
    }
 
    void sayNow(String text) {
-      this.show(text, this.getWorld().getTime());
+      this.show(text, this.level().getGameTime());
    }
 
    private void show(String line, long now) {
-      this.dataTracker.set(SPEECH, line);
+      this.entityData.set(SPEECH, line);
       this.speechTicksLeft = 80;
       this.lastSpeechTick = now;
    }
 
    private void disclose() {
-      long now = this.getWorld().getTime();
+      long now = this.level().getGameTime();
       if (now - lastDisclosureTick >= 200L) {
          lastDisclosureTick = now;
 
-         for (PlayerEntity p : this.getWorld().getPlayers()) {
-            if (p.squaredDistanceTo(this) < 4096.0) {
-               p.sendMessage(
-                  Text.literal(
+         for (Player p : this.level().players()) {
+            if (p.distanceToSqr(this) < 4096.0) {
+               p.displayClientMessage(
+                  Component.literal(
                         "connectome-fly: her whole brain (158,262 BANC neurons) and the giant-fibre escape circuit are computed live. Speech is translated, not decoded. /flycredits for details."
                      )
-                     .formatted(Formatting.GRAY),
+                     .withStyle(ChatFormatting.GRAY),
                   false
                );
             }
@@ -1649,19 +1648,19 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       }
    }
 
-   public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
+   public boolean causeFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
       return false;
    }
 
    protected SoundEvent getHurtSound(DamageSource source) {
-      return SoundEvents.ENTITY_BEE_HURT;
+      return SoundEvents.BEE_HURT;
    }
 
    protected SoundEvent getDeathSound() {
-      return SoundEvents.ENTITY_BEE_DEATH;
+      return SoundEvents.BEE_DEATH;
    }
 
-   public float getSoundPitch() {
+   public float getVoicePitch() {
       return 1.6F;
    }
 
@@ -1669,7 +1668,7 @@ public class ConnectomeFlyEntity extends PathAwareEntity {
       return 0.6F;
    }
 
-   public boolean canImmediatelyDespawn(double distanceSquared) {
+   public boolean removeWhenFarAway(double distanceSquared) {
       return false;
    }
 }

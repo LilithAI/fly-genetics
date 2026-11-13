@@ -2,13 +2,13 @@ package io.flyproject.connectomefly.lab;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.text.Text;
-import net.minecraft.text.Text.Serializer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component.Serializer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public final class BoxBooks {
    private static final Map<String, String[]> PAGES = new LinkedHashMap<>();
@@ -22,14 +22,14 @@ public final class BoxBooks {
 
    public static ItemStack book(String id, String title) {
       ItemStack stack = new ItemStack(Items.WRITTEN_BOOK);
-      NbtCompound nbt = stack.getOrCreateNbt();
+      CompoundTag nbt = stack.getOrCreateTag();
       String t = title.replaceAll("^[0-9]+ ", "");
       nbt.putString("title", t.length() > 30 ? t.substring(0, 30) : t);
       nbt.putString("author", "the fly project");
-      NbtList pages = new NbtList();
+      ListTag pages = new ListTag();
 
       for (String p : PAGES.getOrDefault(id, PAGES.get("home"))) {
-         pages.add(NbtString.of(Serializer.toJson(Text.literal(p))));
+         pages.add(StringTag.valueOf(Serializer.toJson(Component.literal(p))));
       }
 
       nbt.put("pages", pages);

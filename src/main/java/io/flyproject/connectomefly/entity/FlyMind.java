@@ -13,52 +13,52 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import net.minecraft.block.AbstractFurnaceBlock;
-import net.minecraft.block.BeehiveBlock;
-import net.minecraft.block.BellBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CakeBlock;
-import net.minecraft.block.CaveVines;
-import net.minecraft.block.CocoaBlock;
-import net.minecraft.block.ComposterBlock;
-import net.minecraft.block.JukeboxBlock;
-import net.minecraft.block.SweetBerryBushBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.ChickenEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.passive.FrogEntity;
-import net.minecraft.entity.passive.OcelotEntity;
-import net.minecraft.entity.passive.ParrotEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.BlockPos.Mutable;
-import net.minecraft.world.LightType;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.Heightmap.Type;
-import net.minecraft.world.RaycastContext.FluidHandling;
-import net.minecraft.world.RaycastContext.ShapeType;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biome.Precipitation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Ocelot;
+import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.frog.Frog;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.ClipContext.Block;
+import net.minecraft.world.level.ClipContext.Fluid;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biome.Precipitation;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.BeehiveBlock;
+import net.minecraft.world.level.block.BellBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CakeBlock;
+import net.minecraft.world.level.block.CaveVines;
+import net.minecraft.world.level.block.CocoaBlock;
+import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public final class FlyMind {
    static final Map<FlyMind.Kind, FlyMind.Info> INFO = new EnumMap<>(FlyMind.Kind.class);
@@ -245,10 +245,10 @@ public final class FlyMind {
       return this.cruiseAlt;
    }
 
-   static double[] wind(ServerWorld world) {
-      long day = world.getTimeOfDay() / 24000L;
+   static double[] wind(ServerLevel world) {
+      long day = world.getDayTime() / 24000L;
       double h = Math.sin(day * 12.9898 + 78.233) * 43758.5453;
-      double a = (h - Math.floor(h)) * Math.PI * 2.0 + 0.4 * Math.sin(world.getTimeOfDay() / 2400.0);
+      double a = (h - Math.floor(h)) * Math.PI * 2.0 + 0.4 * Math.sin(world.getDayTime() / 2400.0);
       return new double[]{Math.cos(a), Math.sin(a)};
    }
 
@@ -257,11 +257,11 @@ public final class FlyMind {
       return n[(int)Math.round((Math.toDegrees(Math.atan2(z, x)) + 360.0) % 360.0 / 45.0) % 8];
    }
 
-   private void farScan(ConnectomeFlyEntity fly, ServerWorld world) {
+   private void farScan(ConnectomeFlyEntity fly, ServerLevel world) {
       this.plumeSrc = null;
-      BlockPos c = fly.getBlockPos();
-      Mutable m = new Mutable();
-      long now = world.getTime();
+      BlockPos c = fly.blockPosition();
+      MutableBlockPos m = new MutableBlockPos();
+      long now = world.getGameTime();
       double best = 1.0E9;
       double[] w = wind(world);
 
@@ -279,13 +279,13 @@ public final class FlyMind {
                            double d = Math.hypot(dx, dz);
                            if (d < best) {
                               best = d;
-                              this.plumeSrc = m.toImmutable();
-                              this.plumeFruit = st.isOf(Blocks.MELON)
-                                 || st.isOf(Blocks.SWEET_BERRY_BUSH)
-                                 || st.isOf(Blocks.CAVE_VINES)
-                                 || st.isOf(Blocks.CAVE_VINES_PLANT)
-                                 || st.isOf(Blocks.COCOA)
-                                 || st.isOf(Blocks.PUMPKIN);
+                              this.plumeSrc = m.immutable();
+                              this.plumeFruit = st.is(Blocks.MELON)
+                                 || st.is(Blocks.SWEET_BERRY_BUSH)
+                                 || st.is(Blocks.CAVE_VINES)
+                                 || st.is(Blocks.CAVE_VINES_PLANT)
+                                 || st.is(Blocks.COCOA)
+                                 || st.is(Blocks.PUMPKIN);
                            }
                         }
                      }
@@ -566,7 +566,7 @@ public final class FlyMind {
          + dbg;
    }
 
-   public void tick(ConnectomeFlyEntity fly, ServerWorld world, WholeBrain brain, boolean escapeBusy) {
+   public void tick(ConnectomeFlyEntity fly, ServerLevel world, WholeBrain brain, boolean escapeBusy) {
       double dt = 0.05;
       this.touchT += 0.05;
       if (--this.scanCooldown <= 0) {
@@ -576,7 +576,7 @@ public final class FlyMind {
 
       List<FlyMind.Prop> props = new ArrayList<>(this.blockProps);
       props.addAll(this.scanEntities(fly, world));
-      ArenaBuilder.Arena box = ArenaBuilder.arenaAt(world, fly.getBlockPos());
+      ArenaBuilder.Arena box = ArenaBuilder.arenaAt(world, fly.blockPosition());
       boolean inBox = box != null;
       Set<FlyMind.Kind> allowed = box == null ? null : ArenaBuilder.ISOLATION.get(box.id());
       if (allowed != null) {
@@ -585,7 +585,7 @@ public final class FlyMind {
 
       this.boxRivalsOff = box != null && !box.id().equals("aggression") && !box.id().equals("home");
       boolean dryBox = box != null && box.id().equals("dry");
-      boolean openSky = !inBox && world.getTopY(Type.MOTION_BLOCKING_NO_LEAVES, fly.getBlockX(), fly.getBlockZ()) <= fly.getBlockY() + 1;
+      boolean openSky = !inBox && world.getHeight(Types.MOTION_BLOCKING_NO_LEAVES, fly.getBlockX(), fly.getBlockZ()) <= fly.getBlockY() + 1;
       this.outdoorT = openSky ? this.outdoorT + 0.05 : 0.0;
       this.outdoors = this.outdoorT > 2.0;
       if (fly.isFlying()) {
@@ -629,20 +629,20 @@ public final class FlyMind {
       double uy = fly.getY();
       boolean night = world.isNight();
       boolean raining = world.isRaining();
-      BlockPos here = fly.getBlockPos();
-      boolean exposed = raining && world.isSkyVisible(here);
-      boolean daylight = world.isDay() && world.getLightLevel(LightType.SKY, here) >= 12;
-      double yawNow = fly.getYaw();
-      double dyaw = Double.isNaN(this.prevYaw) ? 0.0 : MathHelper.wrapDegrees((float)(yawNow - this.prevYaw)) / 0.05;
+      BlockPos here = fly.blockPosition();
+      boolean exposed = raining && world.canSeeSky(here);
+      boolean daylight = world.isDay() && world.getBrightness(LightLayer.SKY, here) >= 12;
+      double yawNow = fly.getYRot();
+      double dyaw = Double.isNaN(this.prevYaw) ? 0.0 : Mth.wrapDegrees((float)(yawNow - this.prevYaw)) / 0.05;
       this.prevYaw = yawNow;
       this.lastBrain = brain;
       if (brain != null && !fly.isMale()) {
          double headRad = Math.atan2(Math.cos(Math.toRadians(yawNow)), -Math.sin(Math.toRadians(yawNow)));
-         int sky = world.getLightLevel(LightType.SKY, here);
+         int sky = world.getBrightness(LightLayer.SKY, here);
          float landmark = daylight ? 0.6F : (world.isDay() ? 0.35F : (sky >= 8 ? 0.2F : 0.1F));
          brain.setCompassInput((float)headRad, landmark);
          this.sleepP = Math.max(0.0, Math.min(1.0, this.sleepP + (this.asleep ? -2.0833333333333335E-4 : 5.555555555555556E-5)));
-         int block = world.getLightLevel(LightType.BLOCK, here);
+         int block = world.getBrightness(LightLayer.BLOCK, here);
          double light = daylight ? 0.7 : (world.isDay() ? 0.35 : 0.05);
          light = Math.max(light, block / 15.0 * 0.45);
          WholeBrain.Loco lc0 = brain.loco();
@@ -689,7 +689,7 @@ public final class FlyMind {
          }
 
          if (!Double.isNaN(this.cmpHeading) && this.cmpAmp > 0.2 && !fly.isDragged()) {
-            double step = fly.getVelocity().horizontalLength();
+            double step = fly.getDeltaMovement().horizontalDistance();
             this.hvx = this.hvx + step * Math.cos(this.cmpHeading);
             this.hvz = this.hvz + step * Math.sin(this.cmpHeading);
          }
@@ -699,11 +699,11 @@ public final class FlyMind {
          this.nutrientT = Math.max(0.0, this.nutrientT - 0.05);
       }
 
-      if (!fly.isMale() && (fly.isTouchingWater() || fly.isInLava())) {
+      if (!fly.isMale() && (fly.isInWater() || fly.isInLava())) {
          fly.requestFlight(true);
-         Vec3d v = fly.getVelocity();
-         fly.setVelocity(v.x, Math.max(v.y, 0.14), v.z);
-         fly.velocityModified = true;
+         Vec3 v = fly.getDeltaMovement();
+         fly.setDeltaMovement(v.x, Math.max(v.y, 0.14), v.z);
+         fly.hurtMarked = true;
       }
 
       boolean grounded = (fly.isStanding() || fly.isFlying()) && !escapeBusy;
@@ -755,7 +755,7 @@ public final class FlyMind {
                double ddx = Math.max(1.0E-6, Math.hypot(vx, vz));
                double along = (vx * p.fanDx + vz * p.fanDz) / ddx;
                double dU = ddx / 0.95;
-               if (!windBox && world.getTime() % 3L == 0L && dU < info.range) {
+               if (!windBox && world.getGameTime() % 3L == 0L && dU < info.range) {
                   WindFx.puff(world, p.x + p.fanDx * 0.8, p.y + 0.5, p.z + p.fanDz * 0.8, p.fanDx, p.fanDz);
                }
 
@@ -767,8 +767,8 @@ public final class FlyMind {
                   }
 
                   if (grounded) {
-                     Vec3d v = fly.getVelocity();
-                     fly.setVelocity(v.add(p.fanDx * feel * 0.45 * 0.95 * 0.05 * 0.05 * 20.0, 0.0, p.fanDz * feel * 0.45 * 0.95 * 0.05 * 0.05 * 20.0));
+                     Vec3 v = fly.getDeltaMovement();
+                     fly.setDeltaMovement(v.add(p.fanDx * feel * 0.45 * 0.95 * 0.05 * 0.05 * 20.0, 0.0, p.fanDz * feel * 0.45 * 0.95 * 0.05 * 0.05 * 20.0));
                   }
                }
             } else if (p.kind == FlyMind.Kind.MATE) {
@@ -924,8 +924,8 @@ public final class FlyMind {
          boolean nearFood = feed != null
             || domAttract != null && domAttract.kind == FlyMind.Kind.FOOD && Math.hypot(domAttract.x - ux, domAttract.z - uz) < 3.5;
 
-         for (Entity e : world.getOtherEntities(
-            fly, fly.getBoundingBox().expand(8.0), o -> o instanceof ConnectomeFlyEntity f && f.isAlive() && !f.isMale() && !f.isBabyFly()
+         for (Entity e : world.getEntities(
+            fly, fly.getBoundingBox().inflate(8.0), o -> o instanceof ConnectomeFlyEntity f && f.isAlive() && !f.isMale() && !f.isBabyFly()
          )) {
             double dx = e.getX() - ux;
             double dz = e.getZ() - uz;
@@ -1024,18 +1024,18 @@ public final class FlyMind {
 
          this.waterContactT = this.tasteWater > 0.0 && fly.getThirst() > 6.0F && !fly.isFlying() ? this.waterContactT + 0.05 : 0.0;
          if (dryBox && this.dryGround) {
-            BlockPos feet = fly.getBlockPos().down();
+            BlockPos feet = fly.blockPosition().below();
             double bestD = 1.0E9;
             double bx = 0.0;
             double bz = 0.0;
-            Mutable mx = new Mutable();
+            MutableBlockPos mx = new MutableBlockPos();
 
             for (int ox = -6; ox <= 6; ox++) {
                for (int oz = -6; oz <= 6; oz++) {
                   mx.set(feet.getX() + ox, feet.getY(), feet.getZ() + oz);
                   BlockState fs = world.getBlockState(mx);
-                  boolean dry = fs.isIn(BlockTags.SAND) || fs.isIn(BlockTags.TERRACOTTA);
-                  if (!dry && fs.isSolidBlock(world, mx) && world.getBlockState(mx.up()).isAir()) {
+                  boolean dry = fs.is(BlockTags.SAND) || fs.is(BlockTags.TERRACOTTA);
+                  if (!dry && fs.isRedstoneConductor(world, mx) && world.getBlockState(mx.above()).isAir()) {
                      double ddxx = Math.hypot(ox, oz);
                      if (ddxx < bestD) {
                         bestD = ddxx;
@@ -1115,7 +1115,7 @@ public final class FlyMind {
          }
 
          Biome biome = (Biome)world.getBiome(here).value();
-         float temp = biome.getTemperature();
+         float temp = biome.getBaseTemperature();
          if (temp >= 1.5F) {
             this.busMax("heating", Math.min(0.6, (temp - 1.5) * 0.6 + 0.3));
             this.busMax("dry", 0.6);
@@ -1123,7 +1123,7 @@ public final class FlyMind {
             this.busMax("cooling", 0.5);
          }
 
-         if (biome.getPrecipitation(here) == Precipitation.SNOW) {
+         if (biome.getPrecipitationAt(here) == Precipitation.SNOW) {
             this.busMax("cooling", 0.5);
          }
 
@@ -1135,7 +1135,7 @@ public final class FlyMind {
             this.busMax("tactile", this.touchT < 0.6 ? 1.0 : 0.25);
          }
 
-         double tod = world.getTimeOfDay() % 24000L / 24000.0;
+         double tod = world.getDayTime() % 24000L / 24000.0;
          this.clockM = Math.exp(-Math.pow(((tod + 0.5) % 1.0 - 0.5) / 0.09, 2.0));
          this.clockE = Math.exp(-Math.pow((tod - 0.5) / 0.09, 2.0));
          this.busMax("clock_morning", this.clockM);
@@ -1183,19 +1183,19 @@ public final class FlyMind {
                this.lmScanT = 20;
                this.lmBearing = Double.NaN;
                this.lmDist = 1.0E9;
-               Vec3d eye = fly.getEyePos();
+               Vec3 eye = fly.getEyePosition();
 
                for (int k = 0; k < 16; k++) {
                   double yawK = k * 22.5;
                   double rad = Math.toRadians(yawK);
-                  Vec3d dir = new Vec3d(-Math.sin(rad), 0.0, Math.cos(rad));
+                  Vec3 dir = new Vec3(-Math.sin(rad), 0.0, Math.cos(rad));
 
                   for (double dyy : new double[]{0.5, 3.0}) {
-                     HitResult hit = world.raycast(
-                        new RaycastContext(eye, eye.add(dir.multiply(64.0)).add(0.0, dyy, 0.0), ShapeType.COLLIDER, FluidHandling.NONE, fly)
+                     HitResult hit = world.clip(
+                        new ClipContext(eye, eye.add(dir.scale(64.0)).add(0.0, dyy, 0.0), Block.COLLIDER, Fluid.NONE, fly)
                      );
-                     if (hit.getType() == net.minecraft.util.hit.HitResult.Type.BLOCK) {
-                        double ddxxx = eye.distanceTo(hit.getPos());
+                     if (hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
+                        double ddxxx = eye.distanceTo(hit.getLocation());
                         if (ddxxx < this.lmDist) {
                            this.lmDist = ddxxx;
                            this.lmBearing = yawK;
@@ -1206,7 +1206,7 @@ public final class FlyMind {
             }
 
             if (!Double.isNaN(this.lmBearing)) {
-               tod = MathHelper.wrapDegrees((float)(this.lmBearing - fly.getYaw()));
+               tod = Mth.wrapDegrees((float)(this.lmBearing - fly.getYRot()));
                double magx = 0.35 + 0.35 * (1.0 - Math.min(1.0, this.lmDist / 64.0));
                this.busMax(tod > 0.0 ? "landmark_right" : "landmark_left", magx);
             }
@@ -1221,7 +1221,7 @@ public final class FlyMind {
          }
 
          this.busMax("sleep_pressure", this.sleepP);
-         int blockx = world.getLightLevel(LightType.BLOCK, here);
+         int blockx = world.getBrightness(LightLayer.BLOCK, here);
          double lightx = daylight ? 0.7 : (world.isDay() ? 0.35 : 0.05);
          this.busMax("light_clock", Math.max(lightx, blockx / 15.0 * 0.45));
          if (this.rewardT > 0.0) {
@@ -1238,18 +1238,18 @@ public final class FlyMind {
 
          this.lcLeft = this.lcRight = 0.0;
          this.seeLabel = "";
-         tod = -Math.sin(Math.toRadians(fly.getYaw()));
-         double hz = Math.cos(Math.toRadians(fly.getYaw()));
+         tod = -Math.sin(Math.toRadians(fly.getYRot()));
+         double hz = Math.cos(Math.toRadians(fly.getYRot()));
          this.lcCand = 0;
          this.lcMaxAng = 0.0;
 
-         for (Entity e : world.getOtherEntities(
+         for (Entity e : world.getEntities(
             fly,
-            fly.getBoundingBox().expand(10.0),
-            o -> o instanceof PlayerEntity
+            fly.getBoundingBox().inflate(10.0),
+            o -> o instanceof Player
                || o instanceof ConnectomeFlyEntity
                || o instanceof ItemEntity
-               || o instanceof LivingEntity le && le.getWidth() < 0.7F
+               || o instanceof LivingEntity le && le.getBbWidth() < 0.7F
          )) {
             double dxxx = e.getX() - ux;
             double dzx = e.getZ() - uz;
@@ -1265,7 +1265,7 @@ public final class FlyMind {
                   Double prevB = this.lastBearing.get(e.getId());
                   this.lastBearing.put(e.getId(), bearing);
                   if (prevB != null) {
-                     double angSpeed = Math.abs(MathHelper.wrapDegrees((float)Math.toDegrees(bearing - prevB))) / 0.05;
+                     double angSpeed = Math.abs(Mth.wrapDegrees((float)Math.toDegrees(bearing - prevB))) / 0.05;
                      this.lcMaxAng = Math.max(this.lcMaxAng, angSpeed);
                      double magx = Math.min(1.0, angSpeed / 90.0) * Math.max(0.0, 1.0 - dist / 10.0);
                      if (!(magx < 0.05)) {
@@ -1338,7 +1338,7 @@ public final class FlyMind {
          this.fleeingNow = flee;
          this.hazards(fly, world, props, exposed && grounded && !flee, grounded, 0.05);
          fly.setAnimFlags(false, false, false, feed != null);
-         if (!fly.isDead() && grounded) {
+         if (!fly.isDeadOrDying() && grounded) {
             this.brainJumpCd = Math.max(0.0, this.brainJumpCd - 0.05);
             this.brainLabelT = Math.max(0.0, this.brainLabelT - 0.05);
             this.eggCd = Math.max(0.0, this.eggCd - 0.05);
@@ -1516,16 +1516,16 @@ public final class FlyMind {
 
                   if (this.backT > 0.0) {
                      this.stopNav(fly);
-                     double yawRad = Math.toRadians(fly.getYaw());
+                     double yawRad = Math.toRadians(fly.getYRot());
                      o = 0.056999999999999995;
-                     Vec3d v = fly.getVelocity();
-                     fly.setVelocity(Math.sin(yawRad) * o, v.y, -Math.cos(yawRad) * o);
-                     fly.velocityModified = true;
+                     Vec3 v = fly.getDeltaMovement();
+                     fly.setDeltaMovement(Math.sin(yawRad) * o, v.y, -Math.cos(yawRad) * o);
+                     fly.hurtMarked = true;
                      this.brainSay(fly, "[brain] MDN (moonwalker) fired: walks backward");
                   } else if (this.scrambleT > 0.0) {
                      this.stopNav(fly);
-                     fly.setYaw(fly.getYaw() + this.scrambleSide * 9.0F);
-                     fly.bodyYaw = fly.getYaw();
+                     fly.setYRot(fly.getYRot() + this.scrambleSide * 9.0F);
+                     fly.yBodyRot = fly.getYRot();
                      this.drive(fly, 3.2);
                      this.brainSay(fly, "[brain] leg motor neurons burst: scramble (bristle reflex)");
                   } else {
@@ -1594,7 +1594,7 @@ public final class FlyMind {
                         this.drive(fly, Math.min(4.2, 2.2 + (2.8 - rivalD)));
                         if (rivalD < 1.4 && rival.ent != null) {
                            double aw = Math.atan2(rival.z - uz, rival.x - ux);
-                           rival.ent.addVelocity(Math.cos(aw) * 0.22, 0.05, Math.sin(aw) * 0.22);
+                           rival.ent.push(Math.cos(aw) * 0.22, 0.05, Math.sin(aw) * 0.22);
                            if (rival.ent instanceof ConnectomeFlyEntity loser) {
                               loser.mind().shoved();
                            }
@@ -1632,9 +1632,9 @@ public final class FlyMind {
                            if (home != null && !this.homeReturning && this.excT > 0.0 && !fly.isFlying()) {
                               this.stopNav(fly);
                               fly.requestFlight(false);
-                              fly.setYaw((float)this.excYaw);
-                              fly.bodyYaw = fly.getYaw();
-                              fly.headYaw = fly.getYaw();
+                              fly.setYRot((float)this.excYaw);
+                              fly.yBodyRot = fly.getYRot();
+                              fly.yHeadRot = fly.getYRot();
                               this.drive(fly, 1.5);
                               this.label(
                                  fly,
@@ -1834,7 +1834,7 @@ public final class FlyMind {
                                        && this.outdoors
                                        && !fly.isFlying()
                                        && !fly.isBabyFly()
-                                       && fly.getHoldingEntity() == null
+                                       && fly.getLeashHolder() == null
                                        && !night
                                        && !raining
                                        && !this.asleep
@@ -1864,8 +1864,8 @@ public final class FlyMind {
 
                                     if (mv && !fly.isFlying() && !fly.isPerched() && this.forcedFlyT <= 0.0) {
                                        double side = Math.abs(loco.turnBias) > 0.01 ? Math.signum(loco.turnBias) : (world.random.nextBoolean() ? 1 : -1);
-                                       fly.setYaw(fly.getYaw() + (float)(side * (15.0 + world.random.nextDouble() * 60.0)));
-                                       fly.bodyYaw = fly.getYaw();
+                                       fly.setYRot(fly.getYRot() + (float)(side * (15.0 + world.random.nextDouble() * 60.0)));
+                                       fly.yBodyRot = fly.getYRot();
                                     }
 
                                     if (this.resting) {
@@ -1889,9 +1889,9 @@ public final class FlyMind {
                                  fly.requestFlight(false);
                                  damp(fly, 0.6);
                                  if (this.optoTurn != 0.0) {
-                                    fly.setYaw(fly.getYaw() + (float)(this.optoTurn * 45.0 * 0.05));
-                                    fly.bodyYaw = fly.getYaw();
-                                    fly.headYaw = fly.getYaw();
+                                    fly.setYRot(fly.getYRot() + (float)(this.optoTurn * 45.0 * 0.05));
+                                    fly.yBodyRot = fly.getYRot();
+                                    fly.yHeadRot = fly.getYRot();
                                  }
 
                                  if (this.grooming) {
@@ -1915,10 +1915,10 @@ public final class FlyMind {
                                  if (!fly.isFlying() || !fly.noGroundBelow() || Double.isNaN(this.lmBearing) || !motionOn && !lcR) {
                                     if (!fly.isFlying()) {
                                        this.holdYaw = Double.NaN;
-                                       fly.setYaw(fly.getYaw() + (float)Math.toDegrees(this.smTurn * 2.4 * 0.05) + (float)(this.optoTurn * 45.0 * 0.05));
+                                       fly.setYRot(fly.getYRot() + (float)Math.toDegrees(this.smTurn * 2.4 * 0.05) + (float)(this.optoTurn * 45.0 * 0.05));
                                     } else {
                                        if (Double.isNaN(this.holdYaw)) {
-                                          this.holdYaw = fly.getYaw();
+                                          this.holdYaw = fly.getYRot();
                                        }
 
                                        if (!Double.isNaN(this.cmpHeading) && this.cmpAmp > 0.3) {
@@ -1935,14 +1935,14 @@ public final class FlyMind {
                                           }
 
                                           if (Math.abs(loco.turnBias) > 0.12) {
-                                             this.holdYaw = MathHelper.wrapDegrees(
+                                             this.holdYaw = Mth.wrapDegrees(
                                                 (float)(this.holdYaw + Math.signum(loco.turnBias) * (70.0 + world.random.nextDouble() * 40.0))
                                              );
                                              this.brainSay(fly, "[brain] descending L/R imbalance: a saccade");
                                           }
                                        }
 
-                                       fly.setYaw(MathHelper.lerpAngleDegrees((float)Math.min(1.0, 0.6000000000000001), fly.getYaw(), (float)this.holdYaw));
+                                       fly.setYRot(Mth.rotLerp((float)Math.min(1.0, 0.6000000000000001), fly.getYRot(), (float)this.holdYaw));
                                        if (fly.noGroundBelow()) {
                                           flightLabel = String.format(
                                              Locale.ROOT,
@@ -1952,8 +1952,8 @@ public final class FlyMind {
                                        }
                                     }
                                  } else {
-                                    float yaw = MathHelper.lerpAngleDegrees((float)Math.min(1.0, 0.125), fly.getYaw(), (float)this.lmBearing);
-                                    fly.setYaw(yaw);
+                                    float yaw = Mth.rotLerp((float)Math.min(1.0, 0.125), fly.getYRot(), (float)this.lmBearing);
+                                    fly.setYRot(yaw);
                                     this.holdYaw = yaw;
                                     flightLabel = String.format(
                                        Locale.ROOT,
@@ -1963,8 +1963,8 @@ public final class FlyMind {
                                     );
                                  }
 
-                                 fly.bodyYaw = fly.getYaw();
-                                 fly.headYaw = fly.getYaw();
+                                 fly.yBodyRot = fly.getYRot();
+                                 fly.yHeadRot = fly.getYRot();
                                  double sp = Math.min(3.0, Math.max(0.0, loco.walkDrive * 0.5)) * this.neuralExcess;
                                  if (fly.courtedSeconds() > 0.0) {
                                     sp *= 0.4;
@@ -2020,14 +2020,14 @@ public final class FlyMind {
       }
    }
 
-   private void maleTick(ConnectomeFlyEntity fly, ServerWorld world, List<FlyMind.Prop> props, boolean grounded, double dt) {
+   private void maleTick(ConnectomeFlyEntity fly, ServerLevel world, List<FlyMind.Prop> props, boolean grounded, double dt) {
       ConnectomeFlyEntity her = null;
       double best = 1.0E9;
 
-      for (Entity e : world.getOtherEntities(
-         fly, fly.getBoundingBox().expand(14.0), o -> o instanceof ConnectomeFlyEntity f && f.isAlive() && !f.isMale() && !f.isBabyFly()
+      for (Entity e : world.getEntities(
+         fly, fly.getBoundingBox().inflate(14.0), o -> o instanceof ConnectomeFlyEntity f && f.isAlive() && !f.isMale() && !f.isBabyFly()
       )) {
-         double d = fly.squaredDistanceTo(e);
+         double d = fly.distanceToSqr(e);
          if (d < best) {
             best = d;
             her = (ConnectomeFlyEntity)e;
@@ -2066,7 +2066,7 @@ public final class FlyMind {
       }
    }
 
-   private void hazards(ConnectomeFlyEntity fly, ServerWorld world, List<FlyMind.Prop> props, boolean rainOnHer, boolean grounded, double dt) {
+   private void hazards(ConnectomeFlyEntity fly, ServerLevel world, List<FlyMind.Prop> props, boolean rainOnHer, boolean grounded, double dt) {
       double heat = 0.0;
       double cold = 0.0;
       boolean inPond = false;
@@ -2080,7 +2080,7 @@ public final class FlyMind {
          }
       }
 
-      if (fly.isTouchingWater()) {
+      if (fly.isInWater()) {
          inPond = true;
       }
 
@@ -2092,27 +2092,27 @@ public final class FlyMind {
          float amount = (float)this.dmgAcc;
          this.dmgAcc = 0.0;
          if (cold > 0.0) {
-            fly.damage(world.getDamageSources().freeze(), amount);
+            fly.hurt(world.damageSources().freeze(), amount);
          } else if (inPond && this.pondT > 2.0) {
-            fly.damage(world.getDamageSources().drown(), amount);
+            fly.hurt(world.damageSources().drown(), amount);
          } else if (heat > 0.0) {
-            fly.damage(world.getDamageSources().onFire(), amount);
+            fly.hurt(world.damageSources().onFire(), amount);
          } else {
-            fly.damage(world.getDamageSources().generic(), amount);
+            fly.hurt(world.damageSources().generic(), amount);
          }
 
          this.punishT = Math.max(this.punishT, 1.0);
-         if (fly.isDead()) {
+         if (fly.isDeadOrDying()) {
             fly.sayNow(cold > 0.0 ? "froze on the snow" : (inPond ? "drowned in the pond" : (heat > 0.0 ? "burned by the heat" : "waterlogged by the rain")));
          }
       }
    }
 
-   private List<FlyMind.Prop> scanBlocks(ConnectomeFlyEntity fly, ServerWorld world) {
+   private List<FlyMind.Prop> scanBlocks(ConnectomeFlyEntity fly, ServerLevel world) {
       List<FlyMind.Prop> out = new ArrayList<>();
-      BlockPos c = fly.getBlockPos();
-      long now = world.getTime();
-      Mutable m = new Mutable();
+      BlockPos c = fly.blockPosition();
+      long now = world.getGameTime();
+      MutableBlockPos m = new MutableBlockPos();
       int[] perKind = new int[FlyMind.Kind.values().length];
       int down = fly.isFlying() ? Math.min(8, 2 + (int)Math.ceil(this.cruiseAlt) + 1) : 2;
 
@@ -2126,23 +2126,23 @@ public final class FlyMind {
                FlyMind.Kind k = classify(world, st, m, now);
                if (k != null && perKind[k.ordinal()] < 8) {
                   perKind[k.ordinal()]++;
-                  FlyMind.Prop p = new FlyMind.Prop(k, m.getX() + 0.5, m.getY(), m.getZ() + 0.5).at(m.toImmutable());
-                  p.cauldron = st.isOf(Blocks.WATER_CAULDRON);
+                  FlyMind.Prop p = new FlyMind.Prop(k, m.getX() + 0.5, m.getY(), m.getZ() + 0.5).at(m.immutable());
+                  p.cauldron = st.is(Blocks.WATER_CAULDRON);
                   p.fruit = k == FlyMind.Kind.LURE
-                     || st.isOf(Blocks.MELON)
-                     || st.isOf(Blocks.SWEET_BERRY_BUSH)
-                     || st.isOf(Blocks.CAVE_VINES)
-                     || st.isOf(Blocks.CAVE_VINES_PLANT)
-                     || st.isOf(Blocks.COCOA)
-                     || st.isOf(Blocks.PUMPKIN);
+                     || st.is(Blocks.MELON)
+                     || st.is(Blocks.SWEET_BERRY_BUSH)
+                     || st.is(Blocks.CAVE_VINES)
+                     || st.is(Blocks.CAVE_VINES_PLANT)
+                     || st.is(Blocks.COCOA)
+                     || st.is(Blocks.PUMPKIN);
                   if (k == FlyMind.Kind.FAN) {
                      p.fanDx = 1.0;
                      p.fanDz = 0.0;
 
-                     for (Direction dir : net.minecraft.util.math.Direction.Type.HORIZONTAL) {
-                        if (world.getBlockState(m.offset(dir)).isOf(Blocks.IRON_BARS)) {
-                           p.fanDx = dir.getOffsetX();
-                           p.fanDz = dir.getOffsetZ();
+                     for (Direction dir : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+                        if (world.getBlockState(m.relative(dir)).is(Blocks.IRON_BARS)) {
+                           p.fanDx = dir.getStepX();
+                           p.fanDz = dir.getStepZ();
                            break;
                         }
                      }
@@ -2157,65 +2157,65 @@ public final class FlyMind {
       return out;
    }
 
-   private static FlyMind.Kind classify(ServerWorld world, BlockState st, BlockPos pos, long now) {
-      if (st.isIn(BlockTags.CAMPFIRES)) {
+   private static FlyMind.Kind classify(ServerLevel world, BlockState st, BlockPos pos, long now) {
+      if (st.is(BlockTags.CAMPFIRES)) {
          return FlyMind.Kind.CO2;
-      } else if (!st.isOf(Blocks.CACTUS)
-         && !st.isOf(Blocks.POINTED_DRIPSTONE)
-         && (!st.isOf(Blocks.SWEET_BERRY_BUSH) || (Integer)st.get(SweetBerryBushBlock.AGE) >= 2)) {
-         if (st.isOf(Blocks.LAVA) || st.isOf(Blocks.MAGMA_BLOCK) || st.isIn(BlockTags.FIRE)) {
+      } else if (!st.is(Blocks.CACTUS)
+         && !st.is(Blocks.POINTED_DRIPSTONE)
+         && (!st.is(Blocks.SWEET_BERRY_BUSH) || (Integer)st.getValue(SweetBerryBushBlock.AGE) >= 2)) {
+         if (st.is(Blocks.LAVA) || st.is(Blocks.MAGMA_BLOCK) || st.is(BlockTags.FIRE)) {
             return FlyMind.Kind.LAVA;
-         } else if (st.isIn(BlockTags.SNOW) || st.isIn(BlockTags.ICE) || st.isOf(Blocks.POWDER_SNOW)) {
+         } else if (st.is(BlockTags.SNOW) || st.is(BlockTags.ICE) || st.is(Blocks.POWDER_SNOW)) {
             return FlyMind.Kind.SNOW;
-         } else if (st.isOf(Blocks.WATER_CAULDRON)) {
+         } else if (st.is(Blocks.WATER_CAULDRON)) {
             return FlyMind.Kind.DAMP;
-         } else if (st.isOf(Blocks.WATER) || st.isOf(Blocks.BUBBLE_COLUMN) || st.getFluidState().isIn(FluidTags.WATER)) {
+         } else if (st.is(Blocks.WATER) || st.is(Blocks.BUBBLE_COLUMN) || st.getFluidState().is(FluidTags.WATER)) {
             return FlyMind.Kind.POND;
-         } else if (st.isOf(Blocks.MUD) || st.isOf(Blocks.WET_SPONGE) || st.isOf(Blocks.MUDDY_MANGROVE_ROOTS)) {
+         } else if (st.is(Blocks.MUD) || st.is(Blocks.WET_SPONGE) || st.is(Blocks.MUDDY_MANGROVE_ROOTS)) {
             return FlyMind.Kind.DAMP;
-         } else if (st.isIn(BlockTags.SAND)
-            || st.isIn(BlockTags.TERRACOTTA)
-            || st.isOf(Blocks.SOUL_SAND)
-            || st.isOf(Blocks.SOUL_SOIL)
-            || st.isOf(Blocks.DRIED_KELP_BLOCK)) {
+         } else if (st.is(BlockTags.SAND)
+            || st.is(BlockTags.TERRACOTTA)
+            || st.is(Blocks.SOUL_SAND)
+            || st.is(Blocks.SOUL_SOIL)
+            || st.is(Blocks.DRIED_KELP_BLOCK)) {
             return FlyMind.Kind.DRY;
-         } else if (st.getBlock() instanceof AbstractFurnaceBlock && (Boolean)st.get(AbstractFurnaceBlock.LIT)) {
+         } else if (st.getBlock() instanceof AbstractFurnaceBlock && (Boolean)st.getValue(AbstractFurnaceBlock.LIT)) {
             return FlyMind.Kind.LAVA;
-         } else if (st.isOf(Blocks.LAVA_CAULDRON)) {
+         } else if (st.is(Blocks.LAVA_CAULDRON)) {
             return FlyMind.Kind.LAVA;
-         } else if (!st.isOf(Blocks.CAKE)
-            && !st.isIn(BlockTags.CANDLE_CAKES)
-            && !st.isOf(Blocks.HONEY_BLOCK)
-            && !st.isOf(Blocks.MELON)
-            && !st.isOf(Blocks.HONEYCOMB_BLOCK)
-            && !st.isOf(Blocks.SUGAR_CANE)
-            && (!st.isOf(Blocks.SWEET_BERRY_BUSH) || (Integer)st.get(SweetBerryBushBlock.AGE) < 2)
-            && (!st.isOf(Blocks.CAVE_VINES) || !(Boolean)st.get(CaveVines.BERRIES))
-            && (!st.isOf(Blocks.CAVE_VINES_PLANT) || !(Boolean)st.get(CaveVines.BERRIES))
-            && (!st.isOf(Blocks.COCOA) || (Integer)st.get(CocoaBlock.AGE) < 2)
-            && (!st.isOf(Blocks.COMPOSTER) || (Integer)st.get(ComposterBlock.LEVEL) < 1)
-            && (!st.isOf(Blocks.BEE_NEST) && !st.isOf(Blocks.BEEHIVE) || (Integer)st.get(BeehiveBlock.HONEY_LEVEL) < 3)) {
-            if (st.isOf(Blocks.WITHER_ROSE)) {
+         } else if (!st.is(Blocks.CAKE)
+            && !st.is(BlockTags.CANDLE_CAKES)
+            && !st.is(Blocks.HONEY_BLOCK)
+            && !st.is(Blocks.MELON)
+            && !st.is(Blocks.HONEYCOMB_BLOCK)
+            && !st.is(Blocks.SUGAR_CANE)
+            && (!st.is(Blocks.SWEET_BERRY_BUSH) || (Integer)st.getValue(SweetBerryBushBlock.AGE) < 2)
+            && (!st.is(Blocks.CAVE_VINES) || !(Boolean)st.getValue(CaveVines.BERRIES))
+            && (!st.is(Blocks.CAVE_VINES_PLANT) || !(Boolean)st.getValue(CaveVines.BERRIES))
+            && (!st.is(Blocks.COCOA) || (Integer)st.getValue(CocoaBlock.AGE) < 2)
+            && (!st.is(Blocks.COMPOSTER) || (Integer)st.getValue(ComposterBlock.LEVEL) < 1)
+            && (!st.is(Blocks.BEE_NEST) && !st.is(Blocks.BEEHIVE) || (Integer)st.getValue(BeehiveBlock.HONEY_LEVEL) < 3)) {
+            if (st.is(Blocks.WITHER_ROSE)) {
                return FlyMind.Kind.BITTER;
-            } else if (st.isIn(BlockTags.FLOWERS) || st.isOf(Blocks.SPORE_BLOSSOM)) {
+            } else if (st.is(BlockTags.FLOWERS) || st.is(Blocks.SPORE_BLOSSOM)) {
                return FlyMind.Kind.LURE;
-            } else if (st.isOf(Blocks.MYCELIUM)
-               || st.isOf(Blocks.BROWN_MUSHROOM)
-               || st.isOf(Blocks.RED_MUSHROOM)
-               || st.isOf(Blocks.BROWN_MUSHROOM_BLOCK)
-               || st.isOf(Blocks.RED_MUSHROOM_BLOCK)
-               || st.isOf(Blocks.MUSHROOM_STEM)) {
+            } else if (st.is(Blocks.MYCELIUM)
+               || st.is(Blocks.BROWN_MUSHROOM)
+               || st.is(Blocks.RED_MUSHROOM)
+               || st.is(Blocks.BROWN_MUSHROOM_BLOCK)
+               || st.is(Blocks.RED_MUSHROOM_BLOCK)
+               || st.is(Blocks.MUSHROOM_STEM)) {
                return FlyMind.Kind.GEOSMIN;
-            } else if (st.isOf(Blocks.JUKEBOX) && (Boolean)st.get(JukeboxBlock.HAS_RECORD)) {
+            } else if (st.is(Blocks.JUKEBOX) && (Boolean)st.getValue(JukeboxBlock.HAS_RECORD)) {
                return FlyMind.Kind.SPEAKER;
-            } else if ((st.isOf(Blocks.NOTE_BLOCK) || st.getBlock() instanceof BellBlock) && soundingAt(pos, now)) {
+            } else if ((st.is(Blocks.NOTE_BLOCK) || st.getBlock() instanceof BellBlock) && soundingAt(pos, now)) {
                return FlyMind.Kind.SPEAKER;
-            } else if (st.isOf(Blocks.AZALEA_LEAVES) || st.isOf(Blocks.FLOWERING_AZALEA_LEAVES)) {
+            } else if (st.is(Blocks.AZALEA_LEAVES) || st.is(Blocks.FLOWERING_AZALEA_LEAVES)) {
                return FlyMind.Kind.HOME;
-            } else if (st.isOf(Blocks.LODESTONE)) {
+            } else if (st.is(Blocks.LODESTONE)) {
                return FlyMind.Kind.FAN;
             } else {
-               return st.getLuminance() >= 10 && !st.isOf(Blocks.LAVA_CAULDRON) ? FlyMind.Kind.LIGHT : null;
+               return st.getLightEmission() >= 10 && !st.is(Blocks.LAVA_CAULDRON) ? FlyMind.Kind.LIGHT : null;
             }
          } else {
             return FlyMind.Kind.FOOD;
@@ -2252,18 +2252,18 @@ public final class FlyMind {
    }
 
    private static boolean isLureItem(ItemStack s) {
-      return s.isIn(ItemTags.FLOWERS) || isFoodItem(s) || s.getItem() == Items.CARROT;
+      return s.is(ItemTags.FLOWERS) || isFoodItem(s) || s.getItem() == Items.CARROT;
    }
 
-   private List<FlyMind.Prop> scanEntities(ConnectomeFlyEntity fly, ServerWorld world) {
+   private List<FlyMind.Prop> scanEntities(ConnectomeFlyEntity fly, ServerLevel world) {
       List<FlyMind.Prop> out = new ArrayList<>();
-      Box box = fly.getBoundingBox().expand(12.0, 4.0, 12.0);
+      AABB box = fly.getBoundingBox().inflate(12.0, 4.0, 12.0);
 
-      for (Entity e : world.getOtherEntities(fly, box)) {
+      for (Entity e : world.getEntities(fly, box)) {
          if (e.isAlive()) {
             FlyMind.Kind k = null;
             if (e instanceof ItemEntity it) {
-               ItemStack s = it.getStack();
+               ItemStack s = it.getItem();
                if (isFoodItem(s)) {
                   k = FlyMind.Kind.FOOD;
                } else if (isBitterItem(s)) {
@@ -2273,26 +2273,26 @@ public final class FlyMind {
                if (f.isMale() && !fly.isMale()) {
                   k = FlyMind.Kind.MATE;
                }
-            } else if (e instanceof PlayerEntity p) {
-               if (p.isSpectator() || !isLureItem(p.getMainHandStack()) && !isLureItem(p.getOffHandStack())) {
+            } else if (e instanceof Player p) {
+               if (p.isSpectator() || !isLureItem(p.getMainHandItem()) && !isLureItem(p.getOffhandItem())) {
                   if (!p.isSpectator() && p.isSprinting()) {
                      k = FlyMind.Kind.SPEAKER;
                   }
                } else {
                   k = FlyMind.Kind.LURE;
                }
-            } else if (e instanceof LightningEntity) {
+            } else if (e instanceof LightningBolt) {
                k = FlyMind.Kind.SPEAKER;
-            } else if (e instanceof HostileEntity
-               || e instanceof WolfEntity
-               || e instanceof CatEntity
-               || e instanceof FoxEntity
-               || e instanceof OcelotEntity
-               || e instanceof FrogEntity
-               || e instanceof ChickenEntity
-               || e instanceof ParrotEntity) {
+            } else if (e instanceof Monster
+               || e instanceof Wolf
+               || e instanceof Cat
+               || e instanceof Fox
+               || e instanceof Ocelot
+               || e instanceof Frog
+               || e instanceof Chicken
+               || e instanceof Parrot) {
                k = FlyMind.Kind.PREDATOR;
-            } else if (e instanceof LivingEntity le && !(e instanceof ConnectomeFlyEntity) && fly.squaredDistanceTo(e) < 6.25) {
+            } else if (e instanceof LivingEntity le && !(e instanceof ConnectomeFlyEntity) && fly.distanceToSqr(e) < 6.25) {
                k = FlyMind.Kind.CO2;
             }
 
@@ -2300,7 +2300,7 @@ public final class FlyMind {
                FlyMind.Prop px = new FlyMind.Prop(k, e.getX(), e.getY(), e.getZ());
                px.ent = e;
                if (e instanceof ItemEntity fi) {
-                  Item fit = fi.getStack().getItem();
+                  Item fit = fi.getItem().getItem();
                   px.fruit = fit == Items.SWEET_BERRIES
                      || fit == Items.GLOW_BERRIES
                      || fit == Items.MELON_SLICE
@@ -2318,20 +2318,20 @@ public final class FlyMind {
       return out;
    }
 
-   private static BlockPos nearestRoof(ServerWorld world, BlockPos here) {
+   private static BlockPos nearestRoof(ServerLevel world, BlockPos here) {
       BlockPos best = null;
       double bestD = 1.0E9;
-      Mutable m = new Mutable();
+      MutableBlockPos m = new MutableBlockPos();
 
       for (int dx = -8; dx <= 8; dx++) {
          for (int dz = -8; dz <= 8; dz++) {
             for (int dy = -1; dy <= 1; dy++) {
                m.set(here.getX() + dx, here.getY() + dy, here.getZ() + dz);
-               if (!world.isSkyVisible(m) && world.getBlockState(m).isAir() && world.getBlockState(m.down()).isSolidBlock(world, m.down())) {
+               if (!world.canSeeSky(m) && world.getBlockState(m).isAir() && world.getBlockState(m.below()).isRedstoneConductor(world, m.below())) {
                   double d = dx * dx + dz * dz;
                   if (d < bestD) {
                      bestD = d;
-                     best = m.toImmutable();
+                     best = m.immutable();
                   }
                }
             }
@@ -2341,30 +2341,30 @@ public final class FlyMind {
       return best;
    }
 
-   private static void consume(ServerWorld world, FlyMind.Prop feed) {
+   private static void consume(ServerLevel world, FlyMind.Prop feed) {
       if (feed.ent instanceof ItemEntity it) {
          it.discard();
       } else if (feed.pos != null) {
          BlockState st = world.getBlockState(feed.pos);
-         if (st.isOf(Blocks.CAKE)) {
-            int bites = (Integer)st.get(CakeBlock.BITES);
+         if (st.is(Blocks.CAKE)) {
+            int bites = (Integer)st.getValue(CakeBlock.BITES);
             if (bites < 6) {
-               world.setBlockState(feed.pos, (BlockState)st.with(CakeBlock.BITES, bites + 1));
+               world.setBlockAndUpdate(feed.pos, (BlockState)st.setValue(CakeBlock.BITES, bites + 1));
             } else {
                world.removeBlock(feed.pos, false);
             }
-         } else if (st.isOf(Blocks.SWEET_BERRY_BUSH)) {
-            world.setBlockState(feed.pos, (BlockState)st.with(SweetBerryBushBlock.AGE, 1));
+         } else if (st.is(Blocks.SWEET_BERRY_BUSH)) {
+            world.setBlockAndUpdate(feed.pos, (BlockState)st.setValue(SweetBerryBushBlock.AGE, 1));
          }
       }
    }
 
    private boolean walkTo(ConnectomeFlyEntity fly, double x, double y, double z) {
-      EntityNavigation nav = fly.getNavigation();
+      PathNavigation nav = fly.getNavigation();
       boolean same = Math.abs(x - this.navX) < 0.6 && Math.abs(z - this.navZ) < 0.6;
-      if (!same || nav.isIdle() && --this.navRetry <= 0) {
+      if (!same || nav.isDone() && --this.navRetry <= 0) {
          this.navRetry = 20;
-         if (!nav.startMovingTo(x, y, z, 1.0)) {
+         if (!nav.moveTo(x, y, z, 1.0)) {
             return false;
          }
 
@@ -2372,7 +2372,7 @@ public final class FlyMind {
          this.navZ = z;
       }
 
-      return !nav.isIdle();
+      return !nav.isDone();
    }
 
    private void stopNav(ConnectomeFlyEntity fly) {
@@ -2383,25 +2383,25 @@ public final class FlyMind {
    }
 
    public static boolean isHandFood(ItemStack s) {
-      return isFoodItem(s) || s.isIn(ItemTags.FLOWERS);
+      return isFoodItem(s) || s.is(ItemTags.FLOWERS);
    }
 
    private static void face(ConnectomeFlyEntity fly, double dx, double dz) {
       float target = (float)Math.toDegrees(Math.atan2(-dx, dz));
-      float yaw = MathHelper.lerpAngleDegrees(0.35F, fly.getYaw(), target);
-      fly.setYaw(yaw);
-      fly.bodyYaw = yaw;
-      fly.headYaw = yaw;
+      float yaw = Mth.rotLerp(0.35F, fly.getYRot(), target);
+      fly.setYRot(yaw);
+      fly.yBodyRot = yaw;
+      fly.yHeadRot = yaw;
    }
 
    private void drive(ConnectomeFlyEntity fly, double unitsPerSec) {
       if (fly.horizontalCollision && fly.isPerched()) {
          this.stuckT += 0.05;
          if (this.stuckT > 0.35) {
-            float yaw = fly.getYaw() + 150.0F + fly.getRandom().nextFloat() * 60.0F;
-            fly.setYaw(yaw);
-            fly.bodyYaw = yaw;
-            fly.headYaw = yaw;
+            float yaw = fly.getYRot() + 150.0F + fly.getRandom().nextFloat() * 60.0F;
+            fly.setYRot(yaw);
+            fly.yBodyRot = yaw;
+            fly.yHeadRot = yaw;
             this.stuckT = 0.0;
          }
       } else if (fly.horizontalCollision) {
@@ -2411,10 +2411,10 @@ public final class FlyMind {
                this.wallSide = fly.getRandom().nextBoolean() ? 1 : -1;
             }
 
-            float yaw = fly.getYaw() + this.wallSide * (80.0F + fly.getRandom().nextFloat() * 40.0F);
-            fly.setYaw(yaw);
-            fly.bodyYaw = yaw;
-            fly.headYaw = yaw;
+            float yaw = fly.getYRot() + this.wallSide * (80.0F + fly.getRandom().nextFloat() * 40.0F);
+            fly.setYRot(yaw);
+            fly.yBodyRot = yaw;
+            fly.yHeadRot = yaw;
             this.stuckT = 0.0;
          }
       } else {
@@ -2426,21 +2426,21 @@ public final class FlyMind {
 
       double sp = unitsPerSec * 0.95 / 20.0;
       if (fly.isPerched()) {
-         Vec3d f = fly.surfaceForward().multiply(sp);
-         fly.setVelocity(f);
-         fly.velocityModified = true;
+         Vec3 f = fly.surfaceForward().scale(sp);
+         fly.setDeltaMovement(f);
+         fly.hurtMarked = true;
       } else {
-         double yawRad = Math.toRadians(fly.getYaw());
-         Vec3d v = fly.getVelocity();
-         fly.setVelocity(-Math.sin(yawRad) * sp, v.y, Math.cos(yawRad) * sp);
-         fly.velocityModified = true;
+         double yawRad = Math.toRadians(fly.getYRot());
+         Vec3 v = fly.getDeltaMovement();
+         fly.setDeltaMovement(-Math.sin(yawRad) * sp, v.y, Math.cos(yawRad) * sp);
+         fly.hurtMarked = true;
       }
    }
 
    private static void damp(ConnectomeFlyEntity fly, double k) {
-      Vec3d v = fly.getVelocity();
-      fly.setVelocity(v.x * k, v.y, v.z * k);
-      fly.velocityModified = true;
+      Vec3 v = fly.getDeltaMovement();
+      fly.setDeltaMovement(v.x * k, v.y, v.z * k);
+      fly.hurtMarked = true;
    }
 
    private void busMax(String ch, double v) {

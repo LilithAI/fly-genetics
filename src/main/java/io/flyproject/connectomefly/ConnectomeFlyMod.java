@@ -20,42 +20,42 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.ModifyEntries;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.BellBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.item.Item.Settings;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Item.Properties;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.BellBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 public class ConnectomeFlyMod implements ModInitializer {
    public static final String MOD_ID = "connectomefly";
    public static final EntityType<ConnectomeFlyEntity> CONNECTOME_FLY = (EntityType<ConnectomeFlyEntity>)Registry.register(
-      Registries.ENTITY_TYPE,
-      new Identifier("connectomefly", "connectome_fly"),
-      FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, ConnectomeFlyEntity::new)
+      BuiltInRegistries.ENTITY_TYPE,
+      new ResourceLocation("connectomefly", "connectome_fly"),
+      FabricEntityTypeBuilder.create(MobCategory.CREATURE, ConnectomeFlyEntity::new)
          .dimensions(EntityDimensions.fixed(0.6F, 0.45F))
          .trackRangeBlocks(64)
          .build()
    );
    public static final EntityType<FlyEggEntity> FLY_EGG = (EntityType<FlyEggEntity>)Registry.register(
-      Registries.ENTITY_TYPE,
-      new Identifier("connectomefly", "fly_egg"),
-      FabricEntityTypeBuilder.create(SpawnGroup.MISC, FlyEggEntity::new).dimensions(EntityDimensions.fixed(0.3F, 0.25F)).trackRangeBlocks(48).build()
+      BuiltInRegistries.ENTITY_TYPE,
+      new ResourceLocation("connectomefly", "fly_egg"),
+      FabricEntityTypeBuilder.create(MobCategory.MISC, FlyEggEntity::new).dimensions(EntityDimensions.fixed(0.3F, 0.25F)).trackRangeBlocks(48).build()
    );
    public static final Item CONNECTOME_FLY_SPAWN_EGG = (Item)Registry.register(
-      Registries.ITEM, new Identifier("connectomefly", "connectome_fly_spawn_egg"), new SpawnEggItem(CONNECTOME_FLY, 14263361, 11740702, new Settings())
+      BuiltInRegistries.ITEM, new ResourceLocation("connectomefly", "connectome_fly_spawn_egg"), new SpawnEggItem(CONNECTOME_FLY, 14263361, 11740702, new Properties())
    );
    private static Circuit escapeCircuit;
    private static Circuit steeringCircuit;
@@ -78,7 +78,7 @@ public class ConnectomeFlyMod implements ModInitializer {
 
    public void onInitialize() {
       FabricDefaultAttributeRegistry.register(CONNECTOME_FLY, ConnectomeFlyEntity.createFlyAttributes());
-      ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register((ModifyEntries)entries -> entries.add(CONNECTOME_FLY_SPAWN_EGG));
+      ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register((ModifyEntries)entries -> entries.accept(CONNECTOME_FLY_SPAWN_EGG));
       CommandRegistrationCallback.EVENT.register((CommandRegistrationCallback)(dispatcher, registryAccess, environment) -> {
          FlyLabCommand.register(dispatcher);
          io.flyproject.connectomefly.genetics.GeneticsCommand.register(dispatcher);
@@ -86,54 +86,54 @@ public class ConnectomeFlyMod implements ModInitializer {
       UseBlockCallback.EVENT
          .register(
             (UseBlockCallback)(player, world, hand, hit) -> {
-               if (!world.isClient) {
+               if (!world.isClientSide) {
                   BlockState st = world.getBlockState(hit.getBlockPos());
-                  if (st.isOf(Blocks.NOTE_BLOCK) || st.getBlock() instanceof BellBlock) {
-                     FlyMind.noteSound(hit.getBlockPos(), world.getTime() + 80L);
+                  if (st.is(Blocks.NOTE_BLOCK) || st.getBlock() instanceof BellBlock) {
+                     FlyMind.noteSound(hit.getBlockPos(), world.getGameTime() + 80L);
                   }
 
-                  if (st.isOf(Blocks.OAK_BUTTON)) {
-                     ServerWorld sw = (ServerWorld)world;
+                  if (st.is(Blocks.OAK_BUTTON)) {
+                     ServerLevel sw = (ServerLevel)world;
                      ArenaBuilder.Arena box = ArenaBuilder.spawnButtonAt(sw, hit.getBlockPos());
                      if (box != null) {
                         int gone = FlyLabCommand.populate(sw, box.id(), ArenaBuilder.spawnSpot(box));
-                        player.sendMessage(
-                           Text.literal(
+                        player.displayClientMessage(
+                           Component.literal(
                                  "box "
                                     + ArenaBuilder.SENSES.get(box.id())[0]
                                     + ": she is inside"
                                     + (gone > 0 ? " (" + gone + " earlier " + (gone == 1 ? "fly" : "flies") + " removed; /flylab stacked on keeps them)" : "")
                               )
-                              .formatted(Formatting.AQUA),
+                              .withStyle(ChatFormatting.AQUA),
                            false
                         );
-                        player.sendMessage(Text.literal(ArenaBuilder.instructions(box.id())).formatted(Formatting.GRAY), false);
+                        player.displayClientMessage(Component.literal(ArenaBuilder.instructions(box.id())).withStyle(ChatFormatting.GRAY), false);
                      }
                   }
 
-                  if (st.isOf(Blocks.STONE_BUTTON)) {
-                     ArenaBuilder.Arena arena = ArenaBuilder.arenaAt((ServerWorld)world, hit.getBlockPos());
+                  if (st.is(Blocks.STONE_BUTTON)) {
+                     ArenaBuilder.Arena arena = ArenaBuilder.arenaAt((ServerLevel)world, hit.getBlockPos());
                      if (arena != null && (arena.id().equals("escape") || arena.id().equals("looming"))) {
-                        Iterator i$ = ((ServerWorld)world)
-                           .getEntitiesByType(CONNECTOME_FLY, new Box(hit.getBlockPos()).expand(12.0), e -> e.isAlive() && !e.isMale())
+                        Iterator i$ = ((ServerLevel)world)
+                           .getEntities(CONNECTOME_FLY, new AABB(hit.getBlockPos()).inflate(12.0), e -> e.isAlive() && !e.isMale())
                            .iterator();
                         if (i$.hasNext()) {
                            ConnectomeFlyEntity f = (ConnectomeFlyEntity)i$.next();
-                           LoomStimulus.spawn((ServerWorld)world, f);
+                           LoomStimulus.spawn((ServerLevel)world, f);
                         }
                      }
                   }
                }
 
-               return ActionResult.PASS;
+               return InteractionResult.PASS;
             }
          );
       AttackBlockCallback.EVENT.register((AttackBlockCallback)(player, world, hand, pos, dir) -> {
-         if (!world.isClient && world.getBlockState(pos).isOf(Blocks.NOTE_BLOCK)) {
-            FlyMind.noteSound(pos, world.getTime() + 80L);
+         if (!world.isClientSide && world.getBlockState(pos).is(Blocks.NOTE_BLOCK)) {
+            FlyMind.noteSound(pos, world.getGameTime() + 80L);
          }
 
-         return ActionResult.PASS;
+         return InteractionResult.PASS;
       });
    }
 

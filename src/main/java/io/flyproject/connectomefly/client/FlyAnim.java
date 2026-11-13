@@ -1,11 +1,11 @@
 package io.flyproject.connectomefly.client;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
 import io.flyproject.connectomefly.entity.ConnectomeFlyEntity;
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.gl.VertexBuffer.Usage;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 
 public final class FlyAnim {
@@ -75,7 +75,7 @@ public final class FlyAnim {
    private final FlyRig rig;
    private double lastT;
    private double lastYaw;
-   private Vec3d lastPos;
+   private Vec3 lastPos;
    private double vx;
    private double vy;
    private double vz;
@@ -179,14 +179,14 @@ public final class FlyAnim {
       return this.bob;
    }
 
-   public void update(ConnectomeFlyEntity e, double t, Vec3d p, float yaw) {
+   public void update(ConnectomeFlyEntity e, double t, Vec3 p, float yaw) {
       double dt = this.lastT > 0.0 ? Math.min(0.1, t - this.lastT) : 0.016;
       if (this.lastPos != null && dt > 0.0) {
-         Vec3d v = p.subtract(this.lastPos).multiply(1.0 / dt);
+         Vec3 v = p.subtract(this.lastPos).scale(1.0 / dt);
          this.vx = this.vx + (v.x - this.vx) * 0.25;
          this.vy = this.vy + (v.y - this.vy) * 0.25;
          this.vz = this.vz + (v.z - this.vz) * 0.25;
-         double dyaw = MathHelper.wrapDegrees((float)(yaw - this.lastYaw));
+         double dyaw = Mth.wrapDegrees((float)(yaw - this.lastYaw));
          this.yawRate = this.yawRate + (dyaw / dt - this.yawRate) * 0.15;
       }
 
@@ -207,7 +207,7 @@ public final class FlyAnim {
       boolean singing = (flags & 64) != 0;
       boolean approach = (flags & 128) != 0;
       boolean perched = e.isPerched();
-      boolean airborne = !e.isOnGround() && !perched;
+      boolean airborne = !e.onGround() && !perched;
       if (perched) {
          speed = (float)(Math.sqrt(this.vx * this.vx + this.vy * this.vy + this.vz * this.vz) / 0.95F);
       }

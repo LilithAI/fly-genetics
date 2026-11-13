@@ -14,30 +14,30 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ButtonBlock;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.LecternBlock;
-import net.minecraft.block.LeveledCauldronBlock;
-import net.minecraft.block.SignBlock;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.SweetBerryBushBlock;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.LecternBlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.block.entity.SignText;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.block.enums.WallMountLocation;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StandingSignBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.LecternBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.storage.LevelResource;
 
 public final class ArenaBuilder {
    public static final Map<String, String[]> SENSES = new LinkedHashMap<>();
@@ -52,15 +52,15 @@ public final class ArenaBuilder {
       return List.copyOf(SENSES.keySet());
    }
 
-   private static String key(ServerWorld world) {
-      return world.getRegistryKey().getValue().toString();
+   private static String key(ServerLevel world) {
+      return world.dimension().location().toString();
    }
 
-   private static Path file(ServerWorld world) {
-      return world.getServer().getSavePath(WorldSavePath.ROOT).resolve("connectomefly_arenas_" + key(world).replace(':', '_') + ".json");
+   private static Path file(ServerLevel world) {
+      return world.getServer().getWorldPath(LevelResource.ROOT).resolve("connectomefly_arenas_" + key(world).replace(':', '_') + ".json");
    }
 
-   private static List<ArenaBuilder.Arena> arenas(ServerWorld world) {
+   private static List<ArenaBuilder.Arena> arenas(ServerLevel world) {
       return REGISTRY.computeIfAbsent(
          key(world),
          k -> {
@@ -92,7 +92,7 @@ public final class ArenaBuilder {
       );
    }
 
-   private static void register(ServerWorld world, ArenaBuilder.Arena a) {
+   private static void register(ServerLevel world, ArenaBuilder.Arena a) {
       List<ArenaBuilder.Arena> list = arenas(world);
       list.removeIf(ox -> ox.contains(new BlockPos((a.x0 + a.x1) / 2, a.y0, (a.z0 + a.z1) / 2)));
       list.add(a);
@@ -117,7 +117,7 @@ public final class ArenaBuilder {
       }
    }
 
-   public static ArenaBuilder.Arena spawnButtonAt(ServerWorld world, BlockPos p) {
+   public static ArenaBuilder.Arena spawnButtonAt(ServerLevel world, BlockPos p) {
       for (ArenaBuilder.Arena a : arenas(world)) {
          if (p.getX() == (a.x0 + a.x1) / 2 + 1 && p.getY() == a.y0 + 2 && p.getZ() == a.z0 - 1) {
             return a;
@@ -132,11 +132,11 @@ public final class ArenaBuilder {
       return new BlockPos((a.x0 + a.x1) / 2 + o[0], a.y0 + 1, (a.z0 + a.z1) / 2 + o[1]);
    }
 
-   public static List<ArenaBuilder.Arena> all(ServerWorld world) {
+   public static List<ArenaBuilder.Arena> all(ServerLevel world) {
       return List.copyOf(arenas(world));
    }
 
-   public static ArenaBuilder.Arena arenaAt(ServerWorld world, BlockPos p) {
+   public static ArenaBuilder.Arena arenaAt(ServerLevel world, BlockPos p) {
       for (ArenaBuilder.Arena a : arenas(world)) {
          if (a.contains(p)) {
             return a;
@@ -151,298 +151,298 @@ public final class ArenaBuilder {
       return "The book on the lectern by the door explains this box. Real neurons in it: " + spec[2].replace('|', ' ') + ".";
    }
 
-   public static BlockPos build(ServerWorld world, BlockPos origin, String id) {
+   public static BlockPos build(ServerLevel world, BlockPos origin, String id) {
       String[] spec = SENSES.getOrDefault(id, SENSES.get("home"));
       int y = origin.getY();
       BlockPos c = new BlockPos(origin.getX(), y, origin.getZ());
-      BlockState floor = Blocks.SMOOTH_SANDSTONE.getDefaultState();
-      BlockState rim = Blocks.POLISHED_ANDESITE.getDefaultState();
-      BlockState glass = !id.equals("light") && !id.equals("sleep") ? Blocks.GLASS.getDefaultState() : Blocks.TINTED_GLASS.getDefaultState();
-      BlockState air = Blocks.AIR.getDefaultState();
+      BlockState floor = Blocks.SMOOTH_SANDSTONE.defaultBlockState();
+      BlockState rim = Blocks.POLISHED_ANDESITE.defaultBlockState();
+      BlockState glass = !id.equals("light") && !id.equals("sleep") ? Blocks.GLASS.defaultBlockState() : Blocks.TINTED_GLASS.defaultBlockState();
+      BlockState air = Blocks.AIR.defaultBlockState();
 
       for (int dx = -6; dx <= 6; dx++) {
          for (int dz = -6; dz <= 6; dz++) {
             boolean edge = Math.abs(dx) == 6 || Math.abs(dz) == 6;
-            world.setBlockState(c.add(dx, -1, dz), edge ? rim : floor);
+            world.setBlockAndUpdate(c.offset(dx, -1, dz), edge ? rim : floor);
 
             for (int dy = 0; dy <= 4; dy++) {
-               world.setBlockState(c.add(dx, dy, dz), edge && dy <= 3 ? glass : air);
+               world.setBlockAndUpdate(c.offset(dx, dy, dz), edge && dy <= 3 ? glass : air);
             }
 
             if (!id.equals("weather")) {
-               world.setBlockState(c.add(dx, 4, dz), id.equals("light") ? glass : Blocks.GLASS.getDefaultState());
+               world.setBlockAndUpdate(c.offset(dx, 4, dz), id.equals("light") ? glass : Blocks.GLASS.defaultBlockState());
             }
          }
       }
 
-      BlockPos door = c.add(0, 0, -6);
-      world.setBlockState(door, (BlockState)Blocks.OAK_FENCE_GATE.getDefaultState().with(FenceGateBlock.FACING, Direction.SOUTH));
-      world.setBlockState(door.up(), air);
+      BlockPos door = c.offset(0, 0, -6);
+      world.setBlockAndUpdate(door, (BlockState)Blocks.OAK_FENCE_GATE.defaultBlockState().setValue(FenceGateBlock.FACING, Direction.SOUTH));
+      world.setBlockAndUpdate(door.above(), air);
       String num = spec[0].matches("^[0-9]+ .*") ? spec[0].substring(0, spec[0].indexOf(32)) : "";
       String name = num.isEmpty() ? spec[0] : spec[0].substring(num.length() + 1);
-      sign(world, c.add(-2, 0, -7), num.isEmpty() ? name : "BOX " + num, num.isEmpty() ? "|the book|explains" : name + "||read the book");
-      sign(world, c.add(2, 0, -7), "real connectome", spec[2]);
-      BlockPos lec = c.add(-1, 0, -7);
-      world.setBlockState(
-         lec, (BlockState)((BlockState)Blocks.LECTERN.getDefaultState().with(LecternBlock.FACING, Direction.SOUTH)).with(LecternBlock.HAS_BOOK, true)
+      sign(world, c.offset(-2, 0, -7), num.isEmpty() ? name : "BOX " + num, num.isEmpty() ? "|the book|explains" : name + "||read the book");
+      sign(world, c.offset(2, 0, -7), "real connectome", spec[2]);
+      BlockPos lec = c.offset(-1, 0, -7);
+      world.setBlockAndUpdate(
+         lec, (BlockState)((BlockState)Blocks.LECTERN.defaultBlockState().setValue(LecternBlock.FACING, Direction.SOUTH)).setValue(LecternBlock.HAS_BOOK, true)
       );
       if (world.getBlockEntity(lec) instanceof LecternBlockEntity lb) {
          lb.setBook(BoxBooks.book(id, spec[0]));
       }
 
-      world.setBlockState(c.add(1, 0, -7), Blocks.LIME_CONCRETE.getDefaultState());
-      world.setBlockState(c.add(1, 1, -7), (BlockState)Blocks.OAK_BUTTON.getDefaultState().with(ButtonBlock.FACE, WallMountLocation.FLOOR));
+      world.setBlockAndUpdate(c.offset(1, 0, -7), Blocks.LIME_CONCRETE.defaultBlockState());
+      world.setBlockAndUpdate(c.offset(1, 1, -7), (BlockState)Blocks.OAK_BUTTON.defaultBlockState().setValue(ButtonBlock.FACE, AttachFace.FLOOR));
       register(world, new ArenaBuilder.Arena(id, c.getX() - 5 - 1, y - 1, c.getZ() - 5 - 1, c.getX() + 5 + 1, y + 4, c.getZ() + 5 + 1));
       switch (id) {
          case "escape":
             for (int dzx = 2; dzx <= 5; dzx++) {
-               world.setBlockState(c.add(0, -1, dzx), Blocks.BLACK_CONCRETE.getDefaultState());
+               world.setBlockAndUpdate(c.offset(0, -1, dzx), Blocks.BLACK_CONCRETE.defaultBlockState());
             }
 
-            world.setBlockState(c.add(-2, 0, -4), Blocks.POLISHED_ANDESITE.getDefaultState());
-            world.setBlockState(c.add(-2, 1, -4), (BlockState)Blocks.STONE_BUTTON.getDefaultState().with(ButtonBlock.FACE, WallMountLocation.FLOOR));
+            world.setBlockAndUpdate(c.offset(-2, 0, -4), Blocks.POLISHED_ANDESITE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-2, 1, -4), (BlockState)Blocks.STONE_BUTTON.defaultBlockState().setValue(ButtonBlock.FACE, AttachFace.FLOOR));
             break;
          case "steering":
-            BlockState pillar = Blocks.POLISHED_BASALT.getDefaultState();
+            BlockState pillar = Blocks.POLISHED_BASALT.defaultBlockState();
 
             for (int dx = -4; dx <= 4; dx += 4) {
                for (int dz = -4; dz <= 4; dz += 4) {
                   if (dx != 0 || dz != 0) {
                      for (int dy = 0; dy <= 2; dy++) {
-                        world.setBlockState(c.add(dx, dy, dz), pillar);
+                        world.setBlockAndUpdate(c.offset(dx, dy, dz), pillar);
                      }
                   }
                }
             }
             break;
          case "touch":
-            world.setBlockState(c.add(2, 0, 2), Blocks.OAK_FENCE.getDefaultState());
-            world.setBlockState(c.add(-2, 0, -1), Blocks.OAK_FENCE.getDefaultState());
-            world.setBlockState(c.add(0, 0, 3), Blocks.COBBLESTONE_WALL.getDefaultState());
+            world.setBlockAndUpdate(c.offset(2, 0, 2), Blocks.OAK_FENCE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-2, 0, -1), Blocks.OAK_FENCE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(0, 0, 3), Blocks.COBBLESTONE_WALL.defaultBlockState());
             break;
          case "hearing":
-            world.setBlockState(c.add(-3, 0, 3), Blocks.NOTE_BLOCK.getDefaultState());
-            world.setBlockState(c.add(3, 0, 3), Blocks.JUKEBOX.getDefaultState());
-            discChest(world, c.add(4, 0, 3));
-            world.setBlockState(c.add(0, 0, 4), Blocks.BELL.getDefaultState());
+            world.setBlockAndUpdate(c.offset(-3, 0, 3), Blocks.NOTE_BLOCK.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(3, 0, 3), Blocks.JUKEBOX.defaultBlockState());
+            discChest(world, c.offset(4, 0, 3));
+            world.setBlockAndUpdate(c.offset(0, 0, 4), Blocks.BELL.defaultBlockState());
             break;
          case "navigation":
-            world.setBlockState(c.add(-4, 0, -3), (BlockState)Blocks.FLOWERING_AZALEA_LEAVES.getDefaultState().with(LeavesBlock.PERSISTENT, true));
-            world.setBlockState(c.add(4, 0, 4), Blocks.CAKE.getDefaultState());
-            BlockPos var48 = c.add(-3, 0, -3);
+            world.setBlockAndUpdate(c.offset(-4, 0, -3), (BlockState)Blocks.FLOWERING_AZALEA_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true));
+            world.setBlockAndUpdate(c.offset(4, 0, 4), Blocks.CAKE.defaultBlockState());
+            BlockPos var48 = c.offset(-3, 0, -3);
             break;
          case "memory":
-            world.setBlockState(c.add(-4, 0, 3), Blocks.CAKE.getDefaultState());
-            world.setBlockState(c.add(4, 0, 3), Blocks.MELON.getDefaultState());
-            world.setBlockState(c.add(-4, -1, 3), Blocks.WHITE_CONCRETE.getDefaultState());
-            world.setBlockState(c.add(4, -1, 3), Blocks.LIME_CONCRETE.getDefaultState());
-            BlockPos var47 = c.add(0, 0, -4);
+            world.setBlockAndUpdate(c.offset(-4, 0, 3), Blocks.CAKE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(4, 0, 3), Blocks.MELON.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-4, -1, 3), Blocks.WHITE_CONCRETE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(4, -1, 3), Blocks.LIME_CONCRETE.defaultBlockState());
+            BlockPos var47 = c.offset(0, 0, -4);
             break;
          case "aggression":
          case "courtship":
          case "grooming":
-            world.setBlockState(c.add(5, -1, 5), Blocks.POLISHED_DIORITE.getDefaultState());
+            world.setBlockAndUpdate(c.offset(5, -1, 5), Blocks.POLISHED_DIORITE.defaultBlockState());
             if (id.equals("grooming")) {
-               world.setBlockState(c.add(-5, 0, 5), Blocks.COBWEB.getDefaultState());
+               world.setBlockAndUpdate(c.offset(-5, 0, 5), Blocks.COBWEB.defaultBlockState());
             }
 
             if (id.equals("aggression")) {
-               world.setBlockState(c.add(0, 0, 1), Blocks.CAKE.getDefaultState());
-               BlockPos var46 = c.add(-1, 0, 0);
+               world.setBlockAndUpdate(c.offset(0, 0, 1), Blocks.CAKE.defaultBlockState());
+               BlockPos var46 = c.offset(-1, 0, 0);
             }
             break;
          case "taste":
-            world.setBlockState(c.add(-2, 0, 2), Blocks.HONEY_BLOCK.getDefaultState());
-            world.setBlockState(c.add(0, 0, 3), Blocks.CAKE.getDefaultState());
-            world.setBlockState(c.add(2, 0, 2), Blocks.MELON.getDefaultState());
-            world.setBlockState(c.add(-3, 0, -2), Blocks.WITHER_ROSE.getDefaultState());
-            world.setBlockState(c.add(3, 0, -2), (BlockState)Blocks.WATER_CAULDRON.getDefaultState().with(LeveledCauldronBlock.LEVEL, 3));
-            BlockPos var45 = c.add(0, 0, -3);
+            world.setBlockAndUpdate(c.offset(-2, 0, 2), Blocks.HONEY_BLOCK.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(0, 0, 3), Blocks.CAKE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(2, 0, 2), Blocks.MELON.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-3, 0, -2), Blocks.WITHER_ROSE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(3, 0, -2), (BlockState)Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+            BlockPos var45 = c.offset(0, 0, -3);
             break;
          case "smell":
-            world.setBlockState(c.add(0, 0, 4), Blocks.CAKE.getDefaultState());
-            world.setBlockState(c.add(-4, -1, -4), Blocks.CAMPFIRE.getDefaultState());
-            world.setBlockState(c.add(-4, 0, -4), Blocks.IRON_BARS.getDefaultState());
-            BlockPos var44 = c.add(0, 0, -3);
+            world.setBlockAndUpdate(c.offset(0, 0, 4), Blocks.CAKE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-4, -1, -4), Blocks.CAMPFIRE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-4, 0, -4), Blocks.IRON_BARS.defaultBlockState());
+            BlockPos var44 = c.offset(0, 0, -3);
             break;
          case "hunger":
             for (int[] p : new int[][]{{-3, 3}, {-2, 3}, {3, 3}}) {
-               world.setBlockState(c.add(p[0], -1, p[1]), Blocks.DIRT.getDefaultState());
-               world.setBlockState(c.add(p[0], 0, p[1]), (BlockState)Blocks.SWEET_BERRY_BUSH.getDefaultState().with(SweetBerryBushBlock.AGE, 3));
+               world.setBlockAndUpdate(c.offset(p[0], -1, p[1]), Blocks.DIRT.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(p[0], 0, p[1]), (BlockState)Blocks.SWEET_BERRY_BUSH.defaultBlockState().setValue(SweetBerryBushBlock.AGE, 3));
             }
 
-            world.setBlockState(c.add(0, 0, 4), Blocks.CAKE.getDefaultState());
-            BlockPos var43 = c.add(0, 0, -3);
+            world.setBlockAndUpdate(c.offset(0, 0, 4), Blocks.CAKE.defaultBlockState());
+            BlockPos var43 = c.offset(0, 0, -3);
             break;
          case "lure":
-            chest(world, c.add(0, 0, -7).east(4));
+            chest(world, c.offset(0, 0, -7).east(4));
             break;
          case "heat":
-            world.setBlockState(c.add(3, -1, 3), Blocks.LAVA.getDefaultState());
+            world.setBlockAndUpdate(c.offset(3, -1, 3), Blocks.LAVA.defaultBlockState());
 
             for (int[] p : new int[][]{{2, 3}, {4, 3}, {3, 2}, {3, 4}}) {
-               world.setBlockState(c.add(p[0], -1, p[1]), Blocks.MAGMA_BLOCK.getDefaultState());
+               world.setBlockAndUpdate(c.offset(p[0], -1, p[1]), Blocks.MAGMA_BLOCK.defaultBlockState());
             }
 
-            BlockPos var42 = c.add(-3, 0, -3);
+            BlockPos var42 = c.offset(-3, 0, -3);
             break;
          case "water":
             for (int dx = 1; dx <= 2; dx++) {
                for (int dz = 1; dz <= 2; dz++) {
-                  world.setBlockState(c.add(dx, -1, dz), Blocks.WATER.getDefaultState());
+                  world.setBlockAndUpdate(c.offset(dx, -1, dz), Blocks.WATER.defaultBlockState());
                }
             }
 
-            BlockPos var41 = c.add(-3, 0, -3);
+            BlockPos var41 = c.offset(-3, 0, -3);
             break;
          case "sleep":
-            world.setBlockState(c.add(5, -1, 5), Blocks.POLISHED_DIORITE.getDefaultState());
+            world.setBlockAndUpdate(c.offset(5, -1, 5), Blocks.POLISHED_DIORITE.defaultBlockState());
             break;
          case "weather":
             for (int dx = -5; dx <= -2; dx++) {
                for (int dz = 2; dz <= 5; dz++) {
-                  world.setBlockState(c.add(dx, 2, dz), (BlockState)Blocks.DARK_OAK_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.BOTTOM));
+                  world.setBlockAndUpdate(c.offset(dx, 2, dz), (BlockState)Blocks.DARK_OAK_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM));
                }
             }
 
             for (int[] p : new int[][]{{-5, 2}, {-2, 2}, {-5, 5}, {-2, 5}}) {
-               world.setBlockState(c.add(p[0], 0, p[1]), Blocks.DARK_OAK_FENCE.getDefaultState());
-               world.setBlockState(c.add(p[0], 1, p[1]), Blocks.DARK_OAK_FENCE.getDefaultState());
+               world.setBlockAndUpdate(c.offset(p[0], 0, p[1]), Blocks.DARK_OAK_FENCE.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(p[0], 1, p[1]), Blocks.DARK_OAK_FENCE.defaultBlockState());
             }
 
-            BlockPos var40 = c.add(3, 0, -3);
+            BlockPos var40 = c.offset(3, 0, -3);
             break;
          case "cold":
             for (int dx = 1; dx <= 3; dx++) {
                for (int dz = 1; dz <= 3; dz++) {
-                  world.setBlockState(c.add(dx, -1, dz), Blocks.SNOW_BLOCK.getDefaultState());
+                  world.setBlockAndUpdate(c.offset(dx, -1, dz), Blocks.SNOW_BLOCK.defaultBlockState());
                }
             }
 
-            world.setBlockState(c.add(2, -1, 2), Blocks.PACKED_ICE.getDefaultState());
-            world.setBlockState(c.add(-3, -1, -3), Blocks.POWDER_SNOW.getDefaultState());
-            BlockPos var39 = c.add(-2, 0, 0);
+            world.setBlockAndUpdate(c.offset(2, -1, 2), Blocks.PACKED_ICE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-3, -1, -3), Blocks.POWDER_SNOW.defaultBlockState());
+            BlockPos var39 = c.offset(-2, 0, 0);
             break;
          case "wind":
-            world.setBlockState(c.add(-5, 0, 0), Blocks.LODESTONE.getDefaultState());
-            world.setBlockState(c.add(-4, 0, 0), Blocks.IRON_BARS.getDefaultState());
-            BlockPos var38 = c.add(1, 0, 0);
+            world.setBlockAndUpdate(c.offset(-5, 0, 0), Blocks.LODESTONE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-4, 0, 0), Blocks.IRON_BARS.defaultBlockState());
+            BlockPos var38 = c.offset(1, 0, 0);
             break;
          case "light":
             for (int dz = -1; dz <= 1; dz++) {
-               world.setBlockState(c.add(5, 1, dz), Blocks.GLOWSTONE.getDefaultState());
+               world.setBlockAndUpdate(c.offset(5, 1, dz), Blocks.GLOWSTONE.defaultBlockState());
             }
 
-            BlockPos var37 = c.add(-3, 0, 0);
+            BlockPos var37 = c.offset(-3, 0, 0);
             break;
          case "mould":
             for (int dx = 2; dx <= 4; dx++) {
                for (int dz = 2; dz <= 4; dz++) {
-                  world.setBlockState(c.add(dx, -1, dz), Blocks.MYCELIUM.getDefaultState());
+                  world.setBlockAndUpdate(c.offset(dx, -1, dz), Blocks.MYCELIUM.defaultBlockState());
                }
             }
 
-            world.setBlockState(c.add(3, 0, 3), Blocks.BROWN_MUSHROOM.getDefaultState());
-            world.setBlockState(c.add(2, 0, 4), Blocks.RED_MUSHROOM.getDefaultState());
-            world.setBlockState(c.add(4, 0, 2), Blocks.CAKE.getDefaultState());
-            BlockPos var36 = c.add(-3, 0, -3);
+            world.setBlockAndUpdate(c.offset(3, 0, 3), Blocks.BROWN_MUSHROOM.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(2, 0, 4), Blocks.RED_MUSHROOM.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(4, 0, 2), Blocks.CAKE.defaultBlockState());
+            BlockPos var36 = c.offset(-3, 0, -3);
             break;
          case "terrain":
-            BlockState slab = (BlockState)Blocks.SMOOTH_SANDSTONE_SLAB.getDefaultState().with(SlabBlock.TYPE, SlabType.BOTTOM);
+            BlockState slab = (BlockState)Blocks.SMOOTH_SANDSTONE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM);
 
             for (int dx = -4; dx <= 4; dx++) {
-               world.setBlockState(c.add(dx, 0, 1), slab);
-               world.setBlockState(c.add(dx, 0, 2), Blocks.SMOOTH_SANDSTONE.getDefaultState());
-               world.setBlockState(c.add(dx, 1, 2), slab);
-               world.setBlockState(c.add(dx, 0, 4), Blocks.STONE_BRICKS.getDefaultState());
-               world.setBlockState(c.add(dx, 1, 4), Blocks.STONE_BRICKS.getDefaultState());
+               world.setBlockAndUpdate(c.offset(dx, 0, 1), slab);
+               world.setBlockAndUpdate(c.offset(dx, 0, 2), Blocks.SMOOTH_SANDSTONE.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(dx, 1, 2), slab);
+               world.setBlockAndUpdate(c.offset(dx, 0, 4), Blocks.STONE_BRICKS.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(dx, 1, 4), Blocks.STONE_BRICKS.defaultBlockState());
             }
 
-            BlockPos var35 = c.add(0, 0, -3);
+            BlockPos var35 = c.offset(0, 0, -3);
             break;
          case "bitter":
-            world.setBlockState(c.add(0, 0, 3), Blocks.CAKE.getDefaultState());
+            world.setBlockAndUpdate(c.offset(0, 0, 3), Blocks.CAKE.defaultBlockState());
 
             for (int[] p : new int[][]{{-1, 3}, {1, 3}, {0, 4}, {-1, 2}, {1, 2}}) {
-               world.setBlockState(c.add(p[0], 0, p[1]), Blocks.WITHER_ROSE.getDefaultState());
+               world.setBlockAndUpdate(c.offset(p[0], 0, p[1]), Blocks.WITHER_ROSE.defaultBlockState());
             }
 
-            BlockPos var34 = c.add(0, 0, -3);
+            BlockPos var34 = c.offset(0, 0, -3);
             break;
          case "co2":
-            world.setBlockState(c.add(0, -1, 1), Blocks.CAMPFIRE.getDefaultState());
-            world.setBlockState(c.add(0, 0, 1), Blocks.IRON_BARS.getDefaultState());
-            world.setBlockState(c.add(0, 0, 4), Blocks.CAKE.getDefaultState());
-            BlockPos var33 = c.add(0, 0, -3);
+            world.setBlockAndUpdate(c.offset(0, -1, 1), Blocks.CAMPFIRE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(0, 0, 1), Blocks.IRON_BARS.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(0, 0, 4), Blocks.CAKE.defaultBlockState());
+            BlockPos var33 = c.offset(0, 0, -3);
             break;
          case "pain":
             for (int[] p : new int[][]{{0, 2}, {-1, 3}, {1, 3}, {-2, 4}, {2, 4}}) {
-               world.setBlockState(c.add(p[0], -2, p[1]), Blocks.SMOOTH_SANDSTONE.getDefaultState());
-               world.setBlockState(c.add(p[0], -1, p[1]), Blocks.SAND.getDefaultState());
-               world.setBlockState(c.add(p[0], 0, p[1]), Blocks.CACTUS.getDefaultState());
+               world.setBlockAndUpdate(c.offset(p[0], -2, p[1]), Blocks.SMOOTH_SANDSTONE.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(p[0], -1, p[1]), Blocks.SAND.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(p[0], 0, p[1]), Blocks.CACTUS.defaultBlockState());
             }
 
-            world.setBlockState(c.add(0, 0, 4), Blocks.CAKE.getDefaultState());
-            BlockPos var32 = c.add(0, 0, -3);
+            world.setBlockAndUpdate(c.offset(0, 0, 4), Blocks.CAKE.defaultBlockState());
+            BlockPos var32 = c.offset(0, 0, -3);
             break;
          case "damp":
             for (int dx = 2; dx <= 4; dx++) {
                for (int dz = 2; dz <= 4; dz++) {
-                  world.setBlockState(c.add(dx, -1, dz), Blocks.MUD.getDefaultState());
+                  world.setBlockAndUpdate(c.offset(dx, -1, dz), Blocks.MUD.defaultBlockState());
                }
             }
 
-            world.setBlockState(c.add(3, -1, 3), Blocks.WET_SPONGE.getDefaultState());
-            BlockPos var31 = c.add(-2, 0, -2);
+            world.setBlockAndUpdate(c.offset(3, -1, 3), Blocks.WET_SPONGE.defaultBlockState());
+            BlockPos var31 = c.offset(-2, 0, -2);
             break;
          case "dry":
             for (int dx = 1; dx <= 5; dx++) {
                for (int dz = -5; dz <= 5; dz++) {
-                  world.setBlockState(c.add(dx, -2, dz), Blocks.SMOOTH_SANDSTONE.getDefaultState());
-                  world.setBlockState(c.add(dx, -1, dz), (dx + dz & 1) == 0 ? Blocks.SAND.getDefaultState() : Blocks.TERRACOTTA.getDefaultState());
+                  world.setBlockAndUpdate(c.offset(dx, -2, dz), Blocks.SMOOTH_SANDSTONE.defaultBlockState());
+                  world.setBlockAndUpdate(c.offset(dx, -1, dz), (dx + dz & 1) == 0 ? Blocks.SAND.defaultBlockState() : Blocks.TERRACOTTA.defaultBlockState());
                }
             }
 
-            BlockPos var30 = c.add(-3, 0, 0);
+            BlockPos var30 = c.offset(-3, 0, 0);
             break;
          case "vision":
-            world.setBlockState(c.add(5, -1, 5), Blocks.POLISHED_DIORITE.getDefaultState());
-            BlockPos var29 = c.add(0, 0, 0);
+            world.setBlockAndUpdate(c.offset(5, -1, 5), Blocks.POLISHED_DIORITE.defaultBlockState());
+            BlockPos var29 = c.offset(0, 0, 0);
             break;
          case "optomotor":
             OptomotorDrum.build(world, c);
-            BlockPos var28 = c.add(0, 0, 0);
+            BlockPos var28 = c.offset(0, 0, 0);
             break;
          case "social":
-            world.setBlockState(c.add(0, 0, 2), Blocks.CAKE.getDefaultState());
-            BlockPos var27 = c.add(-3, 0, -3);
+            world.setBlockAndUpdate(c.offset(0, 0, 2), Blocks.CAKE.defaultBlockState());
+            BlockPos var27 = c.offset(-3, 0, -3);
             break;
          case "looming":
             for (int[] p : new int[][]{{0, 4}, {4, 0}, {0, -4}, {-4, 0}, {3, 3}, {-3, 3}, {3, -3}, {-3, -3}}) {
-               world.setBlockState(c.add(p[0], -1, p[1]), Blocks.BLACK_CONCRETE.getDefaultState());
+               world.setBlockAndUpdate(c.offset(p[0], -1, p[1]), Blocks.BLACK_CONCRETE.defaultBlockState());
             }
 
-            world.setBlockState(c.add(-2, 0, -4), Blocks.POLISHED_ANDESITE.getDefaultState());
-            world.setBlockState(c.add(-2, 1, -4), (BlockState)Blocks.STONE_BUTTON.getDefaultState().with(ButtonBlock.FACE, WallMountLocation.FLOOR));
-            BlockPos var26 = c.add(0, 0, 0);
+            world.setBlockAndUpdate(c.offset(-2, 0, -4), Blocks.POLISHED_ANDESITE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-2, 1, -4), (BlockState)Blocks.STONE_BUTTON.defaultBlockState().setValue(ButtonBlock.FACE, AttachFace.FLOOR));
+            BlockPos var26 = c.offset(0, 0, 0);
             break;
          case "surfaces":
             for (int dx = -5; dx <= 5; dx++) {
                for (int dz = -5; dz <= 5; dz++) {
-                  world.setBlockState(c.add(dx, 3, dz), Blocks.GLASS.getDefaultState());
-                  world.setBlockState(c.add(dx, 4, dz), Blocks.AIR.getDefaultState());
+                  world.setBlockAndUpdate(c.offset(dx, 3, dz), Blocks.GLASS.defaultBlockState());
+                  world.setBlockAndUpdate(c.offset(dx, 4, dz), Blocks.AIR.defaultBlockState());
                }
             }
 
-            world.setBlockState(c.add(2, 0, 2), Blocks.OAK_LOG.getDefaultState());
-            world.setBlockState(c.add(2, 1, 2), Blocks.OAK_LOG.getDefaultState());
-            BlockPos var25 = c.add(-3, 0, -3);
+            world.setBlockAndUpdate(c.offset(2, 0, 2), Blocks.OAK_LOG.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(2, 1, 2), Blocks.OAK_LOG.defaultBlockState());
+            BlockPos var25 = c.offset(-3, 0, -3);
             break;
          default:
-            world.setBlockState(c.add(5, -1, 5), Blocks.POLISHED_DIORITE.getDefaultState());
+            world.setBlockAndUpdate(c.offset(5, -1, 5), Blocks.POLISHED_DIORITE.defaultBlockState());
       }
 
-      return c.add(spawnOffset(id)[0], 0, spawnOffset(id)[1]);
+      return c.offset(spawnOffset(id)[0], 0, spawnOffset(id)[1]);
    }
 
    public static int[] spawnOffset(String id) {
@@ -461,7 +461,7 @@ public final class ArenaBuilder {
       };
    }
 
-   public static BlockPos buildAll(ServerWorld world, BlockPos origin) {
+   public static BlockPos buildAll(ServerLevel world, BlockPos origin) {
       int pitch = 16;
       BlockPos first = null;
       int i = 0;
@@ -469,7 +469,7 @@ public final class ArenaBuilder {
       for (String id : SENSES.keySet()) {
          int col = i % 6;
          int row = i / 6;
-         BlockPos c = origin.add((col - 2) * pitch - pitch / 2, 0, row * pitch);
+         BlockPos c = origin.offset((col - 2) * pitch - pitch / 2, 0, row * pitch);
          BlockPos s = build(world, c, id);
          if (first == null) {
             first = s;
@@ -481,42 +481,42 @@ public final class ArenaBuilder {
       return first;
    }
 
-   private static void sign(ServerWorld world, BlockPos pos, String title, String body) {
-      world.setBlockState(pos, (BlockState)Blocks.OAK_SIGN.getDefaultState().with(SignBlock.ROTATION, 8));
+   private static void sign(ServerLevel world, BlockPos pos, String title, String body) {
+      world.setBlockAndUpdate(pos, (BlockState)Blocks.OAK_SIGN.defaultBlockState().setValue(StandingSignBlock.ROTATION, 8));
       if (world.getBlockEntity(pos) instanceof SignBlockEntity sign) {
          String[] lines = body.split("\\|");
          SignText text = new SignText();
-         text = text.withMessage(0, Text.literal(title));
+         text = text.setMessage(0, Component.literal(title));
 
          for (int k = 0; k < 3 && k < lines.length; k++) {
-            text = text.withMessage(k + 1, Text.literal(lines[k]));
+            text = text.setMessage(k + 1, Component.literal(lines[k]));
          }
 
          sign.setText(text, true);
          sign.setWaxed(true);
-         sign.markDirty();
+         sign.setChanged();
       }
    }
 
-   private static void discChest(ServerWorld world, BlockPos pos) {
-      world.setBlockState(pos, (BlockState)Blocks.CHEST.getDefaultState().with(ChestBlock.FACING, Direction.SOUTH));
+   private static void discChest(ServerLevel world, BlockPos pos) {
+      world.setBlockAndUpdate(pos, (BlockState)Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH));
       if (world.getBlockEntity(pos) instanceof ChestBlockEntity chest) {
-         chest.setStack(0, new ItemStack(Items.MUSIC_DISC_CAT, 1));
-         chest.setStack(1, new ItemStack(Items.MUSIC_DISC_BLOCKS, 1));
-         chest.setStack(2, new ItemStack(Items.MUSIC_DISC_CHIRP, 1));
-         chest.markDirty();
+         chest.setItem(0, new ItemStack(Items.MUSIC_DISC_CAT, 1));
+         chest.setItem(1, new ItemStack(Items.MUSIC_DISC_BLOCKS, 1));
+         chest.setItem(2, new ItemStack(Items.MUSIC_DISC_CHIRP, 1));
+         chest.setChanged();
       }
    }
 
-   private static void chest(ServerWorld world, BlockPos pos) {
-      world.setBlockState(pos, Blocks.CHEST.getDefaultState());
+   private static void chest(ServerLevel world, BlockPos pos) {
+      world.setBlockAndUpdate(pos, Blocks.CHEST.defaultBlockState());
       if (world.getBlockEntity(pos) instanceof ChestBlockEntity chest) {
-         chest.setStack(0, new ItemStack(Items.POPPY, 8));
-         chest.setStack(1, new ItemStack(Items.DANDELION, 8));
-         chest.setStack(2, new ItemStack(Items.SWEET_BERRIES, 16));
-         chest.setStack(3, new ItemStack(Items.CAKE, 2));
-         chest.setStack(4, new ItemStack(Items.LEAD, 2));
-         chest.markDirty();
+         chest.setItem(0, new ItemStack(Items.POPPY, 8));
+         chest.setItem(1, new ItemStack(Items.DANDELION, 8));
+         chest.setItem(2, new ItemStack(Items.SWEET_BERRIES, 16));
+         chest.setItem(3, new ItemStack(Items.CAKE, 2));
+         chest.setItem(4, new ItemStack(Items.LEAD, 2));
+         chest.setChanged();
       }
    }
 

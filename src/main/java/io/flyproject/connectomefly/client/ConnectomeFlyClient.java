@@ -15,13 +15,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.J
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class ConnectomeFlyClient implements ClientModInitializer {
-   public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(new Identifier("connectomefly", "connectome_fly"), "main");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("connectomefly", "connectome_fly"), "main");
    private static boolean introPending;
    private static int introDelay;
 
@@ -38,36 +38,36 @@ public class ConnectomeFlyClient implements ClientModInitializer {
                   (LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)ClientCommandManager.literal("flyhud")
                               .executes(ctx -> {
                                  FlyHud.enabled = !FlyHud.enabled;
-                                 ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Text.literal("live readout " + (FlyHud.enabled ? "on" : "off")));
+                                 ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout " + (FlyHud.enabled ? "on" : "off")));
                                  return 1;
                               }))
                            .then(ClientCommandManager.literal("small").executes(ctx -> {
                               FlyHud.setSize("small");
                               FlyHud.enabled = true;
-                              ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Text.literal("live readout: small"));
+                              ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout: small"));
                               return 1;
                            })))
                         .then(ClientCommandManager.literal("medium").executes(ctx -> {
                            FlyHud.setSize("medium");
                            FlyHud.enabled = true;
-                           ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Text.literal("live readout: medium"));
+                           ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout: medium"));
                            return 1;
                         })))
                      .then(ClientCommandManager.literal("big").executes(ctx -> {
                         FlyHud.setSize("big");
                         FlyHud.enabled = true;
-                        ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Text.literal("live readout: big"));
+                        ((FabricClientCommandSource)ctx.getSource()).sendFeedback(Component.literal("live readout: big"));
                         return 1;
                      }))
                );
                dispatcher.register((LiteralArgumentBuilder)ClientCommandManager.literal("flycredits").executes(ctx -> {
-                  MinecraftClient client = MinecraftClient.getInstance();
-                  client.send(() -> client.setScreen(new CreditsScreen()));
+                  Minecraft client = Minecraft.getInstance();
+                  client.tell(() -> client.setScreen(new CreditsScreen()));
                   return 1;
                }));
                dispatcher.register((LiteralArgumentBuilder)ClientCommandManager.literal("flyintro").executes(ctx -> {
-                  MinecraftClient client = MinecraftClient.getInstance();
-                  client.send(() -> client.setScreen(new IntroScreen()));
+                  Minecraft client = Minecraft.getInstance();
+                  client.tell(() -> client.setScreen(new IntroScreen()));
                   return 1;
                }));
             }
@@ -83,7 +83,7 @@ public class ConnectomeFlyClient implements ClientModInitializer {
             if (introDelay > 0) {
                introDelay--;
             } else {
-               if (client.currentScreen == null) {
+               if (client.screen == null) {
                   introPending = false;
 
                   try {

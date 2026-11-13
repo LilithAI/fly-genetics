@@ -4,6 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
+import com.mojang.blaze3d.vertex.VertexFormat.Mode;
+import com.mojang.math.Axis;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,24 +18,17 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.gl.VertexBuffer.Usage;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.render.VertexFormat.DrawMode;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public final class FlyRig {
-   public static final Identifier TEXTURE = new Identifier("connectomefly", "textures/entity/fly_model.png");
+   public static final ResourceLocation TEXTURE = new ResourceLocation("connectomefly", "textures/entity/fly_model.png");
    private static FlyRig instance;
    private boolean loaded;
    private boolean failed;
@@ -99,11 +99,11 @@ public final class FlyRig {
    }
 
    private static InputStream res(String path) throws IOException {
-      Optional<Resource> r = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("connectomefly", path));
+      Optional<Resource> r = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("connectomefly", path));
       if (r.isEmpty()) {
          throw new IOException("missing " + path);
       } else {
-         return r.get().getInputStream();
+         return r.get().open();
       }
    }
 
@@ -206,15 +206,15 @@ public final class FlyRig {
       }
 
       BufferBuilder builder = new BufferBuilder(nIdx * 24 + 1024);
-      builder.begin(DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
+      builder.begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
 
       for (int i = 0; i < nIdx; i++) {
          int k = bb.getInt();
          int col = c[k];
          builder.vertex(v[k * 5], v[k * 5 + 1], v[k * 5 + 2])
-            .texture(v[k * 5 + 3], v[k * 5 + 4])
+            .uv(v[k * 5 + 3], v[k * 5 + 4])
             .color(col & 0xFF, col >> 8 & 0xFF, col >> 16 & 0xFF, 255)
-            .next();
+            .endVertex();
       }
 
       VertexBuffer vb = new VertexBuffer(Usage.STATIC);
@@ -313,7 +313,7 @@ public final class FlyRig {
          outPos[i * 3 + 2] = oz;
       }
 
-      builder.begin(DrawMode.TRIANGLES, VertexFormats.POSITION_TEXTURE_COLOR);
+      builder.begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
       float[] uv = g.uv;
       int[] col = g.rgba;
       int[] idx = g.idx;
@@ -322,9 +322,9 @@ public final class FlyRig {
          int kx = idx[i];
          int c = col[kx];
          builder.vertex(outPos[kx * 3], outPos[kx * 3 + 1], outPos[kx * 3 + 2])
-            .texture(uv[kx * 2], uv[kx * 2 + 1])
+            .uv(uv[kx * 2], uv[kx * 2 + 1])
             .color(c & 0xFF, c >> 8 & 0xFF, c >> 16 & 0xFF, 255)
-            .next();
+            .endVertex();
       }
 
       vb.bind();
@@ -333,7 +333,7 @@ public final class FlyRig {
    }
 
    public void beginDraw(float bright) {
-      RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+      RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
       RenderSystem.setShaderTexture(0, TEXTURE);
       RenderSystem.setShaderColor(bright, bright, bright, 1.0F);
       RenderSystem.enableDepthTest();
@@ -345,29 +345,29 @@ public final class FlyRig {
       RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
    }
 
-   public void drawBody(MatrixStack ms) {
-      this.draw(this.body, ms.peek().getPositionMatrix());
+   public void drawBody(PoseStack ms) {
+      this.draw(this.body, ms.last().pose());
    }
 
    public boolean hasHead() {
       return this.head != null;
    }
 
-   public void drawHead(MatrixStack ms, float yaw, float nod) {
+   public void drawHead(PoseStack ms, float yaw, float nod) {
       if (this.head != null) {
-         ms.push();
+         ms.pushPose();
          ms.translate(HEAD_PIVOT[0], HEAD_PIVOT[1], HEAD_PIVOT[2]);
-         ms.multiply(RotationAxis.POSITIVE_Y.rotation(yaw));
-         ms.multiply(RotationAxis.POSITIVE_X.rotation(nod));
+         ms.mulPose(Axis.YP.rotation(yaw));
+         ms.mulPose(Axis.XP.rotation(nod));
          ms.translate(-HEAD_PIVOT[0], -HEAD_PIVOT[1], -HEAD_PIVOT[2]);
-         this.draw(this.head, ms.peek().getPositionMatrix());
-         ms.pop();
+         this.draw(this.head, ms.last().pose());
+         ms.popPose();
       }
    }
 
    public void draw(VertexBuffer vb, Matrix4f modelView) {
       vb.bind();
-      vb.draw(new Matrix4f(modelView), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+      vb.drawWithShader(new Matrix4f(modelView), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
       VertexBuffer.unbind();
    }
 

@@ -3,15 +3,15 @@ package io.flyproject.connectomefly.genetics;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.PersistentState;
+import net.minecraft.world.level.saveddata.SavedData;
 
 /**
  * [model] Selection settings and population statistics, saved with the world
  * (data/connectomefly_genetics.dat in the overworld). All of these rules are invented.
  */
-public final class GeneticsState extends PersistentState {
+public final class GeneticsState extends SavedData {
    public static final String[] CAUSES = {"old age", "starvation", "predator", "other", "removed"};
    // settings
    public boolean selection = true;
@@ -40,7 +40,7 @@ public final class GeneticsState extends PersistentState {
    public int matingsRefusedHungry;
 
    public static GeneticsState get(MinecraftServer server) {
-      GeneticsState s = server.getOverworld().getPersistentStateManager().getOrCreate(GeneticsState::read, GeneticsState::new, "connectomefly_genetics");
+      GeneticsState s = server.overworld().getDataStorage().computeIfAbsent(GeneticsState::read, GeneticsState::new, "connectomefly_genetics");
       Genome.inheritMemory = s.inheritMemory;
       return s;
    }
@@ -53,13 +53,13 @@ public final class GeneticsState extends PersistentState {
          sum[i] += g.g[i];
       }
 
-      this.markDirty();
+      this.setDirty();
    }
 
    public void recordDeath(String cause, double adultMinutes) {
       this.deaths.merge(cause, 1, Integer::sum);
       this.deathAdultMinutes.merge(cause, adultMinutes, Double::sum);
-      this.markDirty();
+      this.setDirty();
    }
 
    /** mean of gene i among all flies ever born in a generation, or NaN */
@@ -120,11 +120,11 @@ public final class GeneticsState extends PersistentState {
             return null;
       }
 
-      this.markDirty();
+      this.setDirty();
       return this.settings();
    }
 
-   public NbtCompound writeNbt(NbtCompound n) {
+   public CompoundTag save(CompoundTag n) {
       n.putBoolean("Selection", this.selection);
       n.putFloat("AdultLifeMinutes", this.adultLifeMinutes);
       n.putFloat("BreedHunger", this.breedHunger);
@@ -138,12 +138,12 @@ public final class GeneticsState extends PersistentState {
       n.putInt("EggsLaid", this.eggsLaid);
       n.putInt("EggsRefusedCap", this.eggsRefusedCap);
       n.putInt("MatingsRefusedHungry", this.matingsRefusedHungry);
-      NbtCompound gens = new NbtCompound();
+      CompoundTag gens = new CompoundTag();
 
       for (Map.Entry<Integer, Integer> e : this.born.entrySet()) {
-         NbtCompound g = new NbtCompound();
+         CompoundTag g = new CompoundTag();
          g.putInt("Born", e.getValue());
-         NbtCompound sums = new NbtCompound();
+         CompoundTag sums = new CompoundTag();
          float[] sum = this.geneSum.get(e.getKey());
 
          for (int i = 0; i < Genome.N; i++) {
@@ -155,10 +155,10 @@ public final class GeneticsState extends PersistentState {
       }
 
       n.put("Generations", gens);
-      NbtCompound d = new NbtCompound();
+      CompoundTag d = new CompoundTag();
 
       for (Map.Entry<String, Integer> e : this.deaths.entrySet()) {
-         NbtCompound c = new NbtCompound();
+         CompoundTag c = new CompoundTag();
          c.putInt("Count", e.getValue());
          c.putDouble("AdultMinutes", this.deathAdultMinutes.getOrDefault(e.getKey(), 0.0));
          d.put(e.getKey(), c);
@@ -168,7 +168,7 @@ public final class GeneticsState extends PersistentState {
       return n;
    }
 
-   public static GeneticsState read(NbtCompound n) {
+   public static GeneticsState read(CompoundTag n) {
       GeneticsState s = new GeneticsState();
       s.selection = !n.contains("Selection") || n.getBoolean("Selection");
       if (n.contains("AdultLifeMinutes")) {
@@ -186,14 +186,14 @@ public final class GeneticsState extends PersistentState {
       s.eggsLaid = n.getInt("EggsLaid");
       s.eggsRefusedCap = n.getInt("EggsRefusedCap");
       s.matingsRefusedHungry = n.getInt("MatingsRefusedHungry");
-      NbtCompound gens = n.getCompound("Generations");
+      CompoundTag gens = n.getCompound("Generations");
 
-      for (String k : gens.getKeys()) {
-         NbtCompound g = gens.getCompound(k);
+      for (String k : gens.getAllKeys()) {
+         CompoundTag g = gens.getCompound(k);
          int gen = Integer.parseInt(k);
          s.born.put(gen, g.getInt("Born"));
          float[] sum = new float[Genome.N];
-         NbtCompound sums = g.getCompound("GeneSums");
+         CompoundTag sums = g.getCompound("GeneSums");
 
          for (int i = 0; i < Genome.N; i++) {
             // a gene added in a later version counts as the author's value for flies born before it existed
@@ -203,9 +203,9 @@ public final class GeneticsState extends PersistentState {
          s.geneSum.put(gen, sum);
       }
 
-      NbtCompound d = n.getCompound("Deaths");
+      CompoundTag d = n.getCompound("Deaths");
 
-      for (String k : d.getKeys()) {
+      for (String k : d.getAllKeys()) {
          s.deaths.put(k, d.getCompound(k).getInt("Count"));
          s.deathAdultMinutes.put(k, d.getCompound(k).getDouble("AdultMinutes"));
       }

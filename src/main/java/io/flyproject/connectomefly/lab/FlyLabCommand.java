@@ -12,30 +12,30 @@ import io.flyproject.connectomefly.neural.WholeBrain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.text.Text.Serializer;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component.Serializer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public final class FlyLabCommand {
-   private static final SuggestionProvider<ServerCommandSource> ARENAS = (ctx, b) -> {
+   private static final SuggestionProvider<CommandSourceStack> ARENAS = (ctx, b) -> {
       List<String> ids = new ArrayList<>(ArenaBuilder.ids());
       ids.add("all");
       ids.add("list");
-      return CommandSource.suggestMatching(ids, b);
+      return SharedSuggestionProvider.suggest(ids, b);
    };
    public static volatile boolean stacked = false;
    public static volatile int scanRadius = 160;
@@ -43,95 +43,95 @@ public final class FlyLabCommand {
    private FlyLabCommand() {
    }
 
-   public static void register(CommandDispatcher<ServerCommandSource> d) {
-      LiteralArgumentBuilder<ServerCommandSource> flylab = (LiteralArgumentBuilder<ServerCommandSource>)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)CommandManager.literal(
+   public static void register(CommandDispatcher<CommandSourceStack> d) {
+      LiteralArgumentBuilder<CommandSourceStack> flylab = (LiteralArgumentBuilder<CommandSourceStack>)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)Commands.literal(
                                                       "flylab"
                                                    )
-                                                   .executes(ctx -> help((ServerCommandSource)ctx.getSource())))
+                                                   .executes(ctx -> help((CommandSourceStack)ctx.getSource())))
                                                 .then(
-                                                   ((LiteralArgumentBuilder)((LiteralArgumentBuilder)CommandManager.literal("spawn")
-                                                            .executes(ctx -> spawn((ServerCommandSource)ctx.getSource(), false)))
+                                                   ((LiteralArgumentBuilder)((LiteralArgumentBuilder)Commands.literal("spawn")
+                                                            .executes(ctx -> spawn((CommandSourceStack)ctx.getSource(), false)))
                                                          .then(
-                                                            CommandManager.literal("female")
-                                                               .executes(ctx -> spawn((ServerCommandSource)ctx.getSource(), false))
+                                                            Commands.literal("female")
+                                                               .executes(ctx -> spawn((CommandSourceStack)ctx.getSource(), false))
                                                          ))
-                                                      .then(CommandManager.literal("male").executes(ctx -> spawn((ServerCommandSource)ctx.getSource(), true)))
+                                                      .then(Commands.literal("male").executes(ctx -> spawn((CommandSourceStack)ctx.getSource(), true)))
                                                 ))
                                              .then(
-                                                ((LiteralArgumentBuilder)CommandManager.literal("body")
+                                                ((LiteralArgumentBuilder)Commands.literal("body")
                                                       .then(
-                                                         CommandManager.literal("model").executes(ctx -> body((ServerCommandSource)ctx.getSource(), (byte)0))
+                                                         Commands.literal("model").executes(ctx -> body((CommandSourceStack)ctx.getSource(), (byte)0))
                                                       ))
-                                                   .then(CommandManager.literal("bee").executes(ctx -> body((ServerCommandSource)ctx.getSource(), (byte)1)))
+                                                   .then(Commands.literal("bee").executes(ctx -> body((CommandSourceStack)ctx.getSource(), (byte)1)))
                                              ))
-                                          .then(CommandManager.literal("book").executes(ctx -> book((ServerCommandSource)ctx.getSource()))))
-                                       .then(CommandManager.literal("hungry").executes(ctx -> need((ServerCommandSource)ctx.getSource(), true))))
-                                    .then(CommandManager.literal("thirsty").executes(ctx -> need((ServerCommandSource)ctx.getSource(), false))))
+                                          .then(Commands.literal("book").executes(ctx -> book((CommandSourceStack)ctx.getSource()))))
+                                       .then(Commands.literal("hungry").executes(ctx -> need((CommandSourceStack)ctx.getSource(), true))))
+                                    .then(Commands.literal("thirsty").executes(ctx -> need((CommandSourceStack)ctx.getSource(), false))))
                                  .then(
-                                    ((LiteralArgumentBuilder)((LiteralArgumentBuilder)CommandManager.literal("stacked")
-                                             .executes(ctx -> stacked((ServerCommandSource)ctx.getSource(), stacked, 0)))
-                                          .then(CommandManager.literal("on").executes(ctx -> stacked((ServerCommandSource)ctx.getSource(), true, 0))))
+                                    ((LiteralArgumentBuilder)((LiteralArgumentBuilder)Commands.literal("stacked")
+                                             .executes(ctx -> stacked((CommandSourceStack)ctx.getSource(), stacked, 0)))
+                                          .then(Commands.literal("on").executes(ctx -> stacked((CommandSourceStack)ctx.getSource(), true, 0))))
                                        .then(
-                                          ((LiteralArgumentBuilder)CommandManager.literal("off")
-                                                .executes(ctx -> stacked((ServerCommandSource)ctx.getSource(), false, 0)))
+                                          ((LiteralArgumentBuilder)Commands.literal("off")
+                                                .executes(ctx -> stacked((CommandSourceStack)ctx.getSource(), false, 0)))
                                              .then(
-                                                CommandManager.argument("blocks", IntegerArgumentType.integer(8, 512))
+                                                Commands.argument("blocks", IntegerArgumentType.integer(8, 512))
                                                    .executes(
-                                                      ctx -> stacked((ServerCommandSource)ctx.getSource(), false, IntegerArgumentType.getInteger(ctx, "blocks"))
+                                                      ctx -> stacked((CommandSourceStack)ctx.getSource(), false, IntegerArgumentType.getInteger(ctx, "blocks"))
                                                    )
                                              )
                                        )
                                  ))
                               .then(
-                                 ((LiteralArgumentBuilder)CommandManager.literal("brains").executes(ctx -> brains((ServerCommandSource)ctx.getSource(), 0)))
+                                 ((LiteralArgumentBuilder)Commands.literal("brains").executes(ctx -> brains((CommandSourceStack)ctx.getSource(), 0)))
                                     .then(
-                                       CommandManager.argument("n", IntegerArgumentType.integer(1, 64))
-                                          .executes(ctx -> brains((ServerCommandSource)ctx.getSource(), IntegerArgumentType.getInteger(ctx, "n")))
+                                       Commands.argument("n", IntegerArgumentType.integer(1, 64))
+                                          .executes(ctx -> brains((CommandSourceStack)ctx.getSource(), IntegerArgumentType.getInteger(ctx, "n")))
                                     )
                               ))
-                           .then(CommandManager.literal("state").executes(ctx -> status((ServerCommandSource)ctx.getSource()))))
-                        .then(CommandManager.literal("fly").executes(ctx -> fly((ServerCommandSource)ctx.getSource()))))
-                     .then(CommandManager.literal("lay").executes(ctx -> lay((ServerCommandSource)ctx.getSource()))))
-                  .then(CommandManager.literal("mate").executes(ctx -> mate((ServerCommandSource)ctx.getSource()))))
+                           .then(Commands.literal("state").executes(ctx -> status((CommandSourceStack)ctx.getSource()))))
+                        .then(Commands.literal("fly").executes(ctx -> fly((CommandSourceStack)ctx.getSource()))))
+                     .then(Commands.literal("lay").executes(ctx -> lay((CommandSourceStack)ctx.getSource()))))
+                  .then(Commands.literal("mate").executes(ctx -> mate((CommandSourceStack)ctx.getSource()))))
                .then(
-                  ((LiteralArgumentBuilder)CommandManager.literal("loom").executes(ctx -> loom((ServerCommandSource)ctx.getSource(), Double.NaN)))
+                  ((LiteralArgumentBuilder)Commands.literal("loom").executes(ctx -> loom((CommandSourceStack)ctx.getSource(), Double.NaN)))
                      .then(
-                        CommandManager.argument("degrees", DoubleArgumentType.doubleArg(-180.0, 360.0))
-                           .executes(ctx -> loom((ServerCommandSource)ctx.getSource(), DoubleArgumentType.getDouble(ctx, "degrees")))
+                        Commands.argument("degrees", DoubleArgumentType.doubleArg(-180.0, 360.0))
+                           .executes(ctx -> loom((CommandSourceStack)ctx.getSource(), DoubleArgumentType.getDouble(ctx, "degrees")))
                      )
                ))
             .then(
-               ((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)CommandManager.literal("drum")
-                           .then(CommandManager.literal("left").executes(ctx -> drum((ServerCommandSource)ctx.getSource(), -40.0))))
-                        .then(CommandManager.literal("right").executes(ctx -> drum((ServerCommandSource)ctx.getSource(), 40.0))))
-                     .then(CommandManager.literal("fast").executes(ctx -> drum((ServerCommandSource)ctx.getSource(), 90.0))))
-                  .then(CommandManager.literal("stop").executes(ctx -> drum((ServerCommandSource)ctx.getSource(), 0.0)))
+               ((LiteralArgumentBuilder)((LiteralArgumentBuilder)((LiteralArgumentBuilder)Commands.literal("drum")
+                           .then(Commands.literal("left").executes(ctx -> drum((CommandSourceStack)ctx.getSource(), -40.0))))
+                        .then(Commands.literal("right").executes(ctx -> drum((CommandSourceStack)ctx.getSource(), 40.0))))
+                     .then(Commands.literal("fast").executes(ctx -> drum((CommandSourceStack)ctx.getSource(), 90.0))))
+                  .then(Commands.literal("stop").executes(ctx -> drum((CommandSourceStack)ctx.getSource(), 0.0)))
             ))
          .then(
-            CommandManager.literal("arena")
+            Commands.literal("arena")
                .then(
-                  CommandManager.argument("sense", StringArgumentType.word())
+                  Commands.argument("sense", StringArgumentType.word())
                      .suggests(ARENAS)
-                     .executes(ctx -> arena((ServerCommandSource)ctx.getSource(), StringArgumentType.getString(ctx, "sense")))
+                     .executes(ctx -> arena((CommandSourceStack)ctx.getSource(), StringArgumentType.getString(ctx, "sense")))
                )
          );
       if (Boolean.getBoolean("connectomefly.dev")) {
-         flylab = (LiteralArgumentBuilder<ServerCommandSource>)flylab.then(
-            ((LiteralArgumentBuilder)CommandManager.literal("debug").requires(src -> src.hasPermissionLevel(4) && !src.isExecutedByPlayer()))
-               .executes(ctx -> state((ServerCommandSource)ctx.getSource()))
+         flylab = (LiteralArgumentBuilder<CommandSourceStack>)flylab.then(
+            ((LiteralArgumentBuilder)Commands.literal("debug").requires(src -> src.hasPermission(4) && !src.isPlayer()))
+               .executes(ctx -> state((CommandSourceStack)ctx.getSource()))
          );
       }
 
       d.register(flylab);
    }
 
-   private static int clearFlies(ServerWorld world, Vec3d at, Boolean maleOnly) {
+   private static int clearFlies(ServerLevel world, Vec3 at, Boolean maleOnly) {
       int n = 0;
       double r2 = (double)scanRadius * scanRadius;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, e -> e.isAlive())) {
-         if (!(f.squaredDistanceTo(at) > r2) && (maleOnly == null || f.isMale() == maleOnly && !f.isBabyFly())) {
-            f.detachLeash(true, false);
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, e -> e.isAlive())) {
+         if (!(f.distanceToSqr(at) > r2) && (maleOnly == null || f.isMale() == maleOnly && !f.isBabyFly())) {
+            f.dropLeash(true, false);
             f.discard();
             n++;
          }
@@ -140,21 +140,21 @@ public final class FlyLabCommand {
       return n;
    }
 
-   private static ConnectomeFlyEntity place(ServerWorld world, double x, double y, double z, boolean male) {
+   private static ConnectomeFlyEntity place(ServerLevel world, double x, double y, double z, boolean male) {
       ConnectomeFlyEntity fly = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
       if (fly != null) {
          fly.setMale(male);
          fly.setBodyMode(ConnectomeFlyEntity.defaultBody);
-         fly.refreshPositionAndAngles(x, y, z, 0.0F, 0.0F);
-         fly.initialize(world, world.getLocalDifficulty(fly.getBlockPos()), SpawnReason.COMMAND, null, null);
-         world.spawnEntity(fly);
+         fly.moveTo(x, y, z, 0.0F, 0.0F);
+         fly.finalizeSpawn(world, world.getCurrentDifficultyAt(fly.blockPosition()), MobSpawnType.COMMAND, null, null);
+         world.addFreshEntity(fly);
       }
 
       return fly;
    }
 
-   public static int populate(ServerWorld world, String id, BlockPos spawn) {
-      int gone = stacked ? 0 : clearFlies(world, Vec3d.ofBottomCenter(spawn), null);
+   public static int populate(ServerLevel world, String id, BlockPos spawn) {
+      int gone = stacked ? 0 : clearFlies(world, Vec3.atBottomCenterOf(spawn), null);
       double x = spawn.getX() + 0.5;
       double y = spawn.getY();
       double z = spawn.getZ() + 0.5;
@@ -200,11 +200,11 @@ public final class FlyLabCommand {
       }
    }
 
-   private static int need(ServerCommandSource src, boolean hunger) {
+   private static int need(CommandSourceStack src, boolean hunger) {
       int n = 0;
 
-      for (ConnectomeFlyEntity f : src.getWorld()
-         .getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(BlockPos.ofFloored(src.getPosition())).expand(24.0), e -> e.isAlive() && !e.isMale())) {
+      for (ConnectomeFlyEntity f : src.getLevel()
+         .getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(BlockPos.containing(src.getPosition())).inflate(24.0), e -> e.isAlive() && !e.isMale())) {
          if (hunger) {
             f.setHunger(5.0F);
          } else {
@@ -215,8 +215,8 @@ public final class FlyLabCommand {
       }
 
       int count = n;
-      src.sendFeedback(
-         () -> Text.literal(
+      src.sendSuccess(
+         () -> Component.literal(
                count == 0
                   ? "no female within 24 blocks"
                   : (
@@ -225,20 +225,20 @@ public final class FlyLabCommand {
                         : "She is thirsty now. Her humidity sensors turn attractive, so she walks to water or damp ground and drinks"
                   )
             )
-            .formatted(Formatting.AQUA),
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int stacked(ServerCommandSource src, boolean on, int radius) {
+   private static int stacked(CommandSourceStack src, boolean on, int radius) {
       stacked = on;
       if (radius > 0) {
          scanRadius = radius;
       }
 
-      src.sendFeedback(
-         () -> Text.literal(
+      src.sendSuccess(
+         () -> Component.literal(
                on
                   ? "stacked ON. Nothing is removed, so every spawn and every box button adds flies. Brains run for the first "
                      + ConnectomeFlyEntity.maxBrains
@@ -247,19 +247,19 @@ public final class FlyLabCommand {
                      + scanRadius
                      + " blocks, then spawns fresh ones (no teleporting)."
             )
-            .formatted(Formatting.AQUA),
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int brains(ServerCommandSource src, int n) {
+   private static int brains(CommandSourceStack src, int n) {
       if (n > 0) {
          ConnectomeFlyEntity.maxBrains = n;
       }
 
-      src.sendFeedback(
-         () -> Text.literal(
+      src.sendSuccess(
+         () -> Component.literal(
                "whole brains: "
                   + WholeBrain.running()
                   + " running, up to "
@@ -268,27 +268,27 @@ public final class FlyLabCommand {
                   + Runtime.getRuntime().availableProcessors()
                   + " cores and each brain keeps about one busy; leave a few for the game)"
             )
-            .formatted(Formatting.AQUA),
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int help(ServerCommandSource src) {
-      src.sendFeedback(
-         () -> Text.literal(
+   private static int help(CommandSourceStack src) {
+      src.sendSuccess(
+         () -> Component.literal(
                "/flylab spawn [female|male] | body <model|bee> | arena <sense|all|list> | stacked <on|off [blocks]> | brains [n] | hungry | thirsty | fly | lay | mate | loom [degrees] | drum <left|right|fast|stop> | state | book. and /flycredits for what is real vs calibrated"
             )
-            .formatted(Formatting.AQUA),
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int spawn(ServerCommandSource src, boolean male) {
-      ServerWorld world = src.getWorld();
-      ServerPlayerEntity p = src.getPlayer();
-      Vec3d at = src.getPosition();
+   private static int spawn(CommandSourceStack src, boolean male) {
+      ServerLevel world = src.getLevel();
+      ServerPlayer p = src.getPlayer();
+      Vec3 at = src.getPosition();
       int gone = stacked ? 0 : clearFlies(world, at, male);
       ConnectomeFlyEntity fly = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
       if (fly == null) {
@@ -296,115 +296,115 @@ public final class FlyLabCommand {
       } else {
          fly.setMale(male);
          fly.setBodyMode(ConnectomeFlyEntity.defaultBody);
-         fly.refreshPositionAndAngles(at.x + (p != null ? 2 : 0), at.y, at.z + (p != null ? 2 : 0), p != null ? p.getYaw() : 0.0F, 0.0F);
-         fly.initialize(world, world.getLocalDifficulty(fly.getBlockPos()), SpawnReason.COMMAND, null, null);
-         world.spawnEntity(fly);
-         src.sendFeedback(
-            () -> Text.literal(
+         fly.moveTo(at.x + (p != null ? 2 : 0), at.y, at.z + (p != null ? 2 : 0), p != null ? p.getYRot() : 0.0F, 0.0F);
+         fly.finalizeSpawn(world, world.getCurrentDifficultyAt(fly.blockPosition()), MobSpawnType.COMMAND, null, null);
+         world.addFreshEntity(fly);
+         src.sendSuccess(
+            () -> Component.literal(
                   male
                      ? "a MALE fly spawned: he courts the nearest female with his wing song."
                      : "fly spawned: her whole brain (158,262 neurons) is waking, the escape circuit is ticking. Sprint at her, or build a box: /flylab arena <sense>"
                         + (gone > 0 ? "  (" + gone + " earlier " + (gone == 1 ? "one" : "ones") + " removed: /flylab stacked on keeps them)" : "")
                )
-               .formatted(Formatting.AQUA),
+               .withStyle(ChatFormatting.AQUA),
             false
          );
          return 1;
       }
    }
 
-   private static int body(ServerCommandSource src, byte mode) {
+   private static int body(CommandSourceStack src, byte mode) {
       ConnectomeFlyEntity.defaultBody = mode;
       int n = 0;
 
-      for (ServerWorld w : src.getServer().getWorlds()) {
-         for (ConnectomeFlyEntity f : w.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, e -> true)) {
+      for (ServerLevel w : src.getServer().getAllLevels()) {
+         for (ConnectomeFlyEntity f : w.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, e -> true)) {
             f.setBodyMode(mode);
             n++;
          }
       }
 
       int count = n;
-      src.sendFeedback(
-         () -> Text.literal(
+      src.sendSuccess(
+         () -> Component.literal(
                (mode == 1 ? "body: plain bee" : "body: the real fly model") + " (" + count + (count == 1 ? " fly" : " flies") + " updated; new ones follow)"
             )
-            .formatted(Formatting.AQUA),
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int arena(ServerCommandSource src, String id) {
+   private static int arena(CommandSourceStack src, String id) {
       if (id.equals("list")) {
-         src.sendFeedback(() -> Text.literal("senses: " + String.join(", ", ArenaBuilder.ids()) + ", all").formatted(Formatting.AQUA), false);
+         src.sendSuccess(() -> Component.literal("senses: " + String.join(", ", ArenaBuilder.ids()) + ", all").withStyle(ChatFormatting.AQUA), false);
          return 1;
       } else {
-         ServerWorld world = src.getWorld();
-         BlockPos here = BlockPos.ofFloored(src.getPosition());
+         ServerLevel world = src.getLevel();
+         BlockPos here = BlockPos.containing(src.getPosition());
          if (id.equals("all")) {
-            BlockPos spawn = ArenaBuilder.buildAll(world, here.add(0, 0, 10));
-            src.sendFeedback(
-               () -> Text.literal(
+            BlockPos spawn = ArenaBuilder.buildAll(world, here.offset(0, 0, 10));
+            src.sendSuccess(
+               () -> Component.literal(
                      "all "
                         + ArenaBuilder.SENSES.size()
                         + " sense boxes built north of you, six per row, all empty. Press the wooden button on the LIME post by a box's door: its fly appears inside (and, with /flylab stacked off, the fly of the last box is removed)."
                   )
-                  .formatted(Formatting.AQUA),
+                  .withStyle(ChatFormatting.AQUA),
                false
             );
             return 1;
          } else if (!ArenaBuilder.SENSES.containsKey(id)) {
-            src.sendError(Text.literal("unknown sense '" + id + "': /flylab arena list"));
+            src.sendFailure(Component.literal("unknown sense '" + id + "': /flylab arena list"));
             return 0;
          } else {
-            BlockPos spawn = ArenaBuilder.build(world, here.add(0, 0, 9), id);
+            BlockPos spawn = ArenaBuilder.build(world, here.offset(0, 0, 9), id);
             int gone = populate(world, id, spawn);
             String title = ArenaBuilder.SENSES.get(id)[0];
             String how = ArenaBuilder.instructions(id);
-            src.sendFeedback(
-               () -> Text.literal(
+            src.sendSuccess(
+               () -> Component.literal(
                      "box "
                         + title
                         + " built ahead of you: she is inside"
                         + (gone > 0 ? " (" + gone + " earlier " + (gone == 1 ? "fly" : "flies") + " removed; /flylab stacked on keeps them)." : ".")
                         + (id.equals("home") ? " Every sense is live in this one." : " Inside it only this experiment's senses are live.")
                   )
-                  .formatted(Formatting.AQUA),
+                  .withStyle(ChatFormatting.AQUA),
                false
             );
-            src.sendFeedback(() -> Text.literal(how).formatted(Formatting.GRAY), false);
+            src.sendSuccess(() -> Component.literal(how).withStyle(ChatFormatting.GRAY), false);
             return 1;
          }
       }
    }
 
-   private static int fly(ServerCommandSource src) {
-      ServerWorld world = src.getWorld();
-      BlockPos here = BlockPos.ofFloored(src.getPosition());
+   private static int fly(CommandSourceStack src) {
+      ServerLevel world = src.getLevel();
+      BlockPos here = BlockPos.containing(src.getPosition());
       int n = 0;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(here).expand(48.0), e -> !e.isMale())) {
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(here).inflate(48.0), e -> !e.isMale())) {
          f.takeOffNow();
          n++;
       }
 
       int count = n;
-      src.sendFeedback(
-         () -> Text.literal(count == 0 ? "no fly within 48 blocks" : "take-off: crouch, wings up, push. Then she hovers and roams from her brain")
-            .formatted(Formatting.AQUA),
+      src.sendSuccess(
+         () -> Component.literal(count == 0 ? "no fly within 48 blocks" : "take-off: crouch, wings up, push. Then she hovers and roams from her brain")
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int mate(ServerCommandSource src) {
-      ServerWorld world = src.getWorld();
-      BlockPos here = BlockPos.ofFloored(src.getPosition());
+   private static int mate(CommandSourceStack src) {
+      ServerLevel world = src.getLevel();
+      BlockPos here = BlockPos.containing(src.getPosition());
       boolean female = false;
       boolean male = false;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(here).expand(48.0), e -> !e.isBabyFly())) {
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(here).inflate(48.0), e -> !e.isBabyFly())) {
          f.resetCourtship();
          if (f.isMale()) {
             male = true;
@@ -421,21 +421,21 @@ public final class FlyLabCommand {
          spawn(src, true);
       }
 
-      src.sendFeedback(
-         () -> Text.literal("courtship reset: he sings, after 10 s she accepts, 10 s of mating, then the egg (hatches in 30 s)").formatted(Formatting.AQUA),
+      src.sendSuccess(
+         () -> Component.literal("courtship reset: he sings, after 10 s she accepts, 10 s of mating, then the egg (hatches in 30 s)").withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int loom(ServerCommandSource src, double relDeg) {
-      ServerWorld world = src.getWorld();
-      BlockPos here = BlockPos.ofFloored(src.getPosition());
+   private static int loom(CommandSourceStack src, double relDeg) {
+      ServerLevel world = src.getLevel();
+      BlockPos here = BlockPos.containing(src.getPosition());
       ConnectomeFlyEntity best = null;
       double bd = 1.0E9;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(here).expand(48.0), e -> e.isAlive())) {
-         double d = f.squaredDistanceTo(here.getX() + 0.5, here.getY(), here.getZ() + 0.5);
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(here).inflate(48.0), e -> e.isAlive())) {
+         double d = f.distanceToSqr(here.getX() + 0.5, here.getY(), here.getZ() + 0.5);
          if (d < bd) {
             bd = d;
             best = f;
@@ -443,108 +443,108 @@ public final class FlyLabCommand {
       }
 
       if (best == null) {
-         src.sendError(Text.literal("no fly within 48 blocks"));
+         src.sendFailure(Component.literal("no fly within 48 blocks"));
          return 0;
       } else {
          LoomStimulus.spawn(world, best, relDeg);
-         src.sendFeedback(
-            () -> Text.literal(
+         src.sendSuccess(
+            () -> Component.literal(
                   "a shape looms in"
                      + (Double.isNaN(relDeg) ? "" : String.format(Locale.ROOT, " at %.0f degrees off her heading", relDeg))
                      + ": LC4/LPLC2 -> Giant Fiber -> TTMn if she can see it (~30 degrees behind her, she cannot)"
                )
-               .formatted(Formatting.AQUA),
+               .withStyle(ChatFormatting.AQUA),
             false
          );
          return 1;
       }
    }
 
-   private static int drum(ServerCommandSource src, double omega) {
+   private static int drum(CommandSourceStack src, double omega) {
       if (!OptomotorDrum.active()) {
-         src.sendError(Text.literal("no drum here. Build the optomotor box first with /flylab arena optomotor"));
+         src.sendFailure(Component.literal("no drum here. Build the optomotor box first with /flylab arena optomotor"));
          return 0;
       } else {
          OptomotorDrum.spin(omega);
-         src.sendFeedback(
-            () -> Text.literal(
+         src.sendSuccess(
+            () -> Component.literal(
                   omega == 0.0
                      ? "the drum stops"
                      : "the drum turns " + (omega > 0.0 ? "clockwise" : "anticlockwise") + " at " + Math.abs(omega) + " deg/s: watch her HS cells and her turn"
                )
-               .formatted(Formatting.AQUA),
+               .withStyle(ChatFormatting.AQUA),
             false
          );
          return 1;
       }
    }
 
-   private static int lay(ServerCommandSource src) {
-      ServerWorld world = src.getWorld();
-      BlockPos here = BlockPos.ofFloored(src.getPosition());
+   private static int lay(CommandSourceStack src) {
+      ServerLevel world = src.getLevel();
+      BlockPos here = BlockPos.containing(src.getPosition());
       int n = 0;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(here).expand(48.0), e -> !e.isMale() && !e.isBabyFly())) {
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(here).inflate(48.0), e -> !e.isMale() && !e.isBabyFly())) {
          f.layEgg("lays an egg (forced): it hatches in 30 s");
          n++;
       }
 
       int count = n;
-      src.sendFeedback(
-         () -> Text.literal(count == 0 ? "no adult female within 48 blocks" : "egg laid: it cracks in 30 s into a hatchling with its own brain")
-            .formatted(Formatting.AQUA),
+      src.sendSuccess(
+         () -> Component.literal(count == 0 ? "no adult female within 48 blocks" : "egg laid: it cracks in 30 s into a hatchling with its own brain")
+            .withStyle(ChatFormatting.AQUA),
          false
       );
       return 1;
    }
 
-   private static int status(ServerCommandSource src) {
-      ServerWorld world = src.getWorld();
-      BlockPos here = BlockPos.ofFloored(src.getPosition());
+   private static int status(CommandSourceStack src) {
+      ServerLevel world = src.getLevel();
+      BlockPos here = BlockPos.containing(src.getPosition());
       int n = 0;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(here).expand(64.0), e -> true)) {
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(here).inflate(64.0), e -> true)) {
          boolean good = f.isAlive() && f.getHealth() > 0.0F;
          String line = (f.isMale() ? "male fly: " : "female fly: ") + (good ? "good" : "bad (she is dead)");
-         src.sendFeedback(() -> Text.literal(line).formatted(good ? Formatting.GREEN : Formatting.RED), false);
+         src.sendSuccess(() -> Component.literal(line).withStyle(good ? ChatFormatting.GREEN : ChatFormatting.RED), false);
          n++;
       }
 
       if (n == 0) {
-         src.sendFeedback(() -> Text.literal("bad: there is no fly within 64 blocks").formatted(Formatting.RED), false);
+         src.sendSuccess(() -> Component.literal("bad: there is no fly within 64 blocks").withStyle(ChatFormatting.RED), false);
       }
 
       return 1;
    }
 
-   private static int state(ServerCommandSource src) {
-      ServerWorld world = src.getWorld();
-      BlockPos here = BlockPos.ofFloored(src.getPosition());
+   private static int state(CommandSourceStack src) {
+      ServerLevel world = src.getLevel();
+      BlockPos here = BlockPos.containing(src.getPosition());
       int n = 0;
 
-      for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, new Box(here).expand(64.0), e -> true)) {
+      for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, new AABB(here).inflate(64.0), e -> true)) {
          String line = (f.isMale() ? "male " : "female ") + f.debugState();
-         src.sendFeedback(() -> Text.literal(line).formatted(Formatting.GRAY), false);
+         src.sendSuccess(() -> Component.literal(line).withStyle(ChatFormatting.GRAY), false);
          n++;
       }
 
       if (n == 0) {
-         src.sendFeedback(() -> Text.literal("no fly within 64 blocks").formatted(Formatting.GRAY), false);
+         src.sendSuccess(() -> Component.literal("no fly within 64 blocks").withStyle(ChatFormatting.GRAY), false);
       }
 
       return 1;
    }
 
-   private static int book(ServerCommandSource src) {
-      ServerPlayerEntity p = src.getPlayer();
+   private static int book(CommandSourceStack src) {
+      ServerPlayer p = src.getPlayer();
       if (p == null) {
          return 0;
       } else {
          ItemStack stack = new ItemStack(Items.WRITTEN_BOOK);
-         NbtCompound nbt = stack.getOrCreateNbt();
+         CompoundTag nbt = stack.getOrCreateTag();
          nbt.putString("title", "The Connectome Fly");
          nbt.putString("author", "the fly project");
-         NbtList pages = new NbtList();
+         ListTag pages = new ListTag();
          String[] pageTexts = new String[]{
             "THE CONNECTOME FLY\n\nOne creature. Her whole brain, all 158,262 neurons of a real fruit fly's brain map (BANC v888), runs live inside her.\n\nNothing is scripted. If she moves, neurons fired.",
             "SENSES\n\nWhat she meets in the world drives her REAL receptor neurons: heat, cold, wet, dry, sugar, bitter, water, food smell, CO2, touch, sound, pheromone, light, wind.",
@@ -558,12 +558,12 @@ public final class FlyLabCommand {
          };
 
          for (String t : pageTexts) {
-            pages.add(NbtString.of(Serializer.toJson(Text.literal(t))));
+            pages.add(StringTag.valueOf(Serializer.toJson(Component.literal(t))));
          }
 
          nbt.put("pages", pages);
-         p.giveItemStack(stack);
-         src.sendFeedback(() -> Text.literal("field guide added to your inventory").formatted(Formatting.AQUA), false);
+         p.addItem(stack);
+         src.sendSuccess(() -> Component.literal("field guide added to your inventory").withStyle(ChatFormatting.AQUA), false);
          return 1;
       }
    }

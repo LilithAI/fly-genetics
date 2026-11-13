@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.math.Box;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.phys.AABB;
 
 public final class FlyHud {
    public static boolean enabled = true;
@@ -47,15 +47,15 @@ public final class FlyHud {
       HudRenderCallback.EVENT.register(FlyHud::render);
    }
 
-   private static void render(DrawContext ctx, float tickDelta) {
+   private static void render(GuiGraphics ctx, float tickDelta) {
       if (enabled) {
-         MinecraftClient mc = MinecraftClient.getInstance();
-         if (mc.player != null && mc.world != null && !mc.options.hudHidden) {
+         Minecraft mc = Minecraft.getInstance();
+         if (mc.player != null && mc.level != null && !mc.options.hideGui) {
             ConnectomeFlyEntity fly = null;
             double best = 1600.0;
 
-            for (ConnectomeFlyEntity f : mc.world.getEntitiesByClass(ConnectomeFlyEntity.class, new Box(mc.player.getBlockPos()).expand(40.0), e -> true)) {
-               double d = mc.player.squaredDistanceTo(f);
+            for (ConnectomeFlyEntity f : mc.level.getEntitiesOfClass(ConnectomeFlyEntity.class, new AABB(mc.player.blockPosition()).inflate(40.0), e -> true)) {
+               double d = mc.player.distanceToSqr(f);
                if (d < best) {
                   best = d;
                   fly = f;
@@ -240,34 +240,34 @@ public final class FlyHud {
                   lines.add(6, new FlyHud.Line("Age [model]", gLife, -5570646));
                }
 
-               TextRenderer tr = mc.textRenderer;
-               ctx.getMatrices().push();
-               ctx.getMatrices().scale(scale, scale, 1.0F);
+               Font tr = mc.font;
+               ctx.pose().pushPose();
+               ctx.pose().scale(scale, scale, 1.0F);
                int x = 6;
                int y = 6;
                int h = 22 + lines.size() * 10 + 12 + 4;
                ctx.fill(x - 2, y - 2, x + 236, y + h, -1609560044);
                ctx.fill(x - 2, y - 2, x + 236, y - 1, -11606332);
-               ctx.drawTextWithShadow(tr, "CONNECTOME FLY" + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
+               ctx.drawString(tr, "CONNECTOME FLY" + (male ? "  ·  male" : ""), x + 2, y + 2, -1);
                String live = "LIVE";
-               ctx.drawTextWithShadow(tr, live, x + 236 - 6 - tr.getWidth(live), y + 2, -11606332);
-               ctx.drawTextWithShadow(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
+               ctx.drawString(tr, live, x + 236 - 6 - tr.width(live), y + 2, -11606332);
+               ctx.drawString(tr, "real BANC wiring · calibrated readout", x + 2, y + 2 + 10, -7697248);
                int yy = y + 2 + 20 + 4;
 
                for (FlyHud.Line l : lines) {
-                  ctx.drawTextWithShadow(tr, l.key(), x + 2, yy, -7697248);
+                  ctx.drawString(tr, l.key(), x + 2, yy, -7697248);
                   String v = l.value();
                   int maxW = 148;
-                  if (tr.getWidth(v) > maxW) {
-                     v = tr.trimToWidth(v, maxW - 6) + "…";
+                  if (tr.width(v) > maxW) {
+                     v = tr.plainSubstrByWidth(v, maxW - 6) + "…";
                   }
 
-                  ctx.drawTextWithShadow(tr, v, x + 82, yy, l.color());
+                  ctx.drawString(tr, v, x + 82, yy, l.color());
                   yy += 10;
                }
 
-               ctx.drawTextWithShadow(tr, "speech: translated, not decoded · /flyhud hides this", x + 2, yy + 3, -9802624);
-               ctx.getMatrices().pop();
+               ctx.drawString(tr, "speech: translated, not decoded · /flyhud hides this", x + 2, yy + 3, -9802624);
+               ctx.pose().popPose();
             }
          }
       }

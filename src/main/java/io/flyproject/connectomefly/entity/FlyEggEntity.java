@@ -2,24 +2,24 @@ package io.flyproject.connectomefly.entity;
 
 import io.flyproject.connectomefly.ConnectomeFlyMod;
 import io.flyproject.connectomefly.genetics.Genome;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class FlyEggEntity extends Entity {
-   private static final TrackedData<Integer> AGE = DataTracker.registerData(FlyEggEntity.class, TrackedDataHandlerRegistry.INTEGER);
+   private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(FlyEggEntity.class, EntityDataSerializers.INT);
    public static final int HATCH_TICKS = 600;
    private boolean fertile = true;
    // [model] genetics: the child's genome is decided when the egg is laid and travels in the egg
@@ -38,24 +38,24 @@ public class FlyEggEntity extends Entity {
       this.memory = m;
    }
 
-   public FlyEggEntity(EntityType<?> type, World world) {
+   public FlyEggEntity(EntityType<?> type, Level world) {
       super(type, world);
    }
 
-   protected void initDataTracker() {
-      this.dataTracker.startTracking(AGE, 0);
+   protected void defineSynchedData() {
+      this.entityData.define(AGE, 0);
    }
 
    public int getEggAge() {
-      return (Integer)this.dataTracker.get(AGE);
+      return (Integer)this.entityData.get(AGE);
    }
 
    public void setFertile(boolean f) {
       this.fertile = f;
    }
 
-   protected void readCustomDataFromNbt(NbtCompound nbt) {
-      this.dataTracker.set(AGE, nbt.getInt("EggAge"));
+   protected void readAdditionalSaveData(CompoundTag nbt) {
+      this.entityData.set(AGE, nbt.getInt("EggAge"));
       this.fertile = !nbt.contains("Fertile") || nbt.getBoolean("Fertile");
       if (nbt.contains("Genome")) {
          this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("Genome"));
@@ -71,7 +71,7 @@ public class FlyEggEntity extends Entity {
       }
    }
 
-   protected void writeCustomDataToNbt(NbtCompound nbt) {
+   protected void addAdditionalSaveData(CompoundTag nbt) {
       nbt.putInt("EggAge", this.getEggAge());
       nbt.putBoolean("Fertile", this.fertile);
       if (this.genome != null) {
@@ -89,14 +89,14 @@ public class FlyEggEntity extends Entity {
       }
    }
 
-   public boolean canHit() {
+   public boolean isPickable() {
       return true;
    }
 
-   public boolean damage(DamageSource source, float amount) {
-      if (!this.getWorld().isClient && !this.isRemoved()) {
-         ((ServerWorld)this.getWorld()).spawnParticles(ParticleTypes.ITEM_SLIME, this.getX(), this.getY() + 0.05, this.getZ(), 6, 0.08, 0.04, 0.08, 0.02);
-         this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_TURTLE_EGG_BREAK, SoundCategory.NEUTRAL, 0.6F, 1.6F);
+   public boolean hurt(DamageSource source, float amount) {
+      if (!this.level().isClientSide && !this.isRemoved()) {
+         ((ServerLevel)this.level()).sendParticles(ParticleTypes.ITEM_SLIME, this.getX(), this.getY() + 0.05, this.getZ(), 6, 0.08, 0.04, 0.08, 0.02);
+         this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.TURTLE_EGG_BREAK, SoundSource.NEUTRAL, 0.6F, 1.6F);
          this.discard();
          return true;
       } else {
@@ -106,15 +106,15 @@ public class FlyEggEntity extends Entity {
 
    public void tick() {
       super.tick();
-      if (!this.hasNoGravity()) {
-         this.setVelocity(this.getVelocity().add(0.0, -0.03, 0.0));
+      if (!this.isNoGravity()) {
+         this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.03, 0.0));
       }
 
-      this.move(MovementType.SELF, this.getVelocity());
-      this.setVelocity(this.getVelocity().multiply(0.5, this.isOnGround() ? 0.0 : 0.98, 0.5));
-      if (!this.getWorld().isClient) {
+      this.move(MoverType.SELF, this.getDeltaMovement());
+      this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, this.onGround() ? 0.0 : 0.98, 0.5));
+      if (!this.level().isClientSide) {
          int age = this.getEggAge() + 1;
-         this.dataTracker.set(AGE, age);
+         this.entityData.set(AGE, age);
          if (age >= 600) {
             if (this.fertile) {
                this.hatch();
@@ -126,9 +126,9 @@ public class FlyEggEntity extends Entity {
    }
 
    private void hatch() {
-      ServerWorld world = (ServerWorld)this.getWorld();
-      world.spawnParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 0.1, this.getZ(), 8, 0.1, 0.05, 0.1, 0.01);
-      world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_TURTLE_EGG_HATCH, SoundCategory.NEUTRAL, 0.7F, 1.5F);
+      ServerLevel world = (ServerLevel)this.level();
+      world.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 0.1, this.getZ(), 8, 0.1, 0.05, 0.1, 0.01);
+      world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.TURTLE_EGG_HATCH, SoundSource.NEUTRAL, 0.7F, 1.5F);
       ConnectomeFlyEntity baby = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
       if (baby != null) {
          boolean male = world.random.nextBoolean();
@@ -138,7 +138,7 @@ public class FlyEggEntity extends Entity {
             int males = 0;
             int females = 0;
 
-            for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, this.getBoundingBox().expand(st.capRadius), e -> e.isAlive())) {
+            for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, this.getBoundingBox().inflate(st.capRadius), e -> e.isAlive())) {
                if (f.isMale()) {
                   males++;
                } else {
@@ -151,7 +151,7 @@ public class FlyEggEntity extends Entity {
                boolean want = males < females;
                if (want != male) {
                   st.sexBalanced++;
-                  st.markDirty();
+                  st.setDirty();
                   System.out.println("[connectomefly genetics] sex balance: " + males + " males, " + females + " females nearby, hatchling made " + (want ? "male" : "female"));
                }
 
@@ -170,9 +170,9 @@ public class FlyEggEntity extends Entity {
             baby.setBornMemory(this.memory);
          }
 
-         baby.refreshPositionAndAngles(this.getX(), this.getY(), this.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
-         baby.initialize(world, world.getLocalDifficulty(this.getBlockPos()), SpawnReason.BREEDING, null, null);
-         world.spawnEntity(baby);
+         baby.moveTo(this.getX(), this.getY(), this.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
+         baby.finalizeSpawn(world, world.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.BREEDING, null, null);
+         world.addFreshEntity(baby);
       }
 
       this.discard();
@@ -182,7 +182,7 @@ public class FlyEggEntity extends Entity {
       return false;
    }
 
-   public Vec3d getLeashOffset() {
-      return Vec3d.ZERO;
+   public Vec3 getLeashOffset() {
+      return Vec3.ZERO;
    }
 }
