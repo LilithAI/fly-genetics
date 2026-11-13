@@ -27,7 +27,7 @@ public final class LoomStimulus {
    public static LoomStimulus.Loom spawn(ServerLevel world, ConnectomeFlyEntity fly, double relDeg) {
       double bearing;
       if (Double.isNaN(relDeg)) {
-         bearing = world.random.nextDouble() * Math.PI * 2.0;
+         bearing = world.getRandom().nextDouble() * Math.PI * 2.0;
       } else {
          double yaw = Math.toRadians(fly.getYRot() + relDeg);
          bearing = Math.atan2(Math.cos(yaw), -Math.sin(yaw));
@@ -88,20 +88,19 @@ public final class LoomStimulus {
          this.y = y;
          this.z = z;
          this.id = id;
-         BlockDisplay d = (BlockDisplay)EntityType.BLOCK_DISPLAY.create(world);
+         BlockDisplay d = (BlockDisplay)net.minecraft.world.entity.EntityTypes.BLOCK_DISPLAY.create(world, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
          this.panel = d;
          if (d != null) {
             d.setPos(x, y, z);
-            CompoundTag nbt = new CompoundTag();
-            d.saveWithoutId(nbt);
+            io.flyproject.connectomefly.compat.Compat.editNbt(d, nbt -> {
             nbt.putString("id", "minecraft:block_display");
             CompoundTag bs = new CompoundTag();
-            bs.putString("Name", Blocks.BLACK_CONCRETE.getDescriptionId().replace("block.minecraft.", "minecraft:"));
+            bs.putString("Name", io.flyproject.connectomefly.compat.Compat.BLACK_CONCRETE.getDescriptionId().replace("block.minecraft.", "minecraft:"));
             nbt.put("block_state", bs);
             nbt.putInt("interpolation_duration", 1);
             nbt.putInt("start_interpolation", 0);
             nbt.put("transformation", this.transform());
-            d.load(nbt);
+            });
             world.addFreshEntity(d);
          }
       }
@@ -160,8 +159,7 @@ public final class LoomStimulus {
                return;
             }
 
-            CompoundTag nbt = new CompoundTag();
-            this.panel.saveWithoutId(nbt);
+            io.flyproject.connectomefly.compat.Compat.editNbt(this.panel, nbt -> {
             nbt.put("transformation", this.transform());
             nbt.putInt("start_interpolation", 0);
             nbt.putInt("interpolation_duration", 1);
@@ -170,8 +168,7 @@ public final class LoomStimulus {
                bs.putString("Name", "minecraft:gray_concrete");
                nbt.put("block_state", bs);
             }
-
-            this.panel.load(nbt);
+            });
          }
       }
 

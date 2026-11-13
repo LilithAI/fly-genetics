@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version "${loom_version}"
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
 version = project.mod_version
@@ -7,6 +7,15 @@ group = project.maven_group
 base { archivesName = project.archives_base_name }
 
 loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "connectomefly" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+
     runs {
         // Automated client test: joins run/saves/devworld, spawns flies, screenshots, exits.
         autoTest {
@@ -25,13 +34,12 @@ processResources {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 }
 
-tasks.withType(JavaCompile).configureEach { it.options.release = 17 }
+tasks.withType(JavaCompile).configureEach { it.options.release = 25; it.options.compilerArgs += ['-Xmaxerrs', '5000'] }
 
 
 // prints the compile classpath, for headless tools

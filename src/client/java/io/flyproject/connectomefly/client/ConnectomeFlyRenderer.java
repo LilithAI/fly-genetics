@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -33,8 +33,8 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class ConnectomeFlyRenderer extends MobRenderer<ConnectomeFlyEntity, ConnectomeFlyModel> {
-   public static final ResourceLocation TEXTURE = new ResourceLocation("connectomefly", "textures/entity/connectome_fly.png");
-   private static final ResourceLocation BEE_TEXTURE = new ResourceLocation("textures/entity/bee/bee.png");
+   public static final Identifier TEXTURE = new Identifier("connectomefly", "textures/entity/connectome_fly.png");
+   private static final Identifier BEE_TEXTURE = new Identifier("textures/entity/bee/bee.png");
    private static final Component SPEECH_LABEL = Component.literal("[translated from neuron activity]");
    private static final float BODY_LENGTH = 0.9F;
    private static final float BEE_SCALE = 1.45F;
@@ -50,7 +50,7 @@ public class ConnectomeFlyRenderer extends MobRenderer<ConnectomeFlyEntity, Conn
       this.beeModel = new BeeModel(context.bakeLayer(ModelLayers.BEE));
    }
 
-   public ResourceLocation getTextureLocation(ConnectomeFlyEntity entity) {
+   public Identifier getTextureLocation(ConnectomeFlyEntity entity) {
       return TEXTURE;
    }
 

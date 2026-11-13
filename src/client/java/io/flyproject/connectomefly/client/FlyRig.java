@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -28,7 +28,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public final class FlyRig {
-   public static final ResourceLocation TEXTURE = new ResourceLocation("connectomefly", "textures/entity/fly_model.png");
+   public static final Identifier TEXTURE = new Identifier("connectomefly", "textures/entity/fly_model.png");
    private static FlyRig instance;
    private boolean loaded;
    private boolean failed;
@@ -99,7 +99,7 @@ public final class FlyRig {
    }
 
    private static InputStream res(String path) throws IOException {
-      Optional<Resource> r = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("connectomefly", path));
+      Optional<Resource> r = Minecraft.getInstance().getResourceManager().getResource(new Identifier("connectomefly", path));
       if (r.isEmpty()) {
          throw new IOException("missing " + path);
       } else {

@@ -21,10 +21,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Component.Serializer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
@@ -117,7 +116,7 @@ public final class FlyLabCommand {
          );
       if (Boolean.getBoolean("connectomefly.dev")) {
          flylab = (LiteralArgumentBuilder<CommandSourceStack>)flylab.then(
-            ((LiteralArgumentBuilder)Commands.literal("debug").requires(src -> src.hasPermission(4) && !src.isPlayer()))
+            ((LiteralArgumentBuilder)Commands.literal("debug").requires(src -> Commands.hasPermission(Commands.LEVEL_OWNERS).test(src) && !src.isPlayer()))
                .executes(ctx -> state((CommandSourceStack)ctx.getSource()))
          );
       }
@@ -131,7 +130,7 @@ public final class FlyLabCommand {
 
       for (ConnectomeFlyEntity f : world.getEntities(ConnectomeFlyMod.CONNECTOME_FLY, e -> e.isAlive())) {
          if (!(f.distanceToSqr(at) > r2) && (maleOnly == null || f.isMale() == maleOnly && !f.isBabyFly())) {
-            f.dropLeash(true, false);
+            f.dropLeash();
             f.discard();
             n++;
          }
@@ -141,12 +140,12 @@ public final class FlyLabCommand {
    }
 
    private static ConnectomeFlyEntity place(ServerLevel world, double x, double y, double z, boolean male) {
-      ConnectomeFlyEntity fly = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
+      ConnectomeFlyEntity fly = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world, EntitySpawnReason.COMMAND);
       if (fly != null) {
          fly.setMale(male);
          fly.setBodyMode(ConnectomeFlyEntity.defaultBody);
-         fly.moveTo(x, y, z, 0.0F, 0.0F);
-         fly.finalizeSpawn(world, world.getCurrentDifficultyAt(fly.blockPosition()), MobSpawnType.COMMAND, null, null);
+         fly.snapTo(x, y, z, 0.0F, 0.0F);
+         fly.finalizeSpawn(world, world.getCurrentDifficultyAt(fly.blockPosition()), EntitySpawnReason.COMMAND, null);
          world.addFreshEntity(fly);
       }
 
@@ -290,14 +289,14 @@ public final class FlyLabCommand {
       ServerPlayer p = src.getPlayer();
       Vec3 at = src.getPosition();
       int gone = stacked ? 0 : clearFlies(world, at, male);
-      ConnectomeFlyEntity fly = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
+      ConnectomeFlyEntity fly = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world, EntitySpawnReason.COMMAND);
       if (fly == null) {
          return 0;
       } else {
          fly.setMale(male);
          fly.setBodyMode(ConnectomeFlyEntity.defaultBody);
-         fly.moveTo(at.x + (p != null ? 2 : 0), at.y, at.z + (p != null ? 2 : 0), p != null ? p.getYRot() : 0.0F, 0.0F);
-         fly.finalizeSpawn(world, world.getCurrentDifficultyAt(fly.blockPosition()), MobSpawnType.COMMAND, null, null);
+         fly.snapTo(at.x + (p != null ? 2 : 0), at.y, at.z + (p != null ? 2 : 0), p != null ? p.getYRot() : 0.0F, 0.0F);
+         fly.finalizeSpawn(world, world.getCurrentDifficultyAt(fly.blockPosition()), EntitySpawnReason.COMMAND, null);
          world.addFreshEntity(fly);
          src.sendSuccess(
             () -> Component.literal(
@@ -540,11 +539,6 @@ public final class FlyLabCommand {
       if (p == null) {
          return 0;
       } else {
-         ItemStack stack = new ItemStack(Items.WRITTEN_BOOK);
-         CompoundTag nbt = stack.getOrCreateTag();
-         nbt.putString("title", "The Connectome Fly");
-         nbt.putString("author", "the fly project");
-         ListTag pages = new ListTag();
          String[] pageTexts = new String[]{
             "THE CONNECTOME FLY\n\nOne creature. Her whole brain, all 158,262 neurons of a real fruit fly's brain map (BANC v888), runs live inside her.\n\nNothing is scripted. If she moves, neurons fired.",
             "SENSES\n\nWhat she meets in the world drives her REAL receptor neurons: heat, cold, wet, dry, sugar, bitter, water, food smell, CO2, touch, sound, pheromone, light, wind.",
@@ -557,11 +551,7 @@ public final class FlyLabCommand {
             "CREDITS\n\n/flycredits lists what is real (the wiring), what is calibrated (speeds and gains) and what is a labeled model (hunger, wind, speech).\n\nNo full consciousness is claimed."
          };
 
-         for (String t : pageTexts) {
-            pages.add(StringTag.valueOf(Serializer.toJson(Component.literal(t))));
-         }
-
-         nbt.put("pages", pages);
+         ItemStack stack = io.flyproject.connectomefly.compat.Compat.book("The Connectome Fly", "the fly project", pageTexts);
          p.addItem(stack);
          src.sendSuccess(() -> Component.literal("field guide added to your inventory").withStyle(ChatFormatting.AQUA), false);
          return 1;

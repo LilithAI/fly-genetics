@@ -19,11 +19,11 @@ public final class GenomeNbt {
       n.putInt("Generation", g.generation);
       n.putInt("Mutations", g.mutations);
       if (g.mother != null) {
-         n.putUUID("Mother", g.mother);
+         n.putString("Mother", g.mother.toString());
       }
 
       if (g.father != null) {
-         n.putUUID("Father", g.father);
+         n.putString("Father", g.father.toString());
       }
 
       return n;
@@ -32,23 +32,19 @@ public final class GenomeNbt {
    /** Genes are stored by name, so genes added or removed in a later version do not corrupt old flies. */
    public static Genome read(CompoundTag n) {
       Genome x = Genome.baseline();
-      CompoundTag genes = n.getCompound("Genes");
+      CompoundTag genes = n.getCompoundOrEmpty("Genes");
 
       for (int i = 0; i < Genome.N; i++) {
          if (genes.contains(Genome.GENES[i].name())) {
-            x.g[i] = Genome.clampGene(i, genes.getFloat(Genome.GENES[i].name()));
+            x.g[i] = Genome.clampGene(i, genes.getFloatOr(Genome.GENES[i].name(), 1.0F));
          }
       }
 
-      x.generation = n.getInt("Generation");
-      x.mutations = n.getInt("Mutations");
-      if (n.hasUUID("Mother")) {
-         x.mother = n.getUUID("Mother");
-      }
+      x.generation = n.getIntOr("Generation", 0);
+      x.mutations = n.getIntOr("Mutations", 0);
+      x.mother = n.getString("Mother").map(java.util.UUID::fromString).orElse(null);
 
-      if (n.hasUUID("Father")) {
-         x.father = n.getUUID("Father");
-      }
+      x.father = n.getString("Father").map(java.util.UUID::fromString).orElse(null);
 
       return x;
    }

@@ -5,7 +5,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
  * [model] Selection settings and population statistics, saved with the world
@@ -13,6 +16,10 @@ import net.minecraft.world.level.saveddata.SavedData;
  */
 public final class GeneticsState extends SavedData {
    public static final String[] CAUSES = {"old age", "starvation", "predator", "other", "removed"};
+   public static final com.mojang.serialization.Codec<GeneticsState> CODEC = CompoundTag.CODEC.xmap(GeneticsState::read, st -> st.save(new CompoundTag()));
+   public static final SavedDataType<GeneticsState> TYPE = new SavedDataType<>(
+      Identifier.fromNamespaceAndPath("connectomefly", "genetics"), GeneticsState::new, CODEC, DataFixTypes.SAVED_DATA_COMMAND_STORAGE
+   );
    // settings
    public boolean selection = true;
    /** minutes an adult lives; each fly draws 80 to 120 percent of this */
@@ -40,7 +47,7 @@ public final class GeneticsState extends SavedData {
    public int matingsRefusedHungry;
 
    public static GeneticsState get(MinecraftServer server) {
-      GeneticsState s = server.overworld().getDataStorage().computeIfAbsent(GeneticsState::read, GeneticsState::new, "connectomefly_genetics");
+      GeneticsState s = server.overworld().getDataStorage().computeIfAbsent(TYPE);
       Genome.inheritMemory = s.inheritMemory;
       return s;
    }
@@ -170,44 +177,44 @@ public final class GeneticsState extends SavedData {
 
    public static GeneticsState read(CompoundTag n) {
       GeneticsState s = new GeneticsState();
-      s.selection = !n.contains("Selection") || n.getBoolean("Selection");
+      s.selection = !n.contains("Selection") || n.getBooleanOr("Selection", false);
       if (n.contains("AdultLifeMinutes")) {
-         s.adultLifeMinutes = n.getFloat("AdultLifeMinutes");
-         s.breedHunger = n.getFloat("BreedHunger");
-         s.eggCost = n.getFloat("EggCost");
-         s.cap = n.getInt("Cap");
-         s.capRadius = n.getInt("CapRadius");
-         s.growthSpeed = n.getFloat("GrowthSpeed");
+         s.adultLifeMinutes = n.getFloatOr("AdultLifeMinutes", 0.0F);
+         s.breedHunger = n.getFloatOr("BreedHunger", 0.0F);
+         s.eggCost = n.getFloatOr("EggCost", 0.0F);
+         s.cap = n.getIntOr("Cap", 0);
+         s.capRadius = n.getIntOr("CapRadius", 0);
+         s.growthSpeed = n.getFloatOr("GrowthSpeed", 0.0F);
       }
 
-      s.inheritMemory = n.getBoolean("InheritMemory");
-      s.sexBalance = !n.contains("SexBalance") || n.getBoolean("SexBalance");
-      s.sexBalanced = n.getInt("SexBalanced");
-      s.eggsLaid = n.getInt("EggsLaid");
-      s.eggsRefusedCap = n.getInt("EggsRefusedCap");
-      s.matingsRefusedHungry = n.getInt("MatingsRefusedHungry");
-      CompoundTag gens = n.getCompound("Generations");
+      s.inheritMemory = n.getBooleanOr("InheritMemory", false);
+      s.sexBalance = !n.contains("SexBalance") || n.getBooleanOr("SexBalance", false);
+      s.sexBalanced = n.getIntOr("SexBalanced", 0);
+      s.eggsLaid = n.getIntOr("EggsLaid", 0);
+      s.eggsRefusedCap = n.getIntOr("EggsRefusedCap", 0);
+      s.matingsRefusedHungry = n.getIntOr("MatingsRefusedHungry", 0);
+      CompoundTag gens = n.getCompoundOrEmpty("Generations");
 
-      for (String k : gens.getAllKeys()) {
-         CompoundTag g = gens.getCompound(k);
+      for (String k : gens.keySet()) {
+         CompoundTag g = gens.getCompoundOrEmpty(k);
          int gen = Integer.parseInt(k);
-         s.born.put(gen, g.getInt("Born"));
+         s.born.put(gen, g.getIntOr("Born", 0));
          float[] sum = new float[Genome.N];
-         CompoundTag sums = g.getCompound("GeneSums");
+         CompoundTag sums = g.getCompoundOrEmpty("GeneSums");
 
          for (int i = 0; i < Genome.N; i++) {
             // a gene added in a later version counts as the author's value for flies born before it existed
-            sum[i] = sums.contains(Genome.GENES[i].name()) ? sums.getFloat(Genome.GENES[i].name()) : g.getInt("Born");
+            sum[i] = sums.contains(Genome.GENES[i].name()) ? sums.getFloatOr(Genome.GENES[i].name(), 0.0F) : g.getIntOr("Born", 0);
          }
 
          s.geneSum.put(gen, sum);
       }
 
-      CompoundTag d = n.getCompound("Deaths");
+      CompoundTag d = n.getCompoundOrEmpty("Deaths");
 
-      for (String k : d.getAllKeys()) {
-         s.deaths.put(k, d.getCompound(k).getInt("Count"));
-         s.deathAdultMinutes.put(k, d.getCompound(k).getDouble("AdultMinutes"));
+      for (String k : d.keySet()) {
+         s.deaths.put(k, d.getCompoundOrEmpty(k).getIntOr("Count", 0));
+         s.deathAdultMinutes.put(k, d.getCompoundOrEmpty(k).getDoubleOr("AdultMinutes", 0.0));
       }
 
       return s;

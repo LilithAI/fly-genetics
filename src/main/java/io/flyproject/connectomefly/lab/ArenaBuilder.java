@@ -53,7 +53,7 @@ public final class ArenaBuilder {
    }
 
    private static String key(ServerLevel world) {
-      return world.dimension().location().toString();
+      return world.dimension().identifier().toString();
    }
 
    private static Path file(ServerLevel world) {
@@ -190,13 +190,13 @@ public final class ArenaBuilder {
          lb.setBook(BoxBooks.book(id, spec[0]));
       }
 
-      world.setBlockAndUpdate(c.offset(1, 0, -7), Blocks.LIME_CONCRETE.defaultBlockState());
+      world.setBlockAndUpdate(c.offset(1, 0, -7), io.flyproject.connectomefly.compat.Compat.LIME_CONCRETE.defaultBlockState());
       world.setBlockAndUpdate(c.offset(1, 1, -7), (BlockState)Blocks.OAK_BUTTON.defaultBlockState().setValue(ButtonBlock.FACE, AttachFace.FLOOR));
       register(world, new ArenaBuilder.Arena(id, c.getX() - 5 - 1, y - 1, c.getZ() - 5 - 1, c.getX() + 5 + 1, y + 4, c.getZ() + 5 + 1));
       switch (id) {
          case "escape":
             for (int dzx = 2; dzx <= 5; dzx++) {
-               world.setBlockAndUpdate(c.offset(0, -1, dzx), Blocks.BLACK_CONCRETE.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(0, -1, dzx), io.flyproject.connectomefly.compat.Compat.BLACK_CONCRETE.defaultBlockState());
             }
 
             world.setBlockAndUpdate(c.offset(-2, 0, -4), Blocks.POLISHED_ANDESITE.defaultBlockState());
@@ -234,8 +234,8 @@ public final class ArenaBuilder {
          case "memory":
             world.setBlockAndUpdate(c.offset(-4, 0, 3), Blocks.CAKE.defaultBlockState());
             world.setBlockAndUpdate(c.offset(4, 0, 3), Blocks.MELON.defaultBlockState());
-            world.setBlockAndUpdate(c.offset(-4, -1, 3), Blocks.WHITE_CONCRETE.defaultBlockState());
-            world.setBlockAndUpdate(c.offset(4, -1, 3), Blocks.LIME_CONCRETE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(-4, -1, 3), io.flyproject.connectomefly.compat.Compat.WHITE_CONCRETE.defaultBlockState());
+            world.setBlockAndUpdate(c.offset(4, -1, 3), io.flyproject.connectomefly.compat.Compat.LIME_CONCRETE.defaultBlockState());
             BlockPos var47 = c.offset(0, 0, -4);
             break;
          case "aggression":
@@ -419,7 +419,7 @@ public final class ArenaBuilder {
             break;
          case "looming":
             for (int[] p : new int[][]{{0, 4}, {4, 0}, {0, -4}, {-4, 0}, {3, 3}, {-3, 3}, {3, -3}, {-3, -3}}) {
-               world.setBlockAndUpdate(c.offset(p[0], -1, p[1]), Blocks.BLACK_CONCRETE.defaultBlockState());
+               world.setBlockAndUpdate(c.offset(p[0], -1, p[1]), io.flyproject.connectomefly.compat.Compat.BLACK_CONCRETE.defaultBlockState());
             }
 
             world.setBlockAndUpdate(c.offset(-2, 0, -4), Blocks.POLISHED_ANDESITE.defaultBlockState());
@@ -485,14 +485,14 @@ public final class ArenaBuilder {
       world.setBlockAndUpdate(pos, (BlockState)Blocks.OAK_SIGN.defaultBlockState().setValue(StandingSignBlock.ROTATION, 8));
       if (world.getBlockEntity(pos) instanceof SignBlockEntity sign) {
          String[] lines = body.split("\\|");
-         SignText text = new SignText();
-         text = text.setMessage(0, Component.literal(title));
+         java.util.List<String> all = new java.util.ArrayList<>();
+         all.add(title);
 
          for (int k = 0; k < 3 && k < lines.length; k++) {
-            text = text.setMessage(k + 1, Component.literal(lines[k]));
+            all.add(lines[k]);
          }
 
-         sign.setText(text, true);
+         sign.setText(io.flyproject.connectomefly.compat.Compat.signText(all), net.minecraft.world.level.block.entity.SignTextSlot.FRONT);
          sign.setWaxed(true);
          sign.setChanged();
       }

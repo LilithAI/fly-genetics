@@ -16,18 +16,17 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.EndTick;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.ModifyEntries;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -41,21 +40,19 @@ import net.minecraft.world.phys.AABB;
 
 public class ConnectomeFlyMod implements ModInitializer {
    public static final String MOD_ID = "connectomefly";
-   public static final EntityType<ConnectomeFlyEntity> CONNECTOME_FLY = (EntityType<ConnectomeFlyEntity>)Registry.register(
+   private static final ResourceKey<EntityType<?>> FLY_KEY = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("connectomefly", "connectome_fly"));
+   private static final ResourceKey<EntityType<?>> EGG_KEY = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("connectomefly", "fly_egg"));
+   private static final ResourceKey<Item> SPAWN_EGG_KEY = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("connectomefly", "connectome_fly_spawn_egg"));
+   public static final EntityType<ConnectomeFlyEntity> CONNECTOME_FLY = Registry.register(
       BuiltInRegistries.ENTITY_TYPE,
-      new ResourceLocation("connectomefly", "connectome_fly"),
-      FabricEntityTypeBuilder.create(MobCategory.CREATURE, ConnectomeFlyEntity::new)
-         .dimensions(EntityDimensions.fixed(0.6F, 0.45F))
-         .trackRangeBlocks(64)
-         .build()
+      FLY_KEY,
+      EntityType.Builder.<ConnectomeFlyEntity>of(ConnectomeFlyEntity::new, MobCategory.CREATURE).sized(0.6F, 0.45F).clientTrackingRange(4).build(FLY_KEY)
    );
-   public static final EntityType<FlyEggEntity> FLY_EGG = (EntityType<FlyEggEntity>)Registry.register(
-      BuiltInRegistries.ENTITY_TYPE,
-      new ResourceLocation("connectomefly", "fly_egg"),
-      FabricEntityTypeBuilder.create(MobCategory.MISC, FlyEggEntity::new).dimensions(EntityDimensions.fixed(0.3F, 0.25F)).trackRangeBlocks(48).build()
+   public static final EntityType<FlyEggEntity> FLY_EGG = Registry.register(
+      BuiltInRegistries.ENTITY_TYPE, EGG_KEY, EntityType.Builder.<FlyEggEntity>of(FlyEggEntity::new, MobCategory.MISC).sized(0.3F, 0.25F).clientTrackingRange(3).build(EGG_KEY)
    );
-   public static final Item CONNECTOME_FLY_SPAWN_EGG = (Item)Registry.register(
-      BuiltInRegistries.ITEM, new ResourceLocation("connectomefly", "connectome_fly_spawn_egg"), new SpawnEggItem(CONNECTOME_FLY, 14263361, 11740702, new Properties())
+   public static final Item CONNECTOME_FLY_SPAWN_EGG = Registry.register(
+      BuiltInRegistries.ITEM, SPAWN_EGG_KEY, new SpawnEggItem(new Properties().spawnEgg(CONNECTOME_FLY).setId(SPAWN_EGG_KEY))
    );
    private static Circuit escapeCircuit;
    private static Circuit steeringCircuit;
@@ -78,7 +75,7 @@ public class ConnectomeFlyMod implements ModInitializer {
 
    public void onInitialize() {
       FabricDefaultAttributeRegistry.register(CONNECTOME_FLY, ConnectomeFlyEntity.createFlyAttributes());
-      ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register((ModifyEntries)entries -> entries.accept(CONNECTOME_FLY_SPAWN_EGG));
+      CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> entries.accept(CONNECTOME_FLY_SPAWN_EGG));
       CommandRegistrationCallback.EVENT.register((CommandRegistrationCallback)(dispatcher, registryAccess, environment) -> {
          FlyLabCommand.register(dispatcher);
          io.flyproject.connectomefly.genetics.GeneticsCommand.register(dispatcher);
@@ -86,7 +83,7 @@ public class ConnectomeFlyMod implements ModInitializer {
       UseBlockCallback.EVENT
          .register(
             (UseBlockCallback)(player, world, hand, hit) -> {
-               if (!world.isClientSide) {
+               if (!world.isClientSide()) {
                   BlockState st = world.getBlockState(hit.getBlockPos());
                   if (st.is(Blocks.NOTE_BLOCK) || st.getBlock() instanceof BellBlock) {
                      FlyMind.noteSound(hit.getBlockPos(), world.getGameTime() + 80L);
@@ -97,17 +94,16 @@ public class ConnectomeFlyMod implements ModInitializer {
                      ArenaBuilder.Arena box = ArenaBuilder.spawnButtonAt(sw, hit.getBlockPos());
                      if (box != null) {
                         int gone = FlyLabCommand.populate(sw, box.id(), ArenaBuilder.spawnSpot(box));
-                        player.displayClientMessage(
+                        player.sendSystemMessage(
                            Component.literal(
                                  "box "
                                     + ArenaBuilder.SENSES.get(box.id())[0]
                                     + ": she is inside"
                                     + (gone > 0 ? " (" + gone + " earlier " + (gone == 1 ? "fly" : "flies") + " removed; /flylab stacked on keeps them)" : "")
                               )
-                              .withStyle(ChatFormatting.AQUA),
-                           false
+                              .withStyle(ChatFormatting.AQUA)
                         );
-                        player.displayClientMessage(Component.literal(ArenaBuilder.instructions(box.id())).withStyle(ChatFormatting.GRAY), false);
+                        player.sendSystemMessage(Component.literal(ArenaBuilder.instructions(box.id())).withStyle(ChatFormatting.GRAY));
                      }
                   }
 
@@ -129,7 +125,7 @@ public class ConnectomeFlyMod implements ModInitializer {
             }
          );
       AttackBlockCallback.EVENT.register((AttackBlockCallback)(player, world, hand, pos, dir) -> {
-         if (!world.isClientSide && world.getBlockState(pos).is(Blocks.NOTE_BLOCK)) {
+         if (!world.isClientSide() && world.getBlockState(pos).is(Blocks.NOTE_BLOCK)) {
             FlyMind.noteSound(pos, world.getGameTime() + 80L);
          }
 

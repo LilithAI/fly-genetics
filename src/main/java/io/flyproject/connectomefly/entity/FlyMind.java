@@ -25,12 +25,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.Ocelot;
-import net.minecraft.world.entity.animal.Parrot;
-import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.feline.Cat;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.fox.Fox;
+import net.minecraft.world.entity.animal.feline.Ocelot;
+import net.minecraft.world.entity.animal.parrot.Parrot;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -246,9 +246,9 @@ public final class FlyMind {
    }
 
    static double[] wind(ServerLevel world) {
-      long day = world.getDayTime() / 24000L;
+      long day = io.flyproject.connectomefly.compat.Compat.dayTime(world) / 24000L;
       double h = Math.sin(day * 12.9898 + 78.233) * 43758.5453;
-      double a = (h - Math.floor(h)) * Math.PI * 2.0 + 0.4 * Math.sin(world.getDayTime() / 2400.0);
+      double a = (h - Math.floor(h)) * Math.PI * 2.0 + 0.4 * Math.sin(io.flyproject.connectomefly.compat.Compat.dayTime(world) / 2400.0);
       return new double[]{Math.cos(a), Math.sin(a)};
    }
 
@@ -627,11 +627,11 @@ public final class FlyMind {
       double ux = fly.getX();
       double uz = fly.getZ();
       double uy = fly.getY();
-      boolean night = world.isNight();
+      boolean night = io.flyproject.connectomefly.compat.Compat.isNight(world);
       boolean raining = world.isRaining();
       BlockPos here = fly.blockPosition();
       boolean exposed = raining && world.canSeeSky(here);
-      boolean daylight = world.isDay() && world.getBrightness(LightLayer.SKY, here) >= 12;
+      boolean daylight = io.flyproject.connectomefly.compat.Compat.isDay(world) && world.getBrightness(LightLayer.SKY, here) >= 12;
       double yawNow = fly.getYRot();
       double dyaw = Double.isNaN(this.prevYaw) ? 0.0 : Mth.wrapDegrees((float)(yawNow - this.prevYaw)) / 0.05;
       this.prevYaw = yawNow;
@@ -639,11 +639,11 @@ public final class FlyMind {
       if (brain != null && !fly.isMale()) {
          double headRad = Math.atan2(Math.cos(Math.toRadians(yawNow)), -Math.sin(Math.toRadians(yawNow)));
          int sky = world.getBrightness(LightLayer.SKY, here);
-         float landmark = daylight ? 0.6F : (world.isDay() ? 0.35F : (sky >= 8 ? 0.2F : 0.1F));
+         float landmark = daylight ? 0.6F : (io.flyproject.connectomefly.compat.Compat.isDay(world) ? 0.35F : (sky >= 8 ? 0.2F : 0.1F));
          brain.setCompassInput((float)headRad, landmark);
          this.sleepP = Math.max(0.0, Math.min(1.0, this.sleepP + (this.asleep ? -2.0833333333333335E-4 : 5.555555555555556E-5)));
          int block = world.getBrightness(LightLayer.BLOCK, here);
-         double light = daylight ? 0.7 : (world.isDay() ? 0.35 : 0.05);
+         double light = daylight ? 0.7 : (io.flyproject.connectomefly.compat.Compat.isDay(world) ? 0.35 : 0.05);
          light = Math.max(light, block / 15.0 * 0.45);
          WholeBrain.Loco lc0 = brain.loco();
          WholeBrain.Data dd = brain.dataOrNull();
@@ -703,7 +703,7 @@ public final class FlyMind {
          fly.requestFlight(true);
          Vec3 v = fly.getDeltaMovement();
          fly.setDeltaMovement(v.x, Math.max(v.y, 0.14), v.z);
-         fly.hurtMarked = true;
+         fly.needsSync = true;
       }
 
       boolean grounded = (fly.isStanding() || fly.isFlying()) && !escapeBusy;
@@ -1075,7 +1075,7 @@ public final class FlyMind {
                      if (Math.abs(cross) > 0.25) {
                         this.detourSide = cross > 0.0 ? -1 : 1;
                      } else if (this.detourSide == 0) {
-                        this.detourSide = world.random.nextBoolean() ? 1 : -1;
+                        this.detourSide = world.getRandom().nextBoolean() ? 1 : -1;
                      }
 
                      double k = (1.0 - Math.abs(cross) / 3.0) * 1.6 * Math.min(1.5, hungerFactor);
@@ -1123,7 +1123,7 @@ public final class FlyMind {
             this.busMax("cooling", 0.5);
          }
 
-         if (biome.getPrecipitationAt(here) == Precipitation.SNOW) {
+         if (biome.getPrecipitationAt(here, world.getSeaLevel()) == Precipitation.SNOW) {
             this.busMax("cooling", 0.5);
          }
 
@@ -1135,7 +1135,7 @@ public final class FlyMind {
             this.busMax("tactile", this.touchT < 0.6 ? 1.0 : 0.25);
          }
 
-         double tod = world.getDayTime() % 24000L / 24000.0;
+         double tod = io.flyproject.connectomefly.compat.Compat.dayTime(world) % 24000L / 24000.0;
          this.clockM = Math.exp(-Math.pow(((tod + 0.5) % 1.0 - 0.5) / 0.09, 2.0));
          this.clockE = Math.exp(-Math.pow((tod - 0.5) / 0.09, 2.0));
          this.busMax("clock_morning", this.clockM);
@@ -1222,7 +1222,7 @@ public final class FlyMind {
 
          this.busMax("sleep_pressure", this.sleepP);
          int blockx = world.getBrightness(LightLayer.BLOCK, here);
-         double lightx = daylight ? 0.7 : (world.isDay() ? 0.35 : 0.05);
+         double lightx = daylight ? 0.7 : (io.flyproject.connectomefly.compat.Compat.isDay(world) ? 0.35 : 0.05);
          this.busMax("light_clock", Math.max(lightx, blockx / 15.0 * 0.45));
          if (this.rewardT > 0.0) {
             this.busMax("reward", 1.0);
@@ -1308,15 +1308,15 @@ public final class FlyMind {
             this.homeStayT = this.atHome && !this.homeReturning ? this.homeStayT + 0.05 : 0.0;
             this.excT = Math.max(0.0, this.excT - 0.05);
             if (this.homeStayT > 3.0 && this.excT <= 0.0 && !this.homeReturning) {
-               this.excT = 4.0 + world.random.nextDouble() * 3.0;
-               this.excYaw = world.random.nextDouble() * 360.0;
+               this.excT = 4.0 + world.getRandom().nextDouble() * 3.0;
+               this.excYaw = world.getRandom().nextDouble() * 360.0;
                this.homeStayT = 0.0;
             }
 
             this.homeT -= 0.05;
             if (this.homeT <= 0.0) {
                this.homeReturning = !this.homeReturning;
-               this.homeT = this.homeReturning ? 8.0 : 12.0 + world.random.nextDouble() * 8.0;
+               this.homeT = this.homeReturning ? 8.0 : 12.0 + world.getRandom().nextDouble() * 8.0;
             }
 
             this.homeBySight = false;
@@ -1487,7 +1487,7 @@ public final class FlyMind {
                   boolean strongTouch = this.touchT < 1.5 || this.bus.getOrDefault("tactile", 0.0F) >= 0.9F;
                   if (legBurst && strongTouch && this.scrambleT <= 0.0 && !fly.isFlying() && !flee) {
                      this.scrambleT = 0.6;
-                     this.scrambleSide = world.random.nextBoolean() ? 1 : -1;
+                     this.scrambleSide = world.getRandom().nextBoolean() ? 1 : -1;
                   }
 
                   if (this.active(brain, "mn_proboscis", 3.0F, 0.05F)) {
@@ -1520,7 +1520,7 @@ public final class FlyMind {
                      o = 0.056999999999999995;
                      Vec3 v = fly.getDeltaMovement();
                      fly.setDeltaMovement(Math.sin(yawRad) * o, v.y, -Math.cos(yawRad) * o);
-                     fly.hurtMarked = true;
+                     fly.needsSync = true;
                      this.brainSay(fly, "[brain] MDN (moonwalker) fired: walks backward");
                   } else if (this.scrambleT > 0.0) {
                      this.stopNav(fly);
@@ -1784,7 +1784,7 @@ public final class FlyMind {
                               if (this.spontFly && (this.forcedFlyT <= 0.0 || !this.outdoors && this.outdoorT <= 0.0 && this.forcedFlyT > 1.5)) {
                                  this.forcedFlyT = Math.min(this.forcedFlyT, 1.5);
                                  if (this.forcedFlyT <= 0.0) {
-                                    this.airRestT = this.dispersing ? 8.0 + world.random.nextDouble() * 14.0 : 20.0 + world.random.nextDouble() * 40.0;
+                                    this.airRestT = this.dispersing ? 8.0 + world.getRandom().nextDouble() * 14.0 : 20.0 + world.getRandom().nextDouble() * 40.0;
                                     this.spontFly = false;
                                     this.dispersing = false;
                                  }
@@ -1847,11 +1847,11 @@ public final class FlyMind {
                                        double pFly = 0.09
                                           + (nothingToEat ? 0.45 * hungerN : 0.05 * hungerN)
                                           + 0.07 * Math.min(1.0, (this.clockMout + this.clockEout) / 60.0);
-                                       if (world.random.nextDouble() < pFly) {
+                                       if (world.getRandom().nextDouble() < pFly) {
                                           this.spontFly = true;
                                           this.dispersing = nothingToEat && hungerN > 0.5;
-                                          this.forcedFlyT = this.dispersing ? 25.0 + world.random.nextDouble() * 35.0 : 7.0 + world.random.nextDouble() * 14.0;
-                                          this.boutAlt = (this.dispersing ? 2.0 : 0.4) + world.random.nextDouble() * 3.2;
+                                          this.forcedFlyT = this.dispersing ? 25.0 + world.getRandom().nextDouble() * 35.0 : 7.0 + world.getRandom().nextDouble() * 14.0;
+                                          this.boutAlt = (this.dispersing ? 2.0 : 0.4) + world.getRandom().nextDouble() * 3.2;
                                           this.holdYaw = Double.NaN;
                                           this.brainSay(
                                              fly,
@@ -1863,13 +1863,13 @@ public final class FlyMind {
                                     }
 
                                     if (mv && !fly.isFlying() && !fly.isPerched() && this.forcedFlyT <= 0.0) {
-                                       double side = Math.abs(loco.turnBias) > 0.01 ? Math.signum(loco.turnBias) : (world.random.nextBoolean() ? 1 : -1);
-                                       fly.setYRot(fly.getYRot() + (float)(side * (15.0 + world.random.nextDouble() * 60.0)));
+                                       double side = Math.abs(loco.turnBias) > 0.01 ? Math.signum(loco.turnBias) : (world.getRandom().nextBoolean() ? 1 : -1);
+                                       fly.setYRot(fly.getYRot() + (float)(side * (15.0 + world.getRandom().nextDouble() * 60.0)));
                                        fly.yBodyRot = fly.getYRot();
                                     }
 
                                     if (this.resting) {
-                                       this.grooming = world.random.nextDouble() < 0.35;
+                                       this.grooming = world.getRandom().nextDouble() < 0.35;
                                        this.groomPhase = 0;
                                     }
                                  }
@@ -1928,15 +1928,15 @@ public final class FlyMind {
                                        this.saccadeT -= 0.05;
                                        if (this.saccadeT <= 0.0) {
                                           this.saccadeT = this.dispersing && this.spontFly
-                                             ? 2.5 + world.random.nextDouble() * 3.5
-                                             : (this.spontFly ? 1.2 + world.random.nextDouble() * 2.3 : 0.6 + world.random.nextDouble() * 0.9);
+                                             ? 2.5 + world.getRandom().nextDouble() * 3.5
+                                             : (this.spontFly ? 1.2 + world.getRandom().nextDouble() * 2.3 : 0.6 + world.getRandom().nextDouble() * 0.9);
                                           if (this.spontFly) {
-                                             this.boutAlt = Math.max(0.2, Math.min(5.5, this.boutAlt + (world.random.nextDouble() - 0.5) * 1.6));
+                                             this.boutAlt = Math.max(0.2, Math.min(5.5, this.boutAlt + (world.getRandom().nextDouble() - 0.5) * 1.6));
                                           }
 
                                           if (Math.abs(loco.turnBias) > 0.12) {
                                              this.holdYaw = Mth.wrapDegrees(
-                                                (float)(this.holdYaw + Math.signum(loco.turnBias) * (70.0 + world.random.nextDouble() * 40.0))
+                                                (float)(this.holdYaw + Math.signum(loco.turnBias) * (70.0 + world.getRandom().nextDouble() * 40.0))
                                              );
                                              this.brainSay(fly, "[brain] descending L/R imbalance: a saccade");
                                           }
@@ -2252,7 +2252,7 @@ public final class FlyMind {
    }
 
    private static boolean isLureItem(ItemStack s) {
-      return s.is(ItemTags.FLOWERS) || isFoodItem(s) || s.getItem() == Items.CARROT;
+      return s.is(ItemTags.BEE_FOOD) || isFoodItem(s) || s.getItem() == Items.CARROT;
    }
 
    private List<FlyMind.Prop> scanEntities(ConnectomeFlyEntity fly, ServerLevel world) {
@@ -2383,7 +2383,7 @@ public final class FlyMind {
    }
 
    public static boolean isHandFood(ItemStack s) {
-      return isFoodItem(s) || s.is(ItemTags.FLOWERS);
+      return isFoodItem(s) || s.is(ItemTags.BEE_FOOD);
    }
 
    private static void face(ConnectomeFlyEntity fly, double dx, double dz) {
@@ -2428,19 +2428,19 @@ public final class FlyMind {
       if (fly.isPerched()) {
          Vec3 f = fly.surfaceForward().scale(sp);
          fly.setDeltaMovement(f);
-         fly.hurtMarked = true;
+         fly.needsSync = true;
       } else {
          double yawRad = Math.toRadians(fly.getYRot());
          Vec3 v = fly.getDeltaMovement();
          fly.setDeltaMovement(-Math.sin(yawRad) * sp, v.y, Math.cos(yawRad) * sp);
-         fly.hurtMarked = true;
+         fly.needsSync = true;
       }
    }
 
    private static void damp(ConnectomeFlyEntity fly, double k) {
       Vec3 v = fly.getDeltaMovement();
       fly.setDeltaMovement(v.x * k, v.y, v.z * k);
-      fly.hurtMarked = true;
+      fly.needsSync = true;
    }
 
    private void busMax(String ch, double v) {

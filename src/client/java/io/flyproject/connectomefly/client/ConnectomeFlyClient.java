@@ -18,10 +18,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ConnectomeFlyClient implements ClientModInitializer {
-   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new ResourceLocation("connectomefly", "connectome_fly"), "main");
+   public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(new Identifier("connectomefly", "connectome_fly"), "main");
    private static boolean introPending;
    private static int introDelay;
 

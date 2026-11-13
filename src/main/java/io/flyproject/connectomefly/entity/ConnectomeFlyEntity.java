@@ -40,6 +40,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
@@ -52,7 +53,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.ClipContext.Block;
@@ -182,7 +182,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
    public void die(DamageSource source) {
       super.die(source);
-      if (!this.level().isClientSide && !this.deathRecorded) {
+      if (!this.level().isClientSide() && !this.deathRecorded) {
          this.deathRecorded = true;
          String cause = this.diedOfAge
             ? "old age"
@@ -294,26 +294,25 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
    public ConnectomeFlyEntity(EntityType<? extends PathfinderMob> entityType, Level world) {
       super(entityType, world);
-      this.setMaxUpStep(0.5F);
    }
 
    public static Builder createFlyAttributes() {
-      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.3);
+      return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.STEP_HEIGHT, 0.5);
    }
 
-   protected void defineSynchedData() {
-      super.defineSynchedData();
-      this.entityData.define(SPEECH, "");
-      this.entityData.define(BODY, defaultBody);
-      this.entityData.define(SEX, (byte)0);
-      this.entityData.define(ANIM, (byte)0);
-      this.entityData.define(HUD, "");
-      this.entityData.define(HUNGER, 20.0F);
-      this.entityData.define(GROWTH, 108000);
-      this.entityData.define(NEURO_LEGS, 0);
-      this.entityData.define(NEURO_FLIGHT, 0);
-      this.entityData.define(SURFACE, (byte)-1);
-      this.entityData.define(THIRST, 0.0F);
+   protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+      super.defineSynchedData(builder);
+      builder.define(SPEECH, "");
+      builder.define(BODY, defaultBody);
+      builder.define(SEX, (byte)0);
+      builder.define(ANIM, (byte)0);
+      builder.define(HUD, "");
+      builder.define(HUNGER, 20.0F);
+      builder.define(GROWTH, 108000);
+      builder.define(NEURO_LEGS, 0);
+      builder.define(NEURO_FLIGHT, 0);
+      builder.define(SURFACE, (byte)-1);
+      builder.define(THIRST, 0.0F);
    }
 
    public Direction surface() {
@@ -372,7 +371,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       this.climb = 0.0;
       this.setNoGravity(true);
       this.setDeltaMovement(0.0, 0.0, 0.0);
-      this.hurtMarked = true;
+      this.needsSync = true;
       this.setSurface(d);
       this.pressToSurface();
       this.landTicks = 5;
@@ -434,7 +433,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          this.flapTicks = 10;
          if (d != null) {
             this.setDeltaMovement(-d.getStepX() * 0.12, d == Direction.UP ? -0.05 : 0.1, -d.getStepZ() * 0.12);
-            this.hurtMarked = true;
+            this.needsSync = true;
          }
       } else {
          this.setNoGravity(false);
@@ -514,16 +513,13 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       this.refreshDimensions();
    }
 
-   public float getScale() {
+   /** 26.3: LivingEntity.getScale() is final and multiplies this in; it also scales the hitbox. */
+   public float getAgeScale() {
       return 0.5F + 0.5F * (this.getGrowth() / 108000.0F);
    }
 
    public boolean isBabyFly() {
       return this.getGrowth() < 108000;
-   }
-
-   public EntityDimensions getDimensions(Pose pose) {
-      return super.getDimensions(pose).scale(this.getScale());
    }
 
    public boolean isMating() {
@@ -616,7 +612,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
                this.setDeltaMovement(0.0, this.getDeltaMovement().y, 0.0);
             }
 
-            this.hurtMarked = true;
+            this.needsSync = true;
             if (this.tickCount % 20 == 0) {
                ((ServerLevel)this.level()).sendParticles(ParticleTypes.HEART, this.getX(), this.getY() + 0.5, this.getZ(), 1, 0.15, 0.1, 0.15, 0.0);
             }
@@ -649,7 +645,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    public void layEgg(String why, boolean fertile) {
-      if (!this.level().isClientSide && !this.isMale() && !this.isBabyFly()) {
+      if (!this.level().isClientSide() && !this.isMale() && !this.isBabyFly()) {
          ServerLevel world = (ServerLevel)this.level();
          GeneticsState st = this.gstate();
          if (st.selection && fertile) {
@@ -672,12 +668,12 @@ public class ConnectomeFlyEntity extends PathfinderMob {
             st.setDirty();
          }
 
-         FlyEggEntity egg = (FlyEggEntity)ConnectomeFlyMod.FLY_EGG.create(world);
+         FlyEggEntity egg = (FlyEggEntity)ConnectomeFlyMod.FLY_EGG.create(world, EntitySpawnReason.BREEDING);
          if (egg != null) {
             double yawRad = Math.toRadians(this.getYRot());
             egg.setFertile(fertile);
             if (fertile) {
-               egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUUID(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.random.nextLong())));
+               egg.setGenome(Genome.child(this.genome(), this.sireGenome, this.getUUID(), this.sireGenome == null ? null : this.sireId, new java.util.Random(world.getRandom().nextLong())));
                if (Genome.inheritMemory && this.whole != null) {
                   float[] m = this.whole.memorySnapshot();
                   if (m != null) {
@@ -692,7 +688,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
                // that her brain decides to lay have the same father until she mates again
             }
 
-            egg.moveTo(this.getX() + Math.sin(yawRad) * 0.25, this.getY(), this.getZ() - Math.cos(yawRad) * 0.25, 0.0F, 0.0F);
+            egg.snapTo(this.getX() + Math.sin(yawRad) * 0.25, this.getY(), this.getZ() - Math.cos(yawRad) * 0.25, 0.0F, 0.0F);
             world.addFreshEntity(egg);
             world.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY() + 0.1, this.getZ(), 4, 0.1, 0.05, 0.1, 0.005);
             this.playSound(SoundEvents.TURTLE_LAY_EGG, 0.5F, 1.7F);
@@ -756,25 +752,25 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
       ItemStack stack = player.getItemInHand(hand);
       if (!this.isMale() && FlyMind.isHandFood(stack)) {
-         if (!this.level().isClientSide) {
+         if (!this.level().isClientSide()) {
             this.eat(6.0F, 1.5F);
-            this.playSound(SoundEvents.GENERIC_EAT, 0.6F, 1.7F);
+            this.playSound(SoundEvents.GENERIC_EAT.value(), 0.6F, 1.7F);
             this.animFeed = true;
             if (!player.getAbilities().instabuild) {
                stack.shrink(1);
             }
 
             ((ServerLevel)this.level()).sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 0.4, this.getZ(), 6, 0.25, 0.2, 0.25, 0.02);
-            this.playSound(SoundEvents.GENERIC_EAT, 0.5F, 1.8F);
+            this.playSound(SoundEvents.GENERIC_EAT.value(), 0.5F, 1.8F);
             this.sayNow("eats from your hand: proboscis extension (Gr5a)");
          }
 
-         return InteractionResult.sidedSuccess(this.level().isClientSide);
-      } else if (!this.isMale() && stack.is(Items.POTION) && PotionUtils.getPotion(stack) == Potions.WATER) {
-         if (!this.level().isClientSide) {
+         return InteractionResult.SUCCESS;
+      } else if (!this.isMale() && stack.is(Items.POTION) && stack.getOrDefault(net.minecraft.core.component.DataComponents.POTION_CONTENTS, net.minecraft.world.item.alchemy.PotionContents.EMPTY).is(Potions.WATER)) {
+         if (!this.level().isClientSide()) {
             this.drink(8.0F);
             this.animFeed = true;
-            this.playSound(SoundEvents.GENERIC_DRINK, 0.6F, 1.7F);
+            this.playSound(SoundEvents.GENERIC_DRINK.value(), 0.6F, 1.7F);
             if (!player.getAbilities().instabuild) {
                player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
             }
@@ -783,7 +779,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
             this.sayNow("drinks from your bottle: ppk28 water taste neurons, proboscis out");
          }
 
-         return InteractionResult.sidedSuccess(this.level().isClientSide);
+         return InteractionResult.SUCCESS;
       } else {
          return super.mobInteract(player, hand);
       }
@@ -1021,7 +1017,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    public void brainJump() {
       if (this.onGround() || this.flying) {
          this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.55, 0.0));
-         this.hurtMarked = true;
+         this.needsSync = true;
          this.flapTicks = 12;
          this.flying = true;
          this.flightTicks = 50;
@@ -1074,7 +1070,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    private void eatSoundTick() {
       if (this.animFeed && this.tickCount % 12 == 0) {
          this.playSound(
-            this.mind.isDrinking() ? SoundEvents.GENERIC_DRINK : SoundEvents.GENERIC_EAT, 0.55F, 1.6F + this.getRandom().nextFloat() * 0.3F
+            this.mind.isDrinking() ? SoundEvents.GENERIC_DRINK.value() : SoundEvents.GENERIC_EAT.value(), 0.55F, 1.6F + this.getRandom().nextFloat() * 0.3F
          );
       }
    }
@@ -1090,7 +1086,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    private void leashTick() {
       this.dragged = false;
       Entity holder = this.getLeashHolder();
-      if (holder != null && !this.level().isClientSide) {
+      if (holder != null && !this.level().isClientSide()) {
          double dx = holder.getX() - this.getX();
          double dy = holder.getY() - this.getY();
          double dz = holder.getZ() - this.getZ();
@@ -1113,7 +1109,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
                this.setDeltaMovement(dx * k, this.getDeltaMovement().y, dz * k);
             }
 
-            this.hurtMarked = true;
+            this.needsSync = true;
             float yaw = (float)Math.toDegrees(Math.atan2(-dx, dz));
             this.setYRot(yaw);
             this.yBodyRot = yaw;
@@ -1170,7 +1166,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
          if (this.prepTicks == 0) {
             this.flying = true;
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.18, 0.0));
-            this.hurtMarked = true;
+            this.needsSync = true;
             this.flapTicks = 10;
          }
 
@@ -1223,7 +1219,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
                   double dist = Math.sqrt(tx * tx + ty * ty + tz * tz);
                   double k = Math.min(0.12, dist) / Math.max(dist, 1.0E-6);
                   this.setDeltaMovement(tx * k, ty * k, tz * k);
-                  this.hurtMarked = true;
+                  this.needsSync = true;
                   if (PERCH_DEBUG && this.tickCount % 4 == 0) {
                      System.out
                         .printf(
@@ -1269,7 +1265,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
             }
 
             this.setDeltaMovement(v.x, vy, v.z);
-            this.hurtMarked = true;
+            this.needsSync = true;
             if (this.tickCount % 24 == 0) {
                this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BEE_LOOP, SoundSource.NEUTRAL, 0.25F, 1.7F);
             }
@@ -1284,7 +1280,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
          Vec3 vx = this.getDeltaMovement();
          this.setDeltaMovement(vx.x * 0.9, 0.22, vx.z * 0.9);
-         this.hurtMarked = true;
+         this.needsSync = true;
          this.flapTicks = 6;
          if (this.tickCount % 10 == 0) {
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.NEUTRAL, 0.3F, 1.8F);
@@ -1302,7 +1298,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       }
    }
 
-   public void addAdditionalSaveData(CompoundTag nbt) {
+   protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput nbt) {
       super.addAdditionalSaveData(nbt);
       nbt.putByte("Body", this.getBodyMode());
       nbt.putBoolean("Male", this.isMale());
@@ -1313,54 +1309,37 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       nbt.putInt("AdultTicks", this.adultTicks);
       nbt.putFloat("LifeFactor", this.lifeFactor());
       nbt.putBoolean("GenomeCounted", this.counted);
-      nbt.put("Genome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome()));
+      nbt.store("Genome", CompoundTag.CODEC, io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome()));
       if (this.sireGenome != null) {
-         nbt.put("SireGenome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.sireGenome));
+         nbt.store("SireGenome", CompoundTag.CODEC, io.flyproject.connectomefly.genetics.GenomeNbt.write(this.sireGenome));
          if (this.sireId != null) {
-            nbt.putUUID("SireId", this.sireId);
+            nbt.putString("SireId", this.sireId.toString());
          }
       }
    }
 
-   public void readAdditionalSaveData(CompoundTag nbt) {
+   protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput nbt) {
       super.readAdditionalSaveData(nbt);
-      if (nbt.contains("Body")) {
-         this.setBodyMode(nbt.getByte("Body"));
-      }
-
-      this.setMale(nbt.getBoolean("Male"));
-      if (nbt.contains("Hunger")) {
-         this.setHunger(nbt.getFloat("Hunger"));
-      }
-
-      if (nbt.contains("Growth")) {
-         this.setGrowth(nbt.getInt("Growth"));
-      }
-
-      this.mated = nbt.getBoolean("Mated");
-      this.adultTicks = nbt.getInt("AdultTicks");
-      if (nbt.contains("LifeFactor")) {
-         this.lifeFactor = nbt.getFloat("LifeFactor");
-      }
-
-      this.counted = nbt.getBoolean("GenomeCounted");
-      if (nbt.contains("Genome")) {
-         this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("Genome"));
-      }
-
-      if (nbt.contains("SireGenome")) {
-         this.sireGenome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("SireGenome"));
-         this.sireId = nbt.hasUUID("SireId") ? nbt.getUUID("SireId") : null;
-      }
-      if (nbt.contains("Thirst")) {
-         this.setThirst(nbt.getFloat("Thirst"));
-      }
+      this.setBodyMode(nbt.getByteOr("Body", this.getBodyMode()));
+      this.setMale(nbt.getBooleanOr("Male", false));
+      this.setHunger(nbt.getFloatOr("Hunger", this.getHunger()));
+      this.setGrowth(nbt.getIntOr("Growth", this.getGrowth()));
+      this.mated = nbt.getBooleanOr("Mated", false);
+      this.adultTicks = nbt.getIntOr("AdultTicks", 0);
+      this.lifeFactor = nbt.getFloatOr("LifeFactor", this.lifeFactor);
+      this.counted = nbt.getBooleanOr("GenomeCounted", false);
+      nbt.read("Genome", CompoundTag.CODEC).ifPresent(t -> this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(t));
+      nbt.read("SireGenome", CompoundTag.CODEC).ifPresent(t -> {
+         this.sireGenome = io.flyproject.connectomefly.genetics.GenomeNbt.read(t);
+         this.sireId = nbt.getString("SireId").map(java.util.UUID::fromString).orElse(null);
+      });
+      this.setThirst(nbt.getFloatOr("Thirst", this.getThirst()));
    }
 
    public void tick() {
       super.tick();
       Level world = this.level();
-      if (!world.isClientSide) {
+      if (!world.isClientSide()) {
          if (this.flapTicks > 0) {
             this.flapTicks--;
          }
@@ -1392,7 +1371,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
          if (intent.jump && (this.onGround() || this.flying)) {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.55, 0.0));
-            this.hurtMarked = true;
+            this.needsSync = true;
             this.flapTicks = 12;
             this.flying = true;
             this.flightTicks = 50;
@@ -1408,7 +1387,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
             double vz = Math.cos(yawRad) * intent.stepBlocks;
             Vec3 vel = this.getDeltaMovement();
             this.setDeltaMovement(vx, vel.y, vz);
-            this.hurtMarked = true;
+            this.needsSync = true;
          }
 
          if (intent.speechCategory != null) {
@@ -1455,7 +1434,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       return effect.getEffect() != MobEffects.WITHER && super.canBeAffected(effect);
    }
 
-   public boolean hurt(DamageSource source, float amount) {
+   public boolean hurtServer(ServerLevel hurtLevel, DamageSource source, float amount) {
       if (source.is(DamageTypes.SWEET_BERRY_BUSH)) {
          return false;
       } else {
@@ -1464,7 +1443,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
             amount = Math.min(amount, 0.5F);
          }
 
-         boolean r = super.hurt(source, amount);
+         boolean r = super.hurtServer(hurtLevel, source, amount);
          if (r && source.getEntity() != null) {
             this.knockbackTicks = 8;
          }
@@ -1591,7 +1570,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    }
 
    private static String threatName(Entity e) {
-      return e instanceof Player player ? player.getGameProfile().getName() : e.getType().getDescription().getString();
+      return e instanceof Player player ? player.getGameProfile().name() : e.getType().getDescription().getString();
    }
 
    private void say(String category, String threatName, long now) {
@@ -1636,13 +1615,10 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
          for (Player p : this.level().players()) {
             if (p.distanceToSqr(this) < 4096.0) {
-               p.displayClientMessage(
-                  Component.literal(
+               p.sendSystemMessage(Component.literal(
                         "connectome-fly: her whole brain (158,262 BANC neurons) and the giant-fibre escape circuit are computed live. Speech is translated, not decoded. /flycredits for details."
                      )
-                     .withStyle(ChatFormatting.GRAY),
-                  false
-               );
+                     .withStyle(ChatFormatting.GRAY));
             }
          }
       }

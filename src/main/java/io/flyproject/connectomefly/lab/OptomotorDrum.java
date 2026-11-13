@@ -31,19 +31,19 @@ public final class OptomotorDrum {
       cy = centre.getY();
 
       for (int i = 0; i < 16; i++) {
-         BlockDisplay d = (BlockDisplay)EntityType.BLOCK_DISPLAY.create(w);
+         BlockDisplay d = (BlockDisplay)net.minecraft.world.entity.EntityTypes.BLOCK_DISPLAY.create(w, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
          if (d != null) {
             d.setPos(cx, cy, cz);
-            CompoundTag nbt = new CompoundTag();
-            d.saveWithoutId(nbt);
+            final int fi = i;
+            io.flyproject.connectomefly.compat.Compat.editNbt(d, nbt -> {
             nbt.putString("id", "minecraft:block_display");
             CompoundTag bs = new CompoundTag();
-            bs.putString("Name", (i % 2 == 0 ? Blocks.BLACK_CONCRETE : Blocks.WHITE_CONCRETE).getDescriptionId().replace("block.minecraft.", "minecraft:"));
+            bs.putString("Name", (fi % 2 == 0 ? io.flyproject.connectomefly.compat.Compat.BLACK_CONCRETE : io.flyproject.connectomefly.compat.Compat.WHITE_CONCRETE).getDescriptionId().replace("block.minecraft.", "minecraft:"));
             nbt.put("block_state", bs);
             nbt.putInt("interpolation_duration", 2);
             nbt.putInt("start_interpolation", 0);
-            nbt.put("transformation", transform(i));
-            d.load(nbt);
+            nbt.put("transformation", transform(fi));
+            });
             w.addFreshEntity(d);
             panels.add(d);
          }
@@ -107,12 +107,12 @@ public final class OptomotorDrum {
          for (int i = 0; i < panels.size(); i++) {
             BlockDisplay d = panels.get(i);
             if (!d.isRemoved()) {
-               CompoundTag nbt = new CompoundTag();
-               d.saveWithoutId(nbt);
-               nbt.put("transformation", transform(i));
+               final int fi = i;
+            io.flyproject.connectomefly.compat.Compat.editNbt(d, nbt -> {
+               nbt.put("transformation", transform(fi));
                nbt.putInt("start_interpolation", 0);
                nbt.putInt("interpolation_duration", 2);
-               d.load(nbt);
+               });
             }
          }
       }

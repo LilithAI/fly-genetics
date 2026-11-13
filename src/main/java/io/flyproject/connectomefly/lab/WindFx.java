@@ -9,8 +9,8 @@ public final class WindFx {
    }
 
    public static void puff(ServerLevel world, double x, double y, double z, double dx, double dz) {
-      double oy = (world.random.nextDouble() - 0.5) * 0.9;
-      double os = (world.random.nextDouble() - 0.5) * 0.9;
+      double oy = (world.getRandom().nextDouble() - 0.5) * 0.9;
+      double os = (world.getRandom().nextDouble() - 0.5) * 0.9;
       world.sendParticles(ParticleTypes.CLOUD, x - dz * os, y + oy, z + dx * os, 0, dx, 0.0, dz, 0.32);
    }
 

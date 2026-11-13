@@ -24,7 +24,7 @@ public final class GeneticsCommand {
    public static void register(CommandDispatcher<CommandSourceStack> d) {
       d.register(
          Commands.literal("flygenes")
-            .requires(s -> s.hasPermission(2))
+            .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
             .executes(ctx -> list(ctx.getSource(), false))
             .then(Commands.literal("full").executes(ctx -> list(ctx.getSource(), true)))
             .then(Commands.literal("stats").executes(ctx -> stats(ctx.getSource())))

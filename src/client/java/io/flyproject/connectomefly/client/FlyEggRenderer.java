@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TurtleEggBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +25,7 @@ public class FlyEggRenderer extends EntityRenderer<FlyEggEntity> {
       this.shadowRadius = 0.1F;
    }
 
-   public ResourceLocation getTextureLocation(FlyEggEntity entity) {
+   public Identifier getTextureLocation(FlyEggEntity entity) {
       return TextureAtlas.LOCATION_BLOCKS;
    }
 

@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -42,8 +42,8 @@ public class FlyEggEntity extends Entity {
       super(type, world);
    }
 
-   protected void defineSynchedData() {
-      this.entityData.define(AGE, 0);
+   protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+      builder.define(AGE, 0);
    }
 
    public int getEggAge() {
@@ -54,28 +54,24 @@ public class FlyEggEntity extends Entity {
       this.fertile = f;
    }
 
-   protected void readAdditionalSaveData(CompoundTag nbt) {
-      this.entityData.set(AGE, nbt.getInt("EggAge"));
-      this.fertile = !nbt.contains("Fertile") || nbt.getBoolean("Fertile");
-      if (nbt.contains("Genome")) {
-         this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(nbt.getCompound("Genome"));
-      }
-
-      if (nbt.contains("Memory")) {
-         int[] bits = nbt.getIntArray("Memory");
+   protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput nbt) {
+      this.entityData.set(AGE, nbt.getIntOr("EggAge", 0));
+      this.fertile = nbt.getBooleanOr("Fertile", true);
+      nbt.read("Genome", CompoundTag.CODEC).ifPresent(t -> this.genome = io.flyproject.connectomefly.genetics.GenomeNbt.read(t));
+      nbt.getIntArray("Memory").ifPresent(bits -> {
          this.memory = new float[bits.length];
 
          for (int i = 0; i < bits.length; i++) {
             this.memory[i] = Float.intBitsToFloat(bits[i]);
          }
-      }
+      });
    }
 
-   protected void addAdditionalSaveData(CompoundTag nbt) {
+   protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput nbt) {
       nbt.putInt("EggAge", this.getEggAge());
       nbt.putBoolean("Fertile", this.fertile);
       if (this.genome != null) {
-         nbt.put("Genome", io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome));
+         nbt.store("Genome", CompoundTag.CODEC, io.flyproject.connectomefly.genetics.GenomeNbt.write(this.genome));
       }
 
       if (this.memory != null) {
@@ -93,8 +89,8 @@ public class FlyEggEntity extends Entity {
       return true;
    }
 
-   public boolean hurt(DamageSource source, float amount) {
-      if (!this.level().isClientSide && !this.isRemoved()) {
+   public boolean hurtServer(ServerLevel hurtLevel, DamageSource source, float amount) {
+      if (!this.isRemoved()) {
          ((ServerLevel)this.level()).sendParticles(ParticleTypes.ITEM_SLIME, this.getX(), this.getY() + 0.05, this.getZ(), 6, 0.08, 0.04, 0.08, 0.02);
          this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.TURTLE_EGG_BREAK, SoundSource.NEUTRAL, 0.6F, 1.6F);
          this.discard();
@@ -112,7 +108,7 @@ public class FlyEggEntity extends Entity {
 
       this.move(MoverType.SELF, this.getDeltaMovement());
       this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, this.onGround() ? 0.0 : 0.98, 0.5));
-      if (!this.level().isClientSide) {
+      if (!this.level().isClientSide()) {
          int age = this.getEggAge() + 1;
          this.entityData.set(AGE, age);
          if (age >= 600) {
@@ -129,9 +125,9 @@ public class FlyEggEntity extends Entity {
       ServerLevel world = (ServerLevel)this.level();
       world.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 0.1, this.getZ(), 8, 0.1, 0.05, 0.1, 0.01);
       world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.TURTLE_EGG_HATCH, SoundSource.NEUTRAL, 0.7F, 1.5F);
-      ConnectomeFlyEntity baby = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
+      ConnectomeFlyEntity baby = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world, EntitySpawnReason.BREEDING);
       if (baby != null) {
-         boolean male = world.random.nextBoolean();
+         boolean male = world.getRandom().nextBoolean();
          io.flyproject.connectomefly.genetics.GeneticsState st = io.flyproject.connectomefly.genetics.GeneticsState.get(world.getServer());
          if (st.selection && st.sexBalance) {
             // [model] not biology: stops a small population dying out from a run of coin flips
@@ -170,8 +166,8 @@ public class FlyEggEntity extends Entity {
             baby.setBornMemory(this.memory);
          }
 
-         baby.moveTo(this.getX(), this.getY(), this.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
-         baby.finalizeSpawn(world, world.getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.BREEDING, null, null);
+         baby.snapTo(this.getX(), this.getY(), this.getZ(), world.getRandom().nextFloat() * 360.0F, 0.0F);
+         baby.finalizeSpawn(world, world.getCurrentDifficultyAt(this.blockPosition()), EntitySpawnReason.BREEDING, null);
          world.addFreshEntity(baby);
       }
 
