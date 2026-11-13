@@ -350,11 +350,8 @@ public final class FlyHud {
 
                Font tr = mc.font;
                String map = male ? "" : fly.getBrainMap();
-               int cols = 32;
-               int rows = map.isEmpty() ? 0 : (map.length() + cols - 1) / cols;
-               int cw = 7;
-               int ch = 4;
-               int mapH = rows == 0 ? 0 : 12 + rows * ch + 12;
+               String regions = male ? "" : fly.getBrainRegions();
+               int mapH = map.isEmpty() ? 0 : 11 + BrainPicture.H + 2 + 10 + 10 + 11;
                int x = 6;
                int y = 6;
                int h = 22 + lines.size() * 10 + 14 + mapH + 12 + 4;
@@ -391,25 +388,22 @@ public final class FlyHud {
                }
 
                yy += 12;
-               if (rows > 0) {
-                  // the whole brain, live: one cell per group of about 309 neurons
+               if (!map.isEmpty()) {
+                  // the whole brain, live
                   ctx.text(tr, "Whole brain, live · " + brain + " spikes/ms", x + 2, yy, -1513240);
                   yy += 11;
-                  int active = 0;
-
-                  for (int i = 0; i < map.length(); i++) {
-                     int level = map.charAt(i) - 'a';
-                     if (level > 0) {
-                        active++;
-                     }
-
-                     int cx = x + 2 + i % cols * cw;
-                     int cy = yy + i / cols * ch;
-                     ctx.fill(cx, cy, cx + cw - 1, cy + ch - 1, heat(level));
+                  String busiest = BrainPicture.draw(ctx, x, yy, map, regions);
+                  yy += BrainPicture.H + 2;
+                  BrainPicture.legend(ctx, tr, x + 2, yy);
+                  yy += 10;
+                  String b = "busiest: " + (busiest.isEmpty() ? "background only" : busiest);
+                  if (tr.width(b) > 230) {
+                     b = tr.plainSubstrByWidth(b, 224) + "…";
                   }
 
-                  yy += rows * ch + 2;
-                  ctx.text(tr, active + " of " + map.length() + " groups firing · index order, not anatomy", x + 2, yy, -9802624);
+                  ctx.text(tr, b, x + 2, yy, -1513240);
+                  yy += 10;
+                  ctx.text(tr, "real firing, schematic layout (not anatomy)", x + 2, yy, -9802624);
                   yy += 11;
                }
 

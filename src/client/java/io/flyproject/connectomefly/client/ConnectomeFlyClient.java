@@ -27,10 +27,10 @@ public class ConnectomeFlyClient implements ClientModInitializer {
       FlyHud.register();
       FlyHud.loadSize();
       net.minecraft.client.KeyMapping hudKey = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(
-         new net.minecraft.client.KeyMapping("key.connectomefly.hud", 72, net.minecraft.client.KeyMapping.Category.MISC)
+         new net.minecraft.client.KeyMapping("key.connectomefly.readout", com.mojang.blaze3d.platform.InputConstants.KEY_H, net.minecraft.client.KeyMapping.Category.MISC)
       );
       net.minecraft.client.KeyMapping menuKey = net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(
-         new net.minecraft.client.KeyMapping("key.connectomefly.menu", 71, net.minecraft.client.KeyMapping.Category.MISC)
+         new net.minecraft.client.KeyMapping("key.connectomefly.lab", com.mojang.blaze3d.platform.InputConstants.KEY_G, net.minecraft.client.KeyMapping.Category.MISC)
       );
       ClientTickEvents.END_CLIENT_TICK.register(client -> {
          while (menuKey.consumeClick()) {

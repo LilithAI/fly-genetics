@@ -68,6 +68,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
    private static final EntityDataAccessor<Byte> BODY = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Byte> SEX = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
    private static final EntityDataAccessor<Byte> ANIM = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
+   private static final EntityDataAccessor<String> BRAIN_REGIONS = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<String> BRAIN_MAP = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<String> HUD = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.STRING);
    private static final EntityDataAccessor<Byte> SURFACE = SynchedEntityData.defineId(ConnectomeFlyEntity.class, EntityDataSerializers.BYTE);
@@ -311,6 +312,7 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       builder.define(ANIM, (byte)0);
       builder.define(HUD, "");
       builder.define(BRAIN_MAP, "");
+      builder.define(BRAIN_REGIONS, "");
       builder.define(HUNGER, 20.0F);
       builder.define(GROWTH, 108000);
       builder.define(NEURO_LEGS, 0);
@@ -808,6 +810,11 @@ public class ConnectomeFlyEntity extends PathfinderMob {
       return (String)this.entityData.get(BRAIN_MAP);
    }
 
+   /** One character per named region of BrainRegions.REGIONS, same scale as the map. Empty when no whole brain runs. */
+   public String getBrainRegions() {
+      return (String)this.entityData.get(BRAIN_REGIONS);
+   }
+
    private void brainMapTick() {
       if (this.tickCount % 4 == 0) {
          WholeBrain.Loco l = this.whole == null ? null : this.whole.loco();
@@ -825,6 +832,11 @@ public class ConnectomeFlyEntity extends PathfinderMob {
 
          if (!m.equals(this.entityData.get(BRAIN_MAP))) {
             this.entityData.set(BRAIN_MAP, m);
+         }
+
+         String rg = l != null && this.whole.dataOrNull() != null && l.outRate.length > 0 ? io.flyproject.connectomefly.neural.BrainRegions.encode(this.whole.dataOrNull(), l) : "";
+         if (!rg.equals(this.entityData.get(BRAIN_REGIONS))) {
+            this.entityData.set(BRAIN_REGIONS, rg);
          }
       }
    }
