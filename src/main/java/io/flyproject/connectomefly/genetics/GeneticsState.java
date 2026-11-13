@@ -27,6 +27,9 @@ public final class GeneticsState extends PersistentState {
    /** speeds growing up (the mod's own pace is 90 minutes from egg to adult) */
    public float growthSpeed = 1.0F;
    public boolean inheritMemory = false;
+   /** [model] not biology: a hatchling takes the rarer sex when one sex nearby is outnumbered more than 2 to 1 */
+   public boolean sexBalance = true;
+   public int sexBalanced;
    // statistics
    public final TreeMap<Integer, Integer> born = new TreeMap<>();
    public final TreeMap<Integer, float[]> geneSum = new TreeMap<>();
@@ -69,7 +72,7 @@ public final class GeneticsState extends PersistentState {
    public String settings() {
       return String.format(
          Locale.ROOT,
-         "selection=%s adult_life_minutes=%.1f breed_hunger=%.1f egg_cost=%.1f cap=%d cap_radius=%d growth_speed=%.1f inherit_memory=%s",
+         "selection=%s adult_life_minutes=%.1f breed_hunger=%.1f egg_cost=%.1f cap=%d cap_radius=%d growth_speed=%.1f inherit_memory=%s sex_balance=%s",
          this.selection,
          this.adultLifeMinutes,
          this.breedHunger,
@@ -77,7 +80,8 @@ public final class GeneticsState extends PersistentState {
          this.cap,
          this.capRadius,
          this.growthSpeed,
-         this.inheritMemory
+         this.inheritMemory,
+         this.sexBalance
       );
    }
 
@@ -105,6 +109,9 @@ public final class GeneticsState extends PersistentState {
          case "growth_speed":
             this.growthSpeed = Math.max(0.1F, Math.min(200.0F, v));
             break;
+         case "sex_balance":
+            this.sexBalance = v != 0.0F;
+            break;
          case "inherit_memory":
             this.inheritMemory = v != 0.0F;
             Genome.inheritMemory = this.inheritMemory;
@@ -126,6 +133,8 @@ public final class GeneticsState extends PersistentState {
       n.putInt("CapRadius", this.capRadius);
       n.putFloat("GrowthSpeed", this.growthSpeed);
       n.putBoolean("InheritMemory", this.inheritMemory);
+      n.putBoolean("SexBalance", this.sexBalance);
+      n.putInt("SexBalanced", this.sexBalanced);
       n.putInt("EggsLaid", this.eggsLaid);
       n.putInt("EggsRefusedCap", this.eggsRefusedCap);
       n.putInt("MatingsRefusedHungry", this.matingsRefusedHungry);
@@ -172,6 +181,8 @@ public final class GeneticsState extends PersistentState {
       }
 
       s.inheritMemory = n.getBoolean("InheritMemory");
+      s.sexBalance = !n.contains("SexBalance") || n.getBoolean("SexBalance");
+      s.sexBalanced = n.getInt("SexBalanced");
       s.eggsLaid = n.getInt("EggsLaid");
       s.eggsRefusedCap = n.getInt("EggsRefusedCap");
       s.matingsRefusedHungry = n.getInt("MatingsRefusedHungry");

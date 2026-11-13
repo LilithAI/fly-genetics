@@ -131,7 +131,35 @@ public class FlyEggEntity extends Entity {
       world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_TURTLE_EGG_HATCH, SoundCategory.NEUTRAL, 0.7F, 1.5F);
       ConnectomeFlyEntity baby = (ConnectomeFlyEntity)ConnectomeFlyMod.CONNECTOME_FLY.create(world);
       if (baby != null) {
-         baby.setMale(world.random.nextBoolean());
+         boolean male = world.random.nextBoolean();
+         io.flyproject.connectomefly.genetics.GeneticsState st = io.flyproject.connectomefly.genetics.GeneticsState.get(world.getServer());
+         if (st.selection && st.sexBalance) {
+            // [model] not biology: stops a small population dying out from a run of coin flips
+            int males = 0;
+            int females = 0;
+
+            for (ConnectomeFlyEntity f : world.getEntitiesByType(ConnectomeFlyMod.CONNECTOME_FLY, this.getBoundingBox().expand(st.capRadius), e -> e.isAlive())) {
+               if (f.isMale()) {
+                  males++;
+               } else {
+                  females++;
+               }
+            }
+
+            boolean forced = males * 2 < females || females * 2 < males;
+            if (forced) {
+               boolean want = males < females;
+               if (want != male) {
+                  st.sexBalanced++;
+                  st.markDirty();
+                  System.out.println("[connectomefly genetics] sex balance: " + males + " males, " + females + " females nearby, hatchling made " + (want ? "male" : "female"));
+               }
+
+               male = want;
+            }
+         }
+
+         baby.setMale(male);
          baby.setBodyMode(ConnectomeFlyEntity.defaultBody);
          baby.setGrowth(0);
          if (this.genome != null) {

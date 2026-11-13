@@ -116,7 +116,7 @@ public final class GeneticsCommand {
          bn.append(" gen ").append(e.getKey()).append(": ").append(e.getValue()).append(';');
       }
 
-      say(src, bn + " eggs laid " + st.eggsLaid + ", eggs refused by cap " + st.eggsRefusedCap + ", matings refused (hungry) " + st.matingsRefusedHungry, Formatting.GRAY);
+      say(src, bn + " eggs laid " + st.eggsLaid + ", eggs refused by cap " + st.eggsRefusedCap + ", matings refused (hungry) " + st.matingsRefusedHungry + ", hatchlings whose sex was set by the balance rule " + st.sexBalanced, Formatting.GRAY);
       StringBuilder dd = new StringBuilder("deaths:");
 
       for (String c : GeneticsState.CAUSES) {

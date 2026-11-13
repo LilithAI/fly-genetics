@@ -2,10 +2,12 @@
 # Long unattended population run on a dev server, in a fresh throwaway world ("poprun").
 # Builds a glass pen with berry bushes, a water cauldron and two frogs, releases 3 females and 3 males,
 # speeds up growth and ageing, and prints /flygenes stats every 5 minutes.
-# Usage: headless/poprun.sh [minutes] [frogs: 0 or 2]   Log: docs/poprun/server.log
+# Usage: headless/poprun.sh [minutes] [frogs: 0 or 2] [food: plenty or scarce] [log name]
 cd "$(dirname "$0")/.." || exit 1
 MIN=${1:-55}
 FROGS=${2:-0}
+FOOD=${3:-plenty}
+LOG=docs/poprun/${4:-server}.log
 nap() { timeout "$1" tail -f /dev/null; }
 rm -rf run/poprun
 sed -i 's/^level-name=.*/level-name=poprun/' run/server.properties
@@ -21,16 +23,6 @@ time set noon
 fill -11 -61 -11 11 -54 11 glass hollow
 fill -10 -61 -10 10 -61 10 grass_block
 setblock 0 -60 0 water_cauldron[level=3]
-setblock -6 -60 -6 sweet_berry_bush[age=3]
-setblock 6 -60 -6 sweet_berry_bush[age=3]
-setblock -6 -60 6 sweet_berry_bush[age=3]
-setblock 6 -60 6 sweet_berry_bush[age=3]
-setblock 0 -60 -7 sweet_berry_bush[age=3]
-setblock 0 -60 7 sweet_berry_bush[age=3]
-setblock -7 -60 0 sweet_berry_bush[age=3]
-setblock 7 -60 0 sweet_berry_bush[age=3]
-setblock -3 -60 3 sweet_berry_bush[age=3]
-setblock 3 -60 -3 sweet_berry_bush[age=3]
 flylab brains 3
 flygenes set growth_speed 60
 flygenes set adult_life_minutes 8
@@ -41,12 +33,28 @@ summon connectomefly:connectome_fly -2 -60 2 {Male:0b}
 summon connectomefly:connectome_fly 2 -60 -2 {Male:1b}
 summon connectomefly:connectome_fly 3 -60 0 {Male:1b}
 summon connectomefly:connectome_fly -3 -60 0 {Male:1b}
+flygenes set
+CMDS
+  if [ "$FOOD" = scarce ]; then
+    echo "setblock -6 -60 -6 sweet_berry_bush[age=3]"; echo "setblock 6 -60 6 sweet_berry_bush[age=3]"
+  else
+    cat <<FOODCMDS
+setblock -6 -60 -6 sweet_berry_bush[age=3]
+setblock 6 -60 -6 sweet_berry_bush[age=3]
+setblock -6 -60 6 sweet_berry_bush[age=3]
+setblock 6 -60 6 sweet_berry_bush[age=3]
+setblock 0 -60 -7 sweet_berry_bush[age=3]
+setblock 0 -60 7 sweet_berry_bush[age=3]
+setblock -7 -60 0 sweet_berry_bush[age=3]
+setblock 7 -60 0 sweet_berry_bush[age=3]
+setblock -3 -60 3 sweet_berry_bush[age=3]
+setblock 3 -60 -3 sweet_berry_bush[age=3]
 setblock -4 -60 -8 melon
 setblock 4 -60 8 melon
 setblock 8 -60 -4 melon
 setblock -8 -60 4 melon
-flygenes set
-CMDS
+FOODCMDS
+  fi
   if [ "$FROGS" != 0 ]; then echo "summon frog 8 -60 8"; echo "summon frog -8 -60 -8"; fi
   nap 10; echo "flygenes full"
   i=0
@@ -61,5 +69,5 @@ CMDS
     [ $((i % 10)) -eq 0 ] && echo "flygenes full"
   done
   echo "flygenes full"; nap 3; echo stop
-) | ./gradlew runServer --console=plain --args=nogui > docs/poprun/server.log 2>&1
+) | ./gradlew runServer --console=plain --args=nogui > "$LOG" 2>&1
 sed -i 's/^level-name=.*/level-name=devworld/' run/server.properties
